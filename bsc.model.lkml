@@ -19,4 +19,10 @@ include: "/views/*.view.lkml"                # include all views in the views/ f
 #     sql_on: ${users.id} = ${orders.user_id} ;;
 #   }
 # }
-explore: ordenes_compra{}
+explore: ordenes_compra{
+  join: comprador {
+    type: left_outer
+    sql_on: ${ordenes_compra.Grupo_Compras} = ${comprador.grupo_compras} ;;
+    relationship: many_to_one
+  }
+}

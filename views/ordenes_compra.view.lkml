@@ -1,81 +1,56 @@
 view: ordenes_compra {
-  sql_table_name: `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_ordenes_compra` ;;
+  derived_table: {
+    sql:
+      SELECT
+        CONCAT(PR.banfn,PR.bnfpo) UID_PR,
+        PR.banfn PR,
+        PR.bnfpo PosicionPR,
+        PR.badat FechaCreacionPR,
+        PR.erdat FechaModificacionPR,
+        PR.frgdt FechaLiberacionPR,
+        CONCAT(PR.ebeln, PR.ebelp) UID_PO,
+        PO.ebeln PO,
+        PR.ebelp PosicionPO,
+        PO.aedat FechaCreacionPO,
+        POP.aedat FechaModificacionPOP,
+        PR.ekgrp GrupoCompras, PR.werks Planta,
+        PR.frgkz Release, PR.statu Status, PR.loekz Borrado,
+        PR.ernam,
+        GC.Tiempo_Maximo,
+        case when PR.erdat > PO.aedat then 0 else DATE_DIFF(PO.aedat,PR.erdat,DAY) end DiasAtencion,
+        DP.eindt FechaEntregaPlan,
+        RP.cpudt FechaEntregaReal
+      FROM `envases-analytics-eon-poc.RAW_S4H_MX_QA.eban` PR join
+      `envases-analytics-eon-poc.RAW_S4H_MX_QA.cat_grupos_compras` GC on PR.ekgrp = GC.Codigo LEFT JOIN
+      `envases-analytics-eon-poc.RAW_S4H_MX_QA.ekko` PO ON PR.ebeln = PO.ebeln left join
+      `envases-analytics-eon-poc.RAW_S4H_MX_QA.ekpo` POP ON PR.ebeln = POP.ebeln AND PR.ebelp = POP.ebelp left join
+      (select ebeln, ebelp, max(eindt) eindt from `envases-analytics-eon-poc.RAW_S4H_MX_QA.eket` group by ebeln, ebelp) DP ON PR.ebeln = DP.ebeln AND PR.ebelp = DP.ebelp left join
+      (select ebeln, ebelp, max(cpudt) cpudt from `envases-analytics-eon-poc.RAW_S4H_MX_QA.ekbe` group by ebeln, ebelp) RP ON PR.ebeln = RP.ebeln AND PR.ebelp = RP.ebelp
+      where
+        PR.werks like 'MF%' and PR.frgkz = 'L' and PR.statu = 'B' and PR.loekz = '' and PR.ebeln IS NOT NULL;;
+  }
 
-  dimension: comprador_po {
+  #Dimensiones
+  dimension: Solicitud_Compra {
     type: string
-    sql: ${TABLE}.Comprador_PO ;;
+    sql: ${TABLE}.PR ;;
   }
-  dimension: comprador_pr {
+  dimension: Orden_Compra {
     type: string
-    sql: ${TABLE}.Comprador_PR ;;
+    sql: ${TABLE}.PO ;;
   }
-  dimension_group: fecha_creacion_po {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    convert_tz: no
-    datatype: date
-    sql: ${TABLE}.Fecha_creacion_PO ;;
+  dimension: Fecha_Modificacion_Solicitud{
+    type: date
+    sql: ${TABLE}.FechaModificacionPR ;;
   }
-  dimension_group: fecha_creacion_pr {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    convert_tz: no
-    datatype: date
-    sql: ${TABLE}.Fecha_creacion_PR ;;
-  }
-  dimension_group: fecha_entrega_plan {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    convert_tz: no
-    datatype: date
-    sql: ${TABLE}.Fecha_entrega_plan ;;
-  }
-  dimension_group: fecha_entrega_real {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    convert_tz: no
-    datatype: date
-    sql: ${TABLE}.Fecha_entrega_real ;;
-  }
-  dimension_group: fecha_liberacion_pr {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    convert_tz: no
-    datatype: date
-    sql: ${TABLE}.Fecha_liberacion_PR ;;
-  }
-  dimension_group: fecha_modificacion_pr {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    convert_tz: no
-    datatype: date
-    sql: ${TABLE}.Fecha_modificacion_PR ;;
-  }
-  dimension: grupo_compras {
+  dimension: Grupo_Compras {
     type: string
-    sql: ${TABLE}.Grupo_compras ;;
+    sql: ${TABLE}.GrupoCompras ;;
   }
-  dimension: orden_compra {
-    type: string
-    sql: ${TABLE}.Orden_compra ;;
+
+  measure: registros {
+    type: count_distinct
+    sql: ${TABLE}.PO ;;
   }
-  dimension: organizacion_compras {
-    type: string
-    sql: ${TABLE}.Organizacion_compras ;;
-  }
-  dimension: planta {
-    type: string
-    sql: ${TABLE}.Planta ;;
-  }
-  dimension: posicion_po {
-    type: string
-    sql: ${TABLE}.Posicion_PO ;;
-  }
-  dimension: solicitud_pedido_compra {
-    type: string
-    sql: ${TABLE}.Solicitud_pedido_compra ;;
-  }
-  measure: count {
-    type: count
-  }
+
 }
