@@ -1,4 +1,4 @@
-view: fecha {
+view: fecha_solicitud {
   sql_table_name: `envases-analytics-eon-poc.ENVASES_REPORTING.CALENDAR` ;;
 
   dimension: fecha {

@@ -30,9 +30,14 @@ explore: ordenes_compra{
     sql_on: ${ordenes_compra.Planta} = ${planta.planta_id} ;;
     relationship: many_to_one
   }
-  join: fecha {
+  join: fecha_solicitud {
     type: left_outer
-    sql_on: ${fecha.fecha} = ${ordenes_compra.Fecha_Modificacion_Solicitud} ;;
+    sql_on: ${fecha_solicitud.fecha} = ${ordenes_compra.Fecha_Modificacion_Solicitud} ;;
+    relationship: many_to_one
+  }
+  join: fecha_orden {
+    type: left_outer
+    sql_on: ${fecha_orden.fecha} = ${ordenes_compra.Fecha_Creacion_PO} ;;
     relationship: many_to_one
   }
   join: proveedor {
