@@ -17,6 +17,7 @@ view: ordenes_compra {
         PR.frgkz Release, PR.statu Status, PR.loekz Borrado,
         PR.ernam,
         GC.Tiempo_Maximo,
+        PO.lifnr Proveedor,
         case when PR.erdat > PO.aedat then 0 else DATE_DIFF(PO.aedat,PR.erdat,DAY) end DiasAtencion,
         DP.eindt FechaEntregaPlan,
         RP.cpudt FechaEntregaReal
@@ -46,6 +47,14 @@ view: ordenes_compra {
   dimension: Grupo_Compras {
     type: string
     sql: ${TABLE}.GrupoCompras ;;
+  }
+  dimension: Planta {
+    type: string
+    sql: ${TABLE}.Planta ;;
+  }
+  dimension: Proveedor {
+    type: string
+    sql: ${TABLE}.Proveedor ;;
   }
 
   measure: registros {

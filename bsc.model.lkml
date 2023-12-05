@@ -25,4 +25,19 @@ explore: ordenes_compra{
     sql_on: ${ordenes_compra.Grupo_Compras} = ${comprador.grupo_compras} ;;
     relationship: many_to_one
   }
+  join: planta {
+    type: left_outer
+    sql_on: ${ordenes_compra.Planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+  join: fecha {
+    type: left_outer
+    sql_on: ${fecha.fecha} = ${ordenes_compra.Fecha_Modificacion_Solicitud} ;;
+    relationship: many_to_one
+  }
+  join: proveedor {
+    type: left_outer
+    sql_on: ${ordenes_compra.Proveedor} = ${proveedor.proveedor_id} ;;
+    relationship: many_to_one
+  }
 }

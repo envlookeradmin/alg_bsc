@@ -1,4 +1,4 @@
-view: vw_bsc_planta {
+view: planta{
   sql_table_name: `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_planta` ;;
 
   dimension: ciudad {
@@ -16,6 +16,10 @@ view: vw_bsc_planta {
   dimension: planta_id {
     type: string
     sql: ${TABLE}.Planta_ID ;;
+  }
+  dimension: planta_completo {
+    type: string
+    sql: ${TABLE}.Planta_ID || ' ' || ${TABLE}.Nombre_Planta;;
   }
   measure: count {
     type: count
