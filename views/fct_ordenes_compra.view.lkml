@@ -63,6 +63,28 @@ view: ordenes_compra {
     type: string
     sql: ${TABLE}.Planta ;;
   }
+
+  dimension: PlantaCompletoOTIF {
+    type: string
+    sql: ${planta.planta_completo} ;;
+
+    link: {
+      label: "Gerencia"
+      url: "https://envases.cloud.looker.com/dashboards/132?&Fecha={{ _filters['ordenes_compra.date_filter'] | url_encode }}&Planta={{ ordenes_compra.Planta._value | url_encode}}"
+    }
+  }
+
+  dimension: PlantaCompletoProd {
+    type: string
+    sql: ${planta.planta_completo} ;;
+
+    link: {
+      label: "Gerencia"
+      url: "https://envases.cloud.looker.com/dashboards/133?&Fecha={{ _filters['ordenes_compra.date_filter'] | url_encode }}&Planta={{ ordenes_compra.Planta._value | url_encode}}"
+    }
+  }
+
+
   dimension: Proveedor {
     type: string
     sql: ${TABLE}.Proveedor ;;
@@ -126,14 +148,14 @@ view: ordenes_compra {
     label: "Orden completa"
     type: count_distinct
     sql: CASE
-        WHEN ${TABLE}.FechaEntregaReal <= DATE_ADD (${TABLE}.FechaEntregaPlan, INTERVAL 1 DAY) THEN ${TABLE}.PO
+        WHEN ${TABLE}.FechaEntregaReal <= DATE_ADD (${TABLE}.FechaEntregaPlan, INTERVAL 1 DAY) THEN ${TABLE}.UID_PR
         END ;;
   }
 
   measure: Orden_Mes {
     label: "Total ordenes"
     type: count_distinct
-    sql: ${TABLE}.PO ;;
+    sql: ${TABLE}.UID_PR ;;
   }
 
   measure: OTIF {
@@ -152,6 +174,8 @@ view: ordenes_compra {
     {{rendered_value}}
     {% endif %} ;;
 
+    drill_fields: [comprador.gerencia,OTIF]
+
     value_format: "0.00\%"
   }
 
@@ -165,6 +189,8 @@ view: ordenes_compra {
       value: "yes"
     }
 
+    drill_fields: [comprador.gerencia,Prom_Dias_Atencion]
+
     value_format: "0"
   }
 
@@ -172,7 +198,7 @@ view: ordenes_compra {
     label: "Orden en tiempo"
     type: count_distinct
     sql: CASE
-        WHEN ${TABLE}.DiasAtencion <= ${TABLE}.Tiempo_Maximo THEN ${TABLE}.PR
+        WHEN ${TABLE}.DiasAtencion <= ${TABLE}.Tiempo_Maximo THEN ${TABLE}.UID_PR
         END ;;
 
     filters: {
@@ -184,7 +210,7 @@ view: ordenes_compra {
   measure: Solicitudes_Mes{
     label: "Toral solicitudes"
     type: count_distinct
-    sql: ${TABLE}.PR ;;
+    sql: ${TABLE}.UID_PR ;;
 
     filters: {
       field: mes_actual_solicitud
@@ -206,6 +232,8 @@ view: ordenes_compra {
     {% else %}
     {{rendered_value}}
     {% endif %} ;;
+
+    drill_fields: [comprador.gerencia,Porc_Productividad_Alcanzada]
 
     value_format: "0.00\%"
   }

@@ -46,3 +46,26 @@ explore: ordenes_compra{
     relationship: many_to_one
   }
 }
+
+explore: tiempos_estadia{
+  join: actividad {
+    type: left_outer
+    sql_on: ${tiempos_estadia.Actividad} = ${actividad.actividad_id} ;;
+    relationship: many_to_one
+  }
+  join: planta {
+    type: left_outer
+    sql_on: ${tiempos_estadia.Planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+  join: fecha {
+    type: left_outer
+    sql_on: ${tiempos_estadia.FechaDeEntrada} = ${fecha.fecha} ;;
+    relationship: many_to_one
+  }
+  join: proveedor {
+    type: left_outer
+    sql_on: ${tiempos_estadia.IDProveedor} = ${proveedor.proveedor_id} ;;
+    relationship: many_to_one
+  }
+}

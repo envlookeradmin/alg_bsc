@@ -9,6 +9,7 @@ view: planta{
     type: string
     sql: ${TABLE}.Nombre_Planta ;;
   }
+
   dimension: pais {
     type: string
     sql: ${TABLE}.Pais ;;
@@ -17,10 +18,12 @@ view: planta{
     type: string
     sql: ${TABLE}.Planta_ID ;;
   }
+
   dimension: planta_completo {
     type: string
     sql: ${TABLE}.Planta_ID || ' ' || ${TABLE}.Nombre_Planta;;
   }
+
   measure: count {
     type: count
   }
