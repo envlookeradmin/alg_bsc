@@ -30,6 +30,12 @@ explore: ordenes_compra{
     sql_on: ${ordenes_compra.Planta} = ${planta.planta_id} ;;
     relationship: many_to_one
   }
+  join: fecha {
+    type: left_outer
+    sql_on: ${fecha.fecha} = ${ordenes_compra.Fecha_Modificacion_Solicitud} ;;
+    relationship: many_to_one
+  }
+
   join: fecha_solicitud {
     type: left_outer
     sql_on: ${fecha_solicitud.fecha} = ${ordenes_compra.Fecha_Modificacion_Solicitud} ;;
@@ -40,6 +46,7 @@ explore: ordenes_compra{
     sql_on: ${fecha_orden.fecha} = ${ordenes_compra.Fecha_Creacion_PO} ;;
     relationship: many_to_one
   }
+
   join: proveedor {
     type: left_outer
     sql_on: ${ordenes_compra.Proveedor} = ${proveedor.proveedor_id} ;;
@@ -48,11 +55,6 @@ explore: ordenes_compra{
 }
 
 explore: tiempos_estadia{
-  join: actividad {
-    type: left_outer
-    sql_on: ${tiempos_estadia.Actividad} = ${actividad.actividad_id} ;;
-    relationship: many_to_one
-  }
   join: planta {
     type: left_outer
     sql_on: ${tiempos_estadia.Planta} = ${planta.planta_id} ;;
@@ -61,6 +63,11 @@ explore: tiempos_estadia{
   join: fecha {
     type: left_outer
     sql_on: ${tiempos_estadia.FechaDeEntrada} = ${fecha.fecha} ;;
+    relationship: many_to_one
+  }
+  join: actividad {
+    type: left_outer
+    sql_on: ${tiempos_estadia.Actividad} = ${actividad.actividad_id} ;;
     relationship: many_to_one
   }
   join: proveedor {
