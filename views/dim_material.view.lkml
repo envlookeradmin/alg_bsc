@@ -1,7 +1,6 @@
-view: dim_material {
-  derived_table: {
-    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_material`  ;;
-  }
+view: material {
+
+  sql_table_name: `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_material` ;;
 
   measure: count {
     type: count
