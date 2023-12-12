@@ -1,6 +1,6 @@
 view: materiales_inventario {
   derived_table: {
-    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_materiales_stock`  ;;
+    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_materiales_stock` where  PARSE_DATE('%Y/%m/%d',fecha) between  DATE_TRUNC(DATE_ADD( CAST({% date_start date_filter %} AS DATE), INTERVAL -2 month) , month)    and  LAST_DAY(DATE (CAST({% date_start date_filter %} AS DATE)))   ;;
   }
 
   measure: count {
@@ -68,25 +68,36 @@ view: materiales_inventario {
       sql: ${TABLE}.VALOR_ACTUAL_BLOQUEADO ;;
     }
 
+  filter: date_filter {
+    label: "Período"
+    description: "Use this date filter in combination with the timeframes dimension for dynamic date filtering"
+    type: date
+
+  }
+
+
     measure: Total_pt {
       label: "PT"
       type: sum
-      sql:${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION + ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO ;;
+      sql:(${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION + ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO) /1000000 ;;
       filters: [grupo_materiales.tipo_nc: "PT"]
+      value_format: "$#,##0.00"
     }
 
     measure: Total_Componentes {
       label: "Componentes"
       type: sum
-      sql:${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION + ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO ;;
+      sql:(${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION + ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO) /1000000 ;;
       filters: [grupo_materiales.tipo_nc: "Componentes"]
+      value_format: "$#,##0.00"
     }
 
     measure: Total_Hoja {
       label: "Hoja"
       type: sum
-      sql:${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION + ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO ;;
+      sql:(${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION + ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO) /1000000 ;;
       filters: [grupo_materiales.tipo_nc: "Hoja"]
+      value_format: "$#,##0.00"
     }
 
     set: detail {
