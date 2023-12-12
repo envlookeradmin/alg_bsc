@@ -58,11 +58,13 @@ view: inventarios {
       sql: CAST(${Fecha}  AS TIMESTAMP) ;;
     }
 
-    dimension: anio_anterior{
-      hidden: yes
-      type: yesno
-      sql: ${fecha_filtro_date} >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) -1 AS STRING),"-01-01")  AS DATE)
-        and  ${fecha_filtro_date} <= DATE_ADD(DATE_ADD( DATE_TRUNC(CAST({% date_start date_filter %} AS DATE), DAY),INTERVAL -1 year),INTERVAL -0 day)   ;;
+    dimension: anio_actual{
+      type: number
+      sql: CASE
+            WHEN DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
+              AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= CAST({% date_start date_filter %} AS DATE) THEN 1
+              ELSE 0
+              END;;
     }
 
     dimension: mes_actual{
@@ -169,6 +171,7 @@ view: inventarios {
     }
 
     measure: DiasInventarioMes{
+      label: "Días de Inventario"
       type: number
       sql: ((${ValorStockMesActual} + ${ValorStockMesActualAnioAnt}) / 2 )
            / (NULLIF(${VentaTerceros12meses},0) / 360);;
