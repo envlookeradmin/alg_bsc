@@ -103,3 +103,16 @@ explore: materiales_inventario {
   }
 
 }
+
+explore: inventarios{
+  join: planta {
+    type: left_outer
+    sql_on: ${inventarios.Planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+  join: fecha {
+    type: left_outer
+    sql_on: ${inventarios.Fecha} = ${fecha.fecha} ;;
+    relationship: many_to_one
+  }
+}
