@@ -4,7 +4,7 @@ view: actividad {
 
     dimension: actividad_id {
       type: string
-      sql: ${TABLE}.Z_ACT_TYPE ;;
+      sql: ${TABLE}.Z_ACT_TYPE  ;;
     }
     dimension: descripcion {
       type: string

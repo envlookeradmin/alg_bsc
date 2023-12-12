@@ -53,7 +53,7 @@ view: tiempos_estadia {
 
       link: {
         label: "Maniobra"
-        url: "https://envases.cloud.looker.com/dashboards/136?&Fecha={{ _filters['tiempos_estadia.date_filter'] | url_encode }}&Planta={{ tiempos_estadia.Planta._value | url_encode}}"
+        url: "https://envases.cloud.looker.com/dashboards/137?&Fecha={{ _filters['tiempos_estadia.date_filter'] | url_encode }}&Planta={{ tiempos_estadia.Planta._value | url_encode}}"
       }
     }
     dimension: OrdenDeCompra {
