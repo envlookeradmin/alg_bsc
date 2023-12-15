@@ -9,7 +9,7 @@ view: inventario_fletes {
       FECHA,
       VALOR_STOCK,
       VENTA_TERCEROS
-      from `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_inventario` ;;
+      from `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_inventario` ;;
     }
 
     #Filtro

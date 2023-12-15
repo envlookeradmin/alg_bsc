@@ -1,5 +1,5 @@
 view: comprador {
-  sql_table_name: `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_comprador` ;;
+  sql_table_name: `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_comprador` ;;
 
   dimension: comprador {
     type: string
