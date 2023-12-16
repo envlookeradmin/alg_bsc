@@ -2,14 +2,14 @@ view: inventarios {
     derived_table: {
       sql:
       select
-      ANIO_FISCAL,
-      SOCIEDAD,
-      CENTRO_BENEFICIO,
-      PLANTA,
-      FECHA,
-      VALOR_STOCK,
-      VENTA_TERCEROS
-      from `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_inventario` ;;
+      Anio_Fiscal,
+      Sociedad,
+      Centro_Beneficio,
+      Planta,
+      Fecha,
+      Valor_stock,
+      Venta_terceros
+      from `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_reporte_inventario_fletes` ;;
     }
 
     #Filtro
