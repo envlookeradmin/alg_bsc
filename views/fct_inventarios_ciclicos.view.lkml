@@ -59,6 +59,17 @@ view: inventarios_ciclicos {
     sql: ${TABLE}.CLASIFICACION ;;
   }
 
+
+  measure: Total_cantidad_teorica {
+    type: sum
+    sql: ${TABLE}.CANTIDAD_TEORICA ;;
+  }
+
+  measure: Total_cantidad_total {
+    type: sum
+    sql: ${TABLE}.CANTIDAD_TOTAL ;;
+  }
+
   set: detail {
     fields: [
         uid_documento,
