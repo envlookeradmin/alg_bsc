@@ -30,12 +30,23 @@ view: inventario_fletes {
       sql: ${TABLE}.Sociedad ;;
     }
     dimension: CentroBeneficio {
+      label: "Centro de Beneficio"
       type: string
       sql: ${TABLE}.Centro_Beneficio ;;
     }
     dimension: Planta {
       type: string
       sql: ${TABLE}.Planta ;;
+    }
+
+    dimension: PlantaComercializadora {
+      type: string
+      sql: ${planta.planta_comercializadora} ;;
+
+      link: {
+       label: "Centro benefico"
+       url: "https://envases.cloud.looker.com/dashboards/144?&Fecha={{ _filters['inventario_fletes.date_filter'] | url_encode }}&Planta={{ inventario_fletes.PlantaComercializadora._value | url_encode}}"
+      }
     }
 
     dimension: Fecha{
@@ -110,9 +121,11 @@ view: inventario_fletes {
 
     measure: ValorStock{
       group_label: "Inventarios"
-      label: "Valor Stock"
+      label: "Valor Stock [MXN]"
       type: sum
       sql: ${TABLE}.Valor_stock ;;
+
+      drill_fields: [ CentroBeneficio,ValorStock]
 
       value_format: "$#,##0.00"
     }
@@ -175,6 +188,17 @@ view: inventario_fletes {
       type: number
       sql: ((${ValorStockMesActual}-${ValorStockMesAnterior})/NULLIF(${ValorStockMesAnterior},0))*100  ;;
 
+      html:
+      {% if value < 0 %}
+      <span style="color: green;">{{ rendered_value }}</span></p>
+      {% elsif value >= 0 %}
+      <span style="color: red;">{{ rendered_value }}</span></p>
+      {% else %}
+      {{rendered_value}}
+      {% endif %} ;;
+
+      drill_fields: [ CentroBeneficio,VariacionMesPrevio]
+
       value_format: "0.00\%"
     }
 
@@ -184,6 +208,8 @@ view: inventario_fletes {
       type: number
       sql: ((${ValorStockMesActual} + ${ValorStockMesActualAnioAnt}) / 2 )
         / (NULLIF(${VentaTerceros12meses},0) / 360);;
+
+      drill_fields: [ CentroBeneficio,DiasInventarioMes]
 
       value_format: "0"
     }

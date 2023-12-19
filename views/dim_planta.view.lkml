@@ -24,6 +24,13 @@ view: planta{
     sql: ${TABLE}.Planta_ID || ' ' || ${TABLE}.Nombre_Planta;;
   }
 
+  dimension: planta_comercializadora {
+    label: "Planta"
+    type: string
+    sql:  ${TABLE}.Planta_Comercializadora ;;
+
+  }
+
   measure: count {
     type: count
   }
