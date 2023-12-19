@@ -5,6 +5,14 @@ view: fecha {
     type: date
     sql: ${TABLE}.DATE ;;
   }
+
+
+  dimension: CALDAY {
+    type: string
+    sql: ${TABLE}.CALDAY ;;
+  }
+
+
   dimension_group: date {
     type: time
     timeframes: [raw, date, week, month, quarter, year]

@@ -30,8 +30,8 @@ view: inventarios_ciclicos {
   }
 
   dimension: fecha_documento {
-    type: number
-    sql: ${TABLE}.FECHA_DOCUMENTO ;;
+    type: string
+    sql: SUBSTR( CAST(${TABLE}.FECHA_DOCUMENTO AS STRING)  ,1,8) ;;
   }
 
   dimension: estatus_cantidad {

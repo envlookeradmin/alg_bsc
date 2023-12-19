@@ -117,4 +117,15 @@ explore: inventarios{
   }
 }
 
-explore: inventarios_ciclicos {}
+explore: inventarios_ciclicos {
+  join: planta {
+    type: left_outer
+    sql_on: ${inventarios_ciclicos.planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+  join: fecha {
+    type: left_outer
+    sql_on: ${inventarios_ciclicos.fecha_documento}} = ${fecha.CALDAY} ;;
+    relationship: many_to_one
+  }
+}
