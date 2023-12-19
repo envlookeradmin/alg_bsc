@@ -1,7 +1,7 @@
 
 view: inventarios_ciclicos {
   derived_table: {
-    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_inventarios_ciclicos` LIMIT 10 ;;
+    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_inventarios_ciclicos`  ;;
   }
 
   measure: count {

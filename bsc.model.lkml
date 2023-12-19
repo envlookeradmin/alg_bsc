@@ -116,3 +116,5 @@ explore: inventarios{
     relationship: many_to_one
   }
 }
+
+explore: inventarios_ciclicos {}
