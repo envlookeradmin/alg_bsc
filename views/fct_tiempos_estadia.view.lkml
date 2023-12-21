@@ -14,9 +14,12 @@ view: tiempos_estadia {
       Fecha_de_Despacho,
       Hora_de_Despacho,
       Tiempo_de_Estadia,
+      DATETIME_DIFF(CAST(CONCAT(Fecha_de_Despacho,' ',Hora_de_Despacho) AS DATETIME),
+      CAST(CONCAT(Fecha_de_Entrada,' ',Hora_de_Entrada) AS DATETIME), SECOND)/3600 AS Tiempo_Estadia,
       Peso_de_Entrada,
       Peso_de_Salida
-      FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_tiempo_estadia` ;;
+      FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_tiempo_estadia`
+      ;;
     }
 
     #Filtro
@@ -56,6 +59,15 @@ view: tiempos_estadia {
         url: "https://envases.cloud.looker.com/dashboards/137?&Fecha={{ _filters['tiempos_estadia.date_filter'] | url_encode }}&Planta={{ tiempos_estadia.Planta._value | url_encode}}"
       }
     }
+    dimension: PlantaComercializadora {
+      type: string
+      sql: ${planta.planta_comercializadora} ;;
+
+      link: {
+        label: "Maniobra"
+        url: "https://envases.cloud.looker.com/dashboards/137?&Fecha={{ _filters['tiempos_estadia.date_filter'] | url_encode }}&Planta={{ tiempos_estadia.PlantaComercializadora._value | url_encode}}"
+      }
+    }
     dimension: OrdenDeCompra {
       type: string
       sql: ${TABLE}.OrdenDeCompra ;;
@@ -84,6 +96,12 @@ view: tiempos_estadia {
       type: number
       sql: ${TABLE}.Tiempo_de_Estadia ;;
     }
+
+    dimension: TiempoEstadia{
+      type: number
+      sql: ${TABLE}.Tiempo_Estadia ;;
+    }
+
     dimension: PesoDeEntrada{
       type: number
       sql: ${TABLE}.Peso_de_Entrada ;;
@@ -109,11 +127,11 @@ view: tiempos_estadia {
       sql: CAST(${TABLE}.Fecha_de_Entrada  AS TIMESTAMP) ;;
     }
 
-    dimension: anio_anterior{
+    dimension: c_anio_anterior{
       hidden: yes
       type: yesno
-      sql: ${fecha_filtro_date} >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) -1 AS STRING),"-01-01")  AS DATE)
-        and  ${fecha_filtro_date} <= DATE_ADD(DATE_ADD( DATE_TRUNC(CAST({% date_start date_filter %} AS DATE), DAY),INTERVAL -1 year),INTERVAL -0 day)   ;;
+      sql: ${fecha_filtro_date} >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) -1 AS STRING),"-12-01")  AS DATE)
+      and  ${fecha_filtro_date} <= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) -1 AS STRING),"-12-31")  AS DATE) ;;
     }
 
     dimension: mes_actual{
@@ -148,7 +166,7 @@ view: tiempos_estadia {
 
       drill_fields: [actividad.descripcion ,Prom_Estadia]
 
-      value_format: "0"
+      value_format: "0.0"
     }
 
     measure: Prom_Estadia_AA {
@@ -157,13 +175,13 @@ view: tiempos_estadia {
       sql: ${TiempoDeEstadia} ;;
 
       filters: {
-        field: anio_anterior
+        field: c_anio_anterior
         value: "yes"
       }
 
       drill_fields: [actividad.descripcion ,Prom_Estadia_AA]
 
-      value_format: "0"
+      value_format: "0.0"
     }
 
     measure: Prom_Estadia_Mes_Actual{
@@ -174,8 +192,6 @@ view: tiempos_estadia {
         field: mes_actual
         value: "yes"
       }
-
-      value_format: "0"
     }
 
     measure: Prom_Estadia_Mes_Anterior{
@@ -186,14 +202,12 @@ view: tiempos_estadia {
         field: mes_anterior
         value: "yes"
       }
-
-      value_format: "0"
     }
 
     measure: Diferencia {
       label: "Diferencia"
       type: number
-    sql: (${Prom_Estadia_Mes_Actual}/NULLIF(${Prom_Estadia_Mes_Anterior},0))*100  ;;
+    sql: (1-(${Prom_Estadia_Mes_Anterior}/NULLIF(${Prom_Estadia_Mes_Actual},0)))*100  ;;
 
       html:
       {% if value <= 4.0 %}

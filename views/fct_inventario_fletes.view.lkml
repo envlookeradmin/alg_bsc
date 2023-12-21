@@ -9,8 +9,11 @@ view: inventario_fletes {
       Fecha,
       Valor_stock,
       Venta_terceros,
-      Real_costo_fletes
-      from `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_reporte_inventario_fletes`;;
+      Real_costo_fletes,
+      GastoCuentas5,
+      GastoFabricacion,
+      Cierre_anio_anterior
+      FROM `RPT_S4H_MX_QA.vw_bsc_reporte_inventario_fletes`;;
     }
 
     #Filtro
@@ -130,6 +133,16 @@ view: inventario_fletes {
       value_format: "$#,##0.00"
     }
 
+    measure: VentaTercerosInv{
+      group_label: "Inventarios"
+      type: sum
+      sql: ${TABLE}.Venta_terceros ;;
+
+      drill_fields: [ CentroBeneficio,VentaTercerosInv]
+
+      value_format: "$#,##0.00"
+    }
+
     measure: VentaTerceros12meses{
       group_label: "Inventarios"
       type: sum
@@ -207,7 +220,7 @@ view: inventario_fletes {
       label: "Días de Inventario"
       type: number
       sql: ((${ValorStockMesActual} + ${ValorStockMesActualAnioAnt}) / 2 )
-        / (NULLIF(${VentaTerceros12meses},0) / 360);;
+        / (NULLIF(${VentaTercerosInv},0) / 360);;
 
       drill_fields: [ CentroBeneficio,DiasInventarioMes]
 
@@ -230,7 +243,7 @@ view: inventario_fletes {
       value_format: "$#,##0.00"
     }
 
-    measure: VentaTerceros{
+    measure: VentaTercerosFle{
       group_label: "Fletes"
       type: sum
       sql: ${TABLE}.Venta_terceros ;;
@@ -247,7 +260,7 @@ view: inventario_fletes {
       group_label: "Fletes"
       label: "Real % Fletes / Ventas"
       type: number
-      sql: ((${RealCostoFletes})/NULLIF(${VentaTerceros},0))*100  ;;
+      sql: ((${RealCostoFletes})/NULLIF(${VentaTercerosFle},0))*100  ;;
 
       value_format: "0.00\%"
     }
