@@ -129,3 +129,5 @@ explore: inventarios_ciclicos {
     relationship: many_to_one
   }
 }
+
+explore: fct_ordenes_pedidos {}
