@@ -21,12 +21,12 @@ view: ordenes_compra {
         case when PR.erdat > PO.aedat then 0 else DATE_DIFF(PO.aedat,PR.erdat,DAY) end DiasAtencion,
         DP.eindt FechaEntregaPlan,
         RP.cpudt FechaEntregaReal
-      FROM `envases-analytics-eon-poc.RAW_S4H_MX_QA.eban` PR join
-      `envases-analytics-eon-poc.RAW_S4H_MX_QA.cat_grupos_compras` GC on PR.ekgrp = GC.Codigo LEFT JOIN
-      `envases-analytics-eon-poc.RAW_S4H_MX_QA.ekko` PO ON PR.ebeln = PO.ebeln left join
-      `envases-analytics-eon-poc.RAW_S4H_MX_QA.ekpo` POP ON PR.ebeln = POP.ebeln AND PR.ebelp = POP.ebelp left join
-      (select ebeln, ebelp, max(eindt) eindt from `envases-analytics-eon-poc.RAW_S4H_MX_QA.eket` group by ebeln, ebelp) DP ON PR.ebeln = DP.ebeln AND PR.ebelp = DP.ebelp left join
-      (select ebeln, ebelp, max(cpudt) cpudt from `envases-analytics-eon-poc.RAW_S4H_MX_QA.ekbe` group by ebeln, ebelp) RP ON PR.ebeln = RP.ebeln AND PR.ebelp = RP.ebelp
+      FROM `envases-analytics-eon-poc.RAW_S4H_MX_DEV.eban` PR join
+      `envases-analytics-eon-poc.RAW_S4H_MX_DEV.cat_grupos_compras` GC on PR.ekgrp = GC.Codigo LEFT JOIN
+      `envases-analytics-eon-poc.RAW_S4H_MX_DEV.ekko` PO ON PR.ebeln = PO.ebeln left join
+      `envases-analytics-eon-poc.RAW_S4H_MX_DEV.ekpo` POP ON PR.ebeln = POP.ebeln AND PR.ebelp = POP.ebelp left join
+      (select ebeln, ebelp, max(eindt) eindt from `envases-analytics-eon-poc.RAW_S4H_MX_DEV.eket` group by ebeln, ebelp) DP ON PR.ebeln = DP.ebeln AND PR.ebelp = DP.ebelp left join
+      (select ebeln, ebelp, max(cpudt) cpudt from `envases-analytics-eon-poc.RAW_S4H_MX_DEV.ekbe` group by ebeln, ebelp) RP ON PR.ebeln = RP.ebeln AND PR.ebelp = RP.ebelp
       where
         PR.werks like 'MF%' and PR.frgkz = 'L' and PR.statu = 'B' and PR.loekz = '' and PR.ebeln IS NOT NULL;;
   }

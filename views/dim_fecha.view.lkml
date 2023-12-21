@@ -1,6 +1,15 @@
 view: fecha {
   sql_table_name: `envases-analytics-eon-poc.ENVASES_REPORTING.CALENDAR` ;;
 
+  filter: selector_fecha {type: date}
+
+  dimension: es_mes_seleccionado {
+    type: yesno
+    sql: {% condition es_mes_seleccionado %} ${date_raw} {% endcondition %} ;;
+  }
+
+
+
   dimension: fecha {
     type: date
     sql: ${TABLE}.DATE ;;
@@ -31,21 +40,7 @@ view: fecha {
 
   dimension: nombre_mes {
     type: string
-    sql: CASE
-         WHEN ${TABLE}.MONTH = 1 THEN 'ENERO'
-         WHEN ${TABLE}.MONTH = 2 THEN 'FEBRERO'
-         WHEN ${TABLE}.MONTH = 3 THEN 'MARZO'
-         WHEN ${TABLE}.MONTH = 4 THEN 'ABRIL'
-         WHEN ${TABLE}.MONTH = 5 THEN 'MAYO'
-         WHEN ${TABLE}.MONTH = 6 THEN 'JUNIO'
-         WHEN ${TABLE}.MONTH = 7 THEN 'JULIO'
-         WHEN ${TABLE}.MONTH = 8 THEN 'AGOSTO'
-         WHEN ${TABLE}.MONTH = 9 THEN 'SEPTIEMBRE'
-         WHEN ${TABLE}.MONTH = 10 THEN 'OCTUBRE'
-         WHEN ${TABLE}.MONTH = 11 THEN 'NOVIEMBRE'
-         WHEN ${TABLE}.MONTH = 12 THEN 'DICIEMBRE'
-         END;;
-
+    sql:  ${TABLE}.MONTH_NAME_SP;;
     order_by_field: mes
   }
 

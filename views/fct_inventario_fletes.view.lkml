@@ -1,4 +1,4 @@
-view: inventarios {
+view: inventario_fletes {
     derived_table: {
       sql:
       select
@@ -8,8 +8,12 @@ view: inventarios {
       Planta,
       Fecha,
       Valor_stock,
-      Venta_terceros
-      from `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_reporte_inventario_fletes` ;;
+      Venta_terceros,
+      Real_costo_fletes,
+      GastoCuentas5,
+      GastoFabricacion,
+      Cierre_anio_anterior
+      FROM `RPT_S4H_MX_QA.vw_bsc_reporte_inventario_fletes`;;
     }
 
     #Filtro
@@ -29,12 +33,23 @@ view: inventarios {
       sql: ${TABLE}.Sociedad ;;
     }
     dimension: CentroBeneficio {
+      label: "Centro de Beneficio"
       type: string
       sql: ${TABLE}.Centro_Beneficio ;;
     }
     dimension: Planta {
       type: string
       sql: ${TABLE}.Planta ;;
+    }
+
+    dimension: PlantaComercializadora {
+      type: string
+      sql: ${planta.planta_comercializadora} ;;
+
+      link: {
+       label: "Centro benefico"
+       url: "https://envases.cloud.looker.com/dashboards/144?&Fecha={{ _filters['inventario_fletes.date_filter'] | url_encode }}&Planta={{ inventario_fletes.PlantaComercializadora._value | url_encode}}"
+      }
     }
 
     dimension: Fecha{
@@ -61,10 +76,10 @@ view: inventarios {
     dimension: anio_actual{
       type: number
       sql: CASE
-            WHEN DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
-              AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= CAST({% date_start date_filter %} AS DATE) THEN 1
-              ELSE 0
-              END;;
+              WHEN DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
+                AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= CAST({% date_start date_filter %} AS DATE) THEN 1
+                ELSE 0
+                END;;
     }
 
     dimension: mes_actual{
@@ -78,7 +93,7 @@ view: inventarios {
       hidden: yes
       type: yesno
       sql: DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH), INTERVAL -1 YEAR)
-           AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 YEAR)) ;;
+        AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 YEAR)) ;;
     }
 
     dimension: mes_anterior{
@@ -98,23 +113,38 @@ view: inventarios {
     dimension: ultimos_3_meses{
       type: number
       sql:
-      CASE
-          WHEN DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH)
-          AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL 0 DAY) THEN 1
-          ELSE 0
-          END;;
+        CASE
+            WHEN DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH)
+            AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL 0 DAY) THEN 1
+            ELSE 0
+            END;;
     }
 
-    #Metricas
+    #Metricas Inventarios
+
     measure: ValorStock{
-      label: "Valor Stock"
+      group_label: "Inventarios"
+      label: "Valor Stock [MXN]"
       type: sum
       sql: ${TABLE}.Valor_stock ;;
 
-      value_format: "#,##0"
+      drill_fields: [ CentroBeneficio,ValorStock]
+
+      value_format: "$#,##0.00"
+    }
+
+    measure: VentaTercerosInv{
+      group_label: "Inventarios"
+      type: sum
+      sql: ${TABLE}.Venta_terceros ;;
+
+      drill_fields: [ CentroBeneficio,VentaTercerosInv]
+
+      value_format: "$#,##0.00"
     }
 
     measure: VentaTerceros12meses{
+      group_label: "Inventarios"
       type: sum
       sql: ${TABLE}.Venta_terceros ;;
 
@@ -127,6 +157,7 @@ view: inventarios {
     }
 
     measure: ValorStockMesActual{
+      group_label: "Inventarios"
       type: sum
       sql: ${TABLE}.Valor_stock ;;
 
@@ -139,6 +170,7 @@ view: inventarios {
     }
 
     measure: ValorStockMesActualAnioAnt{
+      group_label: "Inventarios"
       type: sum
       sql: ${TABLE}.Valor_stock ;;
 
@@ -151,6 +183,7 @@ view: inventarios {
     }
 
     measure: ValorStockMesAnterior{
+      group_label: "Inventarios"
       type: sum
       sql: ${TABLE}.Valor_stock ;;
 
@@ -163,22 +196,74 @@ view: inventarios {
     }
 
     measure: VariacionMesPrevio {
+      group_label: "Inventarios"
       label: "Variación % mes previo"
       type: number
       sql: ((${ValorStockMesActual}-${ValorStockMesAnterior})/NULLIF(${ValorStockMesAnterior},0))*100  ;;
+
+      html:
+      {% if value < 0 %}
+      <span style="color: green;">{{ rendered_value }}</span></p>
+      {% elsif value >= 0 %}
+      <span style="color: red;">{{ rendered_value }}</span></p>
+      {% else %}
+      {{rendered_value}}
+      {% endif %} ;;
+
+      drill_fields: [ CentroBeneficio,VariacionMesPrevio]
 
       value_format: "0.00\%"
     }
 
     measure: DiasInventarioMes{
+      group_label: "Inventarios"
       label: "Días de Inventario"
       type: number
       sql: ((${ValorStockMesActual} + ${ValorStockMesActualAnioAnt}) / 2 )
-           / (NULLIF(${VentaTerceros12meses},0) / 360);;
+        / (NULLIF(${VentaTercerosInv},0) / 360);;
+
+      drill_fields: [ CentroBeneficio,DiasInventarioMes]
 
       value_format: "0"
     }
 
+    #Metricas Fletes
+
+    measure: RealCostoFletes{
+      group_label: "Fletes"
+      label: "Real Costo de Fletes [MXN]"
+      type: sum
+      sql: ${TABLE}.Real_costo_fletes ;;
+
+      filters: {
+        field: mes_actual
+        value: "yes"
+      }
+
+      value_format: "$#,##0.00"
+    }
+
+    measure: VentaTercerosFle{
+      group_label: "Fletes"
+      type: sum
+      sql: ${TABLE}.Venta_terceros ;;
+
+      filters: {
+        field: mes_actual
+        value: "yes"
+      }
+
+      value_format: "#,##0"
+    }
+
+    measure: PorcRealFletesVentas {
+      group_label: "Fletes"
+      label: "Real % Fletes / Ventas"
+      type: number
+      sql: ((${RealCostoFletes})/NULLIF(${VentaTercerosFle},0))*100  ;;
+
+      value_format: "0.00\%"
+    }
 
     measure: count {
       type: count

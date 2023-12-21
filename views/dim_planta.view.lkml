@@ -1,5 +1,5 @@
 view: planta{
-  sql_table_name: `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_planta` ;;
+  sql_table_name: `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_planta` ;;
 
   dimension: ciudad {
     type: string
@@ -22,6 +22,13 @@ view: planta{
   dimension: planta_completo {
     type: string
     sql: ${TABLE}.Planta_ID || ' ' || ${TABLE}.Nombre_Planta;;
+  }
+
+  dimension: planta_comercializadora {
+    label: "Planta"
+    type: string
+    sql:  ${TABLE}.Planta_Comercializadora ;;
+
   }
 
   measure: count {

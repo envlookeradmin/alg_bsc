@@ -131,3 +131,18 @@ explore: inventarios_ciclicos {
 }
 
 explore: fct_ordenes_pedidos {}
+
+explore: inventario_fletes {
+  join: planta {
+    type: left_outer
+    sql_on: ${inventario_fletes.Planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+  join: fecha {
+    type: left_outer
+    sql_on: ${inventario_fletes.Fecha} = ${fecha.fecha} ;;
+    relationship: many_to_one
+  }
+
+
+}
