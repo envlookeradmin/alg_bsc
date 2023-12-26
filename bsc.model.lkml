@@ -117,6 +117,29 @@ explore: inventarios{
   }
 }
 
+explore: ordenes_pedidos {
+  join: planta {
+    type: left_outer
+    sql_on: ${ordenes_pedidos.Planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+  join: material {
+    type: left_outer
+    sql_on: ${ordenes_pedidos.IdMaterial} = ${material.id_material} ;;
+    relationship: many_to_one
+  }
+  join: grupo_materiales  {
+    type: left_outer
+    sql_on: ${material.grupo_material} = ${grupo_materiales.id_grupo} ;;
+    relationship: many_to_one
+  }
+  join: fecha {
+    type: left_outer
+    sql_on: ${ordenes_pedidos.Fecha} = ${fecha.fecha} ;;
+    relationship: many_to_one
+  }
+}
+
 explore: inventario_fletes {
   join: planta {
     type: left_outer
@@ -128,6 +151,4 @@ explore: inventario_fletes {
     sql_on: ${inventario_fletes.Fecha} = ${fecha.fecha} ;;
     relationship: many_to_one
   }
-
-
 }
