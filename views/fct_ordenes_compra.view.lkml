@@ -2,33 +2,26 @@ view: ordenes_compra {
   derived_table: {
     sql:
       SELECT
-        CONCAT(PR.banfn,PR.bnfpo) UID_PR,
-        PR.banfn PR,
-        PR.bnfpo PosicionPR,
-        PR.badat FechaCreacionPR,
-        PR.erdat FechaModificacionPR,
-        PR.frgdt FechaLiberacionPR,
-        CONCAT(PR.ebeln, PR.ebelp) UID_PO,
-        PO.ebeln PO,
-        PR.ebelp PosicionPO,
-        PO.aedat FechaCreacionPO,
-        POP.aedat FechaModificacionPOP,
-        PR.ekgrp GrupoCompras, PR.werks Planta,
-        PR.frgkz Release, PO.statu Status, PR.loekz Borrado,
-        PR.ernam,
-        GC.Tiempo_Maximo,
-        PO.lifnr Proveedor,
-        case when PR.erdat > PO.aedat then 0 else DATE_DIFF(PO.aedat,PR.erdat,DAY) end DiasAtencion,
-        DP.eindt FechaEntregaPlan,
-        RP.cpudt FechaEntregaReal
-      FROM `envases-analytics-eon-poc.RAW_S4H_MX_DEV.eban` PR join
-      `envases-analytics-eon-poc.RAW_S4H_MX_DEV.cat_grupos_compras` GC on PR.ekgrp = GC.Codigo LEFT JOIN
-      `envases-analytics-eon-poc.RAW_S4H_MX_DEV.ekko` PO ON PR.ebeln = PO.ebeln left join
-      `envases-analytics-eon-poc.RAW_S4H_MX_DEV.ekpo` POP ON PR.ebeln = POP.ebeln AND PR.ebelp = POP.ebelp left join
-      (select ebeln, ebelp, max(eindt) eindt from `envases-analytics-eon-poc.RAW_S4H_MX_DEV.eket` group by ebeln, ebelp) DP ON PR.ebeln = DP.ebeln AND PR.ebelp = DP.ebelp left join
-      (select ebeln, ebelp, max(cpudt) cpudt from `envases-analytics-eon-poc.RAW_S4H_MX_DEV.ekbe` group by ebeln, ebelp) RP ON PR.ebeln = RP.ebeln AND PR.ebelp = RP.ebelp
-      where
-        PR.werks like 'MF%' and PR.frgkz = 'L' and PR.statu = 'B' and PR.loekz = '' and PR.ebeln IS NOT NULL;;
+        UID_PR,
+        PR,
+        PosicionPR,
+        FechaCreacionPR,
+        FechaModificacionPR,
+        FechaLiberacionPR,
+        UID_PO,
+        PO,
+        PosicionPO,
+        FechaCreacionPO,
+        FechaModificacionPOP,
+        GrupoCompras, Planta,
+        Release, Status, Borrado,
+        ernam,
+        Tiempo_Maximo,
+        Proveedor,
+        DiasAtencion,
+        FechaEntregaPlan,
+        FechaEntregaReal
+      FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_ordenes_compra`;;
   }
 
   #Filtro
@@ -56,10 +49,12 @@ view: ordenes_compra {
     sql: ${TABLE}.FechaCreacionPO ;;
   }
   dimension: Grupo_Compras {
+    hidden: yes
     type: string
     sql: ${TABLE}.GrupoCompras ;;
   }
   dimension: Planta {
+    hidden: yes
     type: string
     sql: ${TABLE}.Planta ;;
   }
@@ -112,7 +107,7 @@ view: ordenes_compra {
   }
 
   dimension_group: fecha_solicitud {
-    label: "Date"
+    label: "FechaSolicitud"
     type: time
     timeframes: [
       raw,
@@ -125,6 +120,22 @@ view: ordenes_compra {
       year
     ]
     sql: CAST(${TABLE}.FechaModificacionPR AS TIMESTAMP) ;;
+  }
+
+  dimension_group: fecha_entrega_plan {
+    label: "Fecha Plan"
+    type: time
+    timeframes: [
+      raw,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      month_name,
+      year
+    ]
+    sql: CAST(${TABLE}.FechaEntregaPlan AS TIMESTAMP) ;;
   }
 
   dimension: valores_anuales_orden{
@@ -143,6 +154,11 @@ view: ordenes_compra {
       AND DATE_TRUNC(CAST(${fecha_solicitud_date} AS DATE),DAY) <= CAST({% date_start date_filter %} AS DATE)  ;;
   }
 
+  dimension: dias_atencion {
+    type: number
+    sql: ${TABLE}.DiasAtencion ;;
+  }
+
   #Metricas
   measure: Orden_Completa {
     label: "Orden completa"
@@ -152,10 +168,11 @@ view: ordenes_compra {
         END ;;
   }
 
+
   measure: Orden_Mes {
     label: "Total ordenes"
     type: count_distinct
-    sql: ${TABLE}.UID_PR ;;
+    sql: ${TABLE}.UID_PO ;;
   }
 
   measure: OTIF {
@@ -184,10 +201,10 @@ view: ordenes_compra {
     type: average
     sql: ${TABLE}.DiasAtencion ;;
 
-    filters: {
-      field: mes_actual_solicitud
-      value: "yes"
-    }
+    #filters: {
+    #  field: mes_actual_solicitud
+    #  value: "yes"
+    #}
 
     drill_fields: [comprador.gerencia,Prom_Dias_Atencion]
 
@@ -201,21 +218,33 @@ view: ordenes_compra {
         WHEN ${TABLE}.DiasAtencion <= ${TABLE}.Tiempo_Maximo THEN ${TABLE}.UID_PR
         END ;;
 
-    filters: {
-      field: mes_actual_solicitud
-      value: "yes"
-    }
+    #filters: {
+    #  field: mes_actual_solicitud
+    #  value: "yes"
+    #}
+  }
+  measure: Orden_En_Tiempo_Obj {
+    label: "Orden en tiempo obj"
+    type: count_distinct
+    sql: CASE
+        WHEN ${TABLE}.DiasAtencion <= (${TABLE}.Tiempo_Maximo / 2) THEN ${TABLE}.UID_PR
+        END ;;
+
+    #filters: {
+    #  field: mes_actual_solicitud
+    #  value: "yes"
+    #}
   }
 
   measure: Solicitudes_Mes{
-    label: "Toral solicitudes"
+    label: "Total solicitudes"
     type: count_distinct
     sql: ${TABLE}.UID_PR ;;
 
-    filters: {
-      field: mes_actual_solicitud
-      value: "yes"
-    }
+#    filters: {
+#      field: mes_actual_solicitud
+#      value: "yes"
+#    }
   }
 
   measure: Porc_Productividad_Alcanzada {
