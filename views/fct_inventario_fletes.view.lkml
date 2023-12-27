@@ -12,7 +12,7 @@ view: inventario_fletes {
       GastoCuentas5,
       GastoFabricacion,
       Cierre_anio_anterior
-      FROM `RPT_S4H_MX_QA.vw_bsc_reporte_inventario_fletes`;;
+      FROM `RPT_S4H_MX.vw_bsc_reporte_inventario_fletes`;;
     }
 
     #Filtro
