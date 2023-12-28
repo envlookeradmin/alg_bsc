@@ -12,7 +12,7 @@ view: inventario_fletes {
       GastoCuentas5,
       GastoFabricacion,
       Cierre_anio_anterior
-      FROM `RPT_S4H_MX_QA.vw_bsc_reporte_inventario_fletes`;;
+      FROM `RPT_S4H_MX.vw_bsc_reporte_inventario_fletes`;;
     }
 
     #Filtro
@@ -23,10 +23,6 @@ view: inventario_fletes {
     }
 
     #Dimensiones
-    dimension: AnioFiscal {
-      type: string
-      sql: ${TABLE}.Anio_Fiscal ;;
-    }
     dimension: Sociedad {
       type: string
       sql: ${TABLE}.Sociedad ;;
@@ -36,9 +32,24 @@ view: inventario_fletes {
       type: string
       sql: ${TABLE}.Centro_Beneficio ;;
     }
+
     dimension: Planta {
       type: string
       sql: ${TABLE}.Planta ;;
+    }
+
+    dimension: GpoPlantaFletes {
+      type: string
+      sql: CASE WHEN ${TABLE}.Planta in ('MF01','MF51')
+                THEN 'MF01'
+                WHEN ${TABLE}.Planta in ('MF02','MF52')
+                THEN 'MF02'
+                WHEN ${TABLE}.Planta in ('MF03','MF53','MF04','MF54','MF05','MF55','MF07','MF57')
+                THEN 'MF03, MF04, MF05, MF07'
+                WHEN ${TABLE}.Planta in ('MF10','MF60')
+                THEN 'MF10'
+                ELSE ${TABLE}.Planta
+                END ;;
     }
 
     dimension: PlantaComercializadora {
