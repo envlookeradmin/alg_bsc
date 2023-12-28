@@ -117,19 +117,6 @@ explore: inventarios{
   }
 }
 
-explore: inventarios_ciclicos {
-  join: planta {
-    type: left_outer
-    sql_on: ${inventarios_ciclicos.planta} = ${planta.planta_id} ;;
-    relationship: many_to_one
-  }
-  join: fecha {
-    type: left_outer
-    sql_on: ${inventarios_ciclicos.fecha_documento} = ${fecha.CALDAY} ;;
-    relationship: many_to_one
-  }
-}
-
 explore: fct_ordenes_pedidos {
 
   join: material {
@@ -151,7 +138,7 @@ explore: fct_ordenes_pedidos {
   }
   join: fecha {
     type: left_outer
-    sql_on: ${fct_ordenes_pedidos.fecha_entrega_planeada} = ${fecha.fecha} ;;
+    sql_on: ${fct_ordenes_pedidos.fecha_entrega_real} = ${fecha.CALDAY} ;;
     relationship: many_to_one
   }
 
@@ -159,6 +146,22 @@ explore: fct_ordenes_pedidos {
 
 
 }
+
+explore: inventarios_ciclicos {
+  join: planta {
+    type: left_outer
+    sql_on: ${inventarios_ciclicos.planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+  join: fecha {
+    type: left_outer
+    sql_on: ${inventarios_ciclicos.fecha_documento} = ${fecha.CALDAY} ;;
+    relationship: many_to_one
+  }
+}
+
+
+
 
 explore: inventario_fletes {
   join: planta {
@@ -171,6 +174,4 @@ explore: inventario_fletes {
     sql_on: ${inventario_fletes.Fecha} = ${fecha.fecha} ;;
     relationship: many_to_one
   }
-
-
 }
