@@ -142,9 +142,6 @@ explore: fct_ordenes_pedidos {
     relationship: many_to_one
   }
 
-
-
-
 }
 
 explore: inventarios_ciclicos {
@@ -159,6 +156,9 @@ explore: inventarios_ciclicos {
     relationship: many_to_one
   }
 }
+
+
+
 
 
 
