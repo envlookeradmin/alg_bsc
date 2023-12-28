@@ -1,6 +1,6 @@
 view: fct_ordenes_pedidos {
   derived_table: {
-    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_ordenes_pedidos` ;;
+    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_ordenes_pedidos`;;
   }
 
 
