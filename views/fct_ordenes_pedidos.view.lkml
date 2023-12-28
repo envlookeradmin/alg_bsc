@@ -67,15 +67,7 @@ view: fct_ordenes_pedidos {
     sql: ${TABLE}.ID_GRUPO_MATERIAL ;;
   }
 
-  dimension: cantidad_pedida {
-    type: number
-    sql: ${TABLE}.CANTIDAD_PEDIDA ;;
-  }
 
-  dimension: cantidad_entregada {
-    type: number
-    sql: ${TABLE}.CANTIDAD_ENTREGADA ;;
-  }
 
   dimension: cantidad_pendiente {
     type: number
@@ -105,20 +97,35 @@ view: fct_ordenes_pedidos {
   }
 
 
+  dimension: cantidad_pedida {
+    type: number
+    sql: ${TABLE}.CANTIDAD_PEDIDA ;;
+  }
 
-
-
-
-  dimension: estatus_entrega {
-    type: string
-    sql: ${TABLE}.ESTATUS_ENTREGA ;;
+  dimension: cantidad_entregada {
+    type: number
+    sql: ${TABLE}.CANTIDAD_ENTREGADA ;;
   }
 
 
 
+  dimension: estatus_entrega {
+
+    type: string
+    sql: ${TABLE}.ESTATUS_ENTREGA ;;
+  }
+
   measure: Total_cantidad_entregada {
+    label: "Cantidad Entregada"
     type: sum
     sql: ${TABLE}.CANTIDAD_ENTREGADA ;;
+  }
+
+
+  measure: Total_cantidad_pedida {
+    label: "Cantidad Pedida"
+    type: sum
+    sql: ${TABLE}.CANTIDAD_PEDIDA ;;
   }
 
   measure: Total_cantidad_pendiente {
@@ -131,7 +138,7 @@ view: fct_ordenes_pedidos {
 
 
   measure: OTIF {
-    label: "OTIF"
+    label: "Otif"
     type: number
     sql:(${Total_flag_otif_entregadas} /nullif( ${Total_flag_otif},0)) *100  ;;
     value_format: "0.00\%"
@@ -139,10 +146,11 @@ view: fct_ordenes_pedidos {
   }
 
   measure: Total_fill_rate {
-    label: "FILL RATE"
+    label: "Fill Rate"
     type: sum
    sql: ${TABLE}.FILL_RATE ;;
     value_format: "0.00\%"
+    drill_fields: [grupo_materiales.descripcion,Total_cantidad_pedida,Total_cantidad_entregada]
   }
 
 
