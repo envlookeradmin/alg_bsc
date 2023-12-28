@@ -210,11 +210,6 @@ view: tiempos_estadia {
       value_format: "0.00\%"
     }
 
-    measure: registros {
-      type: count_distinct
-      sql: ${TABLE}.PO ;;
-    }
-
     measure: count {
       type: count
     }
