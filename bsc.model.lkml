@@ -130,7 +130,35 @@ explore: inventarios_ciclicos {
   }
 }
 
-explore: fct_ordenes_pedidos {}
+explore: fct_ordenes_pedidos {
+
+  join: material {
+    type: left_outer
+    sql_on:${fct_ordenes_pedidos.id_material}=${material.id_material};;
+    relationship: many_to_one
+  }
+
+  join: grupo_materiales  {
+    type: left_outer
+    sql_on: ${material.grupo_material} = ${grupo_materiales.id_grupo} ;;
+    relationship: many_to_one
+  }
+
+  join: planta {
+    type: left_outer
+    sql_on: ${fct_ordenes_pedidos.planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+  join: fecha {
+    type: left_outer
+    sql_on: ${fct_ordenes_pedidos.fecha_entrega_planeada} = ${fecha.fecha} ;;
+    relationship: many_to_one
+  }
+
+
+
+
+}
 
 explore: inventario_fletes {
   join: planta {

@@ -4,6 +4,8 @@ view: fct_ordenes_pedidos {
     sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_ordenes_pedidos` ;;
   }
 
+
+
   measure: count {
     type: count
     drill_fields: [detail*]
@@ -90,6 +92,42 @@ view: fct_ordenes_pedidos {
     type: string
     sql: ${TABLE}.ESTATUS_ENTREGA ;;
   }
+
+
+  measure: Total_cantidad_entregada {
+    type: sum
+    sql: ${TABLE}.CANTIDAD_ENTREGADA ;;
+  }
+
+  measure: Total_cantidad_pendiente {
+    type: sum
+    sql: ${TABLE}.CANTIDAD_PENDIENTE ;;
+  }
+
+
+  measure: OTIF {
+    type: number
+    sql: (${Total_cantidad_pendiente}/  NULLIF(${Total_cantidad_entregada}, 0)) *100 ;;
+    value_format: "0.00\%"
+  }
+
+  measure: Total_fill_rate {
+    type: sum
+   sql: ${TABLE}.FILL_RATE ;;
+    value_format: "0.00\%"
+  }
+
+
+
+#  OTIF : Es el porcentaje de líneas de pedido entregadas en tiempo (Fecha Entrega Real vs Fecha Comprometida)
+ # y con el total de piezas pedidas (Cantidad Pedida vs Cantidad Entregada a Ventas).
+
+
+
+
+
+
+
 
   set: detail {
     fields: [
