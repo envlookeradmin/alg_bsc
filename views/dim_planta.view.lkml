@@ -22,6 +22,7 @@ view: planta{
   dimension: planta_completo {
     type: string
     sql: ${TABLE}.Planta_ID || ' ' || ${TABLE}.Nombre_Planta;;
+    drill_fields: [grupo_materiales.descripcion]
   }
 
   dimension: planta_comercializadora {

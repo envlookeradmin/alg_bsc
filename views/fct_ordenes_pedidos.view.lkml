@@ -115,6 +115,7 @@ view: fct_ordenes_pedidos {
   }
 
 
+
   measure: Total_cantidad_entregada {
     type: sum
     sql: ${TABLE}.CANTIDAD_ENTREGADA ;;
