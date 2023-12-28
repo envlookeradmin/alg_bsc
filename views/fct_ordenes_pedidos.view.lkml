@@ -87,6 +87,28 @@ view: fct_ordenes_pedidos {
     sql: ${TABLE}.FILL_RATE ;;
   }
 
+  dimension: flag_otif {
+    type: number
+    sql: ${TABLE}.FLAG_OTIF ;;
+  }
+
+
+  measure: Total_flag_otif {
+    type: count_distinct
+    sql: ${TABLE}.FLAG_OTIF ;;
+  }
+
+  measure: Total_flag_otif_entregadas {
+    type: count_distinct
+    sql: ${TABLE}.FLAG_OTIF ;;
+    filters: [flag_otif: "1"]
+  }
+
+
+
+
+
+
   dimension: estatus_entrega {
     type: string
     sql: ${TABLE}.ESTATUS_ENTREGA ;;
@@ -104,13 +126,19 @@ view: fct_ordenes_pedidos {
   }
 
 
+
+
+
   measure: OTIF {
+    label: "OTIF"
     type: number
-    sql: (${Total_cantidad_pendiente}/  NULLIF(${Total_cantidad_entregada}, 0)) *100 ;;
+    sql:(${Total_flag_otif_entregadas} /nullif( ${Total_flag_otif},0)) *100  ;;
     value_format: "0.00\%"
+    drill_fields: [grupo_materiales.descripcion,OTIF]
   }
 
   measure: Total_fill_rate {
+    label: "FILL RATE"
     type: sum
    sql: ${TABLE}.FILL_RATE ;;
     value_format: "0.00\%"
