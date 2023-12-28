@@ -138,7 +138,7 @@ view: fct_ordenes_pedidos {
 
 
   measure: OTIF {
-    label: "OTIF"
+    label: "Otif"
     type: number
     sql:(${Total_flag_otif_entregadas} /nullif( ${Total_flag_otif},0)) *100  ;;
     value_format: "0.00\%"
