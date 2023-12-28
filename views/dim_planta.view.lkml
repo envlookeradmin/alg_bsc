@@ -22,6 +22,7 @@ view: planta{
   dimension: planta_completo {
     type: string
     sql: ${TABLE}.Planta_ID || ' ' || ${TABLE}.Nombre_Planta;;
+    drill_fields: [grupo_materiales.descripcion,fct_ordenes_pedidos.Total_fill_rate,fct_ordenes_pedidos.Total_flag_otif,fct_ordenes_pedidos.Total_flag_otif_entregadas]
   }
 
   dimension: planta_comercializadora {

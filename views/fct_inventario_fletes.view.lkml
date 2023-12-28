@@ -104,6 +104,21 @@ view: inventario_fletes {
       END
                 ;;
     }
+
+    dimension: datos_filtro {
+      type: string
+      sql: DATE_ADD(DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH), INTERVAL -1 YEAR);;
+    }
+
+  dimension: datos_filtro2 {
+    type: string
+    sql: LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 MONTH));;
+  }
+
+
+
+
+
     dimension: mes_actual{
       hidden: yes
       type: yesno
@@ -114,7 +129,7 @@ view: inventario_fletes {
       hidden: yes
       type: yesno
       sql: DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH), INTERVAL -1 YEAR)
-        AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 YEAR)) ;;
+        AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL 0 YEAR)) ;;
     }
     dimension: mes_anterior{
       hidden: yes
@@ -176,6 +191,21 @@ view: inventario_fletes {
 
       value_format: "#,##0"
     }
+
+
+  measure: ValorStockMesActualAnioAnt2{
+    group_label: "Inventarios"
+    type: sum
+    sql: ${Valor_Stock} ;;
+
+     filters: {
+      field: mes_actual_anio_ant
+     value: "yes"
+    }
+
+    value_format: "#,##0"
+  }
+
 
     measure: ValorStockMesAnterior{
       group_label: "Inventarios"

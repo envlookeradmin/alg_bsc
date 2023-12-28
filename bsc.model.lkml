@@ -125,12 +125,9 @@ explore: fct_ordenes_pedidos {
   }
   join: fecha {
     type: left_outer
-    sql_on: ${fct_ordenes_pedidos.fecha_entrega_real} = ${fecha.CALDAY} ;;
+    sql_on: ${fct_ordenes_pedidos.fecha_entrega_planeada} = ${fecha.fecha} ;;
     relationship: many_to_one
   }
-
-
-
 
 }
 
@@ -146,6 +143,12 @@ explore: inventarios_ciclicos {
     relationship: many_to_one
   }
 }
+
+
+
+
+
+
 
 explore: inventario_fletes {
   join: planta {
