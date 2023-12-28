@@ -146,7 +146,7 @@ view: fct_ordenes_pedidos {
   }
 
   measure: Total_fill_rate {
-    label: "FILL RATE"
+    label: "Fill Rate"
     type: sum
    sql: ${TABLE}.FILL_RATE ;;
     value_format: "0.00\%"

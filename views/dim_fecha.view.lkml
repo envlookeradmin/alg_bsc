@@ -48,6 +48,15 @@ view: fecha {
     type: number
     sql: ${TABLE}.QUARTER ;;
   }
+
+
+  dimension: trimestre_Letra {
+    type: string
+    sql: concat("Q", ${TABLE}.QUARTER) ;;
+  }
+
+
+
   dimension: anio {
     type: number
     sql: ${TABLE}.YEAR ;;
