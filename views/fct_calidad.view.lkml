@@ -55,6 +55,16 @@ view: calidad {
     sql: ${planta.planta_completo} ;;
   }
 
+  dimension: ValorNeto {
+    type: number
+    sql: ${TABLE}.VALOR_NETO ;;
+  }
+
+  dimension: CIFactura {
+    type: string
+    sql: ${TABLE}.CI_FACTURA;;
+  }
+
   dimension_group: fecha_filtro {
     label: "Date"
     type: time
@@ -94,6 +104,15 @@ view: calidad {
     #drill_fields: [actividad.descripcion ,Quejas]
 
     value_format: "0"
+  }
+
+  measure: Devoluciones {
+    type: number
+    sql: (1 / SUM(CASE WHEN ${ValorNeto} IN ('ZR2M') THEN ${ValorNeto} END ) )*100;;
+
+    #drill_fields: [actividad.descripcion ,Quejas]
+
+    value_format: "0.00\%"
   }
 
   measure: count {
