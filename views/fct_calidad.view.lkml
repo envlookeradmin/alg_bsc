@@ -108,7 +108,7 @@ view: calidad {
 
   measure: Devoluciones {
     type: number
-    sql: (1 / SUM(CASE WHEN ${ValorNeto} IN ('ZR2M') THEN ${ValorNeto} END ) )*100;;
+    sql: (1 / SUM(CASE WHEN ${CIFactura} IN ('ZR2M') THEN ${ValorNeto} END ) )*100;;
 
     #drill_fields: [actividad.descripcion ,Quejas]
 
