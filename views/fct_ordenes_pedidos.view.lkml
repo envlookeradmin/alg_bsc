@@ -138,7 +138,7 @@ view: fct_ordenes_pedidos {
 
 
   measure: OTIF {
-    label: "Otif"
+    label: "OTIF"
     type: number
     sql:(${Total_flag_otif_entregadas} /nullif( ${Total_flag_otif},0)) *100  ;;
     value_format: "0.00\%"
@@ -146,7 +146,7 @@ view: fct_ordenes_pedidos {
   }
 
   measure: Total_fill_rate {
-    label: "Fill Rate"
+    label: "FILL RATE"
     type: sum
    sql: ${TABLE}.FILL_RATE ;;
     value_format: "0.00\%"
