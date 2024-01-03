@@ -303,7 +303,7 @@ view: inventario_fletes {
     measure: VentaTercerosFletes{
       group_label: "Fletes"
       type: sum
-      sql: ${TABLE}.Venta_terceros ;;
+      sql: (${TABLE}.Venta_terceros * -1);;
 
       filters: {
         field: mes_actual

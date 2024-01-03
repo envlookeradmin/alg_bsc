@@ -1,6 +1,10 @@
 view: materiales_inventario {
   derived_table: {
-    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_materiales_stock` where  PARSE_DATE('%Y/%m/%d',fecha) between  DATE_TRUNC(DATE_ADD( CAST({% date_start date_filter %} AS DATE), INTERVAL -2 month) , month)    and  LAST_DAY(DATE (CAST({% date_start date_filter %} AS DATE)))   ;;
+    sql:
+        SELECT
+        *
+        FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_materiales_stock`
+        where  fecha between  DATE_TRUNC(DATE_ADD( CAST({% date_start date_filter %} AS DATE), INTERVAL -2 month) , month)    and  LAST_DAY(DATE (CAST({% date_start date_filter %} AS DATE)))   ;;
   }
 
   measure: count {
@@ -42,7 +46,8 @@ view: materiales_inventario {
 
   dimension: fecha {
     type: date
-    sql:  PARSE_DATE('%Y/%m/%d', ${TABLE}.FECHA)   ;;
+    #sql:  PARSE_DATE('%Y/%m/%d', ${TABLE}.FECHA)   ;;
+    sql:  ${TABLE}.FECHA  ;;
   }
 
 
