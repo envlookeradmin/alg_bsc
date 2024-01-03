@@ -84,7 +84,7 @@ view: materiales_inventario {
     measure: Total_pt {
       label: "PT"
       type: sum
-      sql:(${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION + ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO) /1000000 ;;
+      sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO) /1000000 ;;
       filters: [grupo_materiales.tipo_nc: "PT"]
       value_format: "$#,##0.00"
     }
@@ -92,7 +92,7 @@ view: materiales_inventario {
     measure: Total_Componentes {
       label: "Componentes"
       type: sum
-      sql:(${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION + ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO) /1000000 ;;
+      sql:( ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO) /1000000 ;;
       filters: [grupo_materiales.tipo_nc: "Componentes"]
       value_format: "$#,##0.00"
     }
@@ -100,7 +100,7 @@ view: materiales_inventario {
     measure: Total_Hoja {
       label: "Hoja"
       type: sum
-      sql:(${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION + ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO) /1000000 ;;
+      sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO) /1000000 ;;
       filters: [grupo_materiales.tipo_nc: "Hoja"]
       value_format: "$#,##0.00"
     }
