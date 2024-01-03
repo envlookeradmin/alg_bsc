@@ -1,69 +1,80 @@
 view: fct_ordenes_compra_otif {
-  # # You can specify the table name if it's different from the view name:
-  # sql_table_name: my_schema_name.tester ;;
-  #
-  # # Define your dimensions and measures here, like this:
-  # dimension: user_id {
-  #   description: "Unique ID for each user that has ordered"
-  #   type: number
-  #   sql: ${TABLE}.user_id ;;
-  # }
-  #
-  # dimension: lifetime_orders {
-  #   description: "The total number of orders for each user"
-  #   type: number
-  #   sql: ${TABLE}.lifetime_orders ;;
-  # }
-  #
-  # dimension_group: most_recent_purchase {
-  #   description: "The date when each user last ordered"
-  #   type: time
-  #   timeframes: [date, week, month, year]
-  #   sql: ${TABLE}.most_recent_purchase_at ;;
-  # }
-  #
-  # measure: total_lifetime_orders {
-  #   description: "Use this for counting lifetime orders across many users"
-  #   type: sum
-  #   sql: ${lifetime_orders} ;;
-  # }
-}
+  sql_table_name: `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_po_otif` ;;
 
-# view: fct_ordenes_compra_otif {
-#   # Or, you could make this view a derived table, like this:
-#   derived_table: {
-#     sql: SELECT
-#         user_id as user_id
-#         , COUNT(*) as lifetime_orders
-#         , MAX(orders.created_at) as most_recent_purchase_at
-#       FROM orders
-#       GROUP BY user_id
-#       ;;
-#   }
-#
-#   # Define your dimensions and measures here, like this:
-#   dimension: user_id {
-#     description: "Unique ID for each user that has ordered"
-#     type: number
-#     sql: ${TABLE}.user_id ;;
-#   }
-#
-#   dimension: lifetime_orders {
-#     description: "The total number of orders for each user"
-#     type: number
-#     sql: ${TABLE}.lifetime_orders ;;
-#   }
-#
-#   dimension_group: most_recent_purchase {
-#     description: "The date when each user last ordered"
-#     type: time
-#     timeframes: [date, week, month, year]
-#     sql: ${TABLE}.most_recent_purchase_at ;;
-#   }
-#
-#   measure: total_lifetime_orders {
-#     description: "Use this for counting lifetime orders across many users"
-#     type: sum
-#     sql: ${lifetime_orders} ;;
-#   }
-# }
+  filter: fecha {
+    type: date
+  }
+
+  dimension_group: fecha_entrada {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    convert_tz: no
+    datatype: date
+    sql: ${TABLE}.FechaEntrada ;;
+  }
+  dimension_group: fecha_entrega_plan {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    convert_tz: no
+    datatype: date
+    sql: ${TABLE}.FechaEntregaPlan ;;
+  }
+  dimension_group: fecha_modificacion_pr {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    convert_tz: no
+    datatype: date
+    sql: ${TABLE}.FechaModificacionPR ;;
+  }
+  dimension: uid_po {
+    type: string
+    sql: ${TABLE}.UID_PO ;;
+  }
+  dimension: uid_pr {
+    type: string
+    sql: ${TABLE}.UID_PR ;;
+  }
+
+  dimension: planta {
+    type: string
+    sql: ${TABLE}.PlantaPO ;;
+  }
+
+  dimension: grupo_compras {
+    type: string
+    sql: ${TABLE}.GrupoComprasPO ;;
+  }
+
+  dimension: comprador {
+    type: string
+    sql: ${TABLE}.CreadoPorPO ;;
+  }
+
+  dimension: es_reco {
+    type: number
+    sql: ${TABLE}.Es_Recoleccion ;;
+  }
+
+
+  measure: count {
+    type: count
+  }
+
+  measure: total_ordenes {
+    type: count_distinct
+    sql: case when ${fecha_entrega_plan_raw} >= cast({%date_start fecha%} as date) and  ${fecha_entrega_plan_raw} < cast({%date_end fecha%} as date) then ${uid_po} end;;
+  }
+
+  measure: ordenes_en_tiempo {
+    type: count_distinct
+    sql: case when ${fecha_entrega_plan_raw} >= cast({%date_start fecha%} as date) and
+    ${fecha_entrega_plan_raw} < cast({%date_end fecha%} as date) and
+    ${fecha_entrada_raw} <= date_add(${fecha_entrega_plan_raw}, interval 1 day)
+    then ${uid_po} end;;
+  }
+
+  measure: otif {
+    sql: ${ordenes_en_tiempo} / ${total_ordenes} ;;
+    value_format: "0.00%"
+  }
+}

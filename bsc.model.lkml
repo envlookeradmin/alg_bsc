@@ -131,3 +131,5 @@ explore: inventario_fletes {
 
 
 }
+
+explore: fct_ordenes_compra_otif {}
