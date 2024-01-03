@@ -4,7 +4,8 @@ view: materiales_inventario {
         SELECT
         *
         FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_materiales_stock`
-        where  fecha between  DATE_TRUNC(DATE_ADD( CAST({% date_start date_filter %} AS DATE), INTERVAL -2 month) , month)    and  LAST_DAY(DATE (CAST({% date_start date_filter %} AS DATE)))   ;;
+        where  fecha between  DATE_TRUNC(DATE_ADD( CAST({% date_start date_filter %} AS DATE), INTERVAL -2 month) , month)
+        and  LAST_DAY(DATE (CAST({% date_start date_filter %} AS DATE)))   ;;
   }
 
   measure: count {
@@ -50,6 +51,21 @@ view: materiales_inventario {
     sql:  ${TABLE}.FECHA  ;;
   }
 
+  dimension: desc_grupo_material {
+    label: "Grupo material"
+    type: string
+    sql: ${grupo_materiales.descripcion} ;;
+  }
+
+  dimension: planta {
+    label: "Planta"
+    sql: ${planta.planta_comercializadora} ;;
+
+    #link: {
+    # label: "Grupo Material"
+    #url: "https://envases.cloud.looker.com/dashboards/132?&Fecha={{ _filters['materiales_inventario.date_filter'] | url_encode }}&Planta={{ materiales_inventario.Planta._value | url_encode}}"
+    #}
+  }
 
 
 
@@ -84,24 +100,30 @@ view: materiales_inventario {
     measure: Total_pt {
       label: "PT"
       type: sum
-      sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO) /1000000 ;;
+      sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
       filters: [grupo_materiales.tipo_nc: "PT"]
+
+      drill_fields: [desc_grupo_material,Total_pt]
       value_format: "$#,##0.00"
     }
 
     measure: Total_Componentes {
       label: "Componentes"
       type: sum
-      sql:( ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO) /1000000 ;;
+      sql:( ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
       filters: [grupo_materiales.tipo_nc: "Componentes"]
+
+      drill_fields: [desc_grupo_material,Total_Componentes]
       value_format: "$#,##0.00"
     }
 
     measure: Total_Hoja {
       label: "Hoja"
       type: sum
-      sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO) /1000000 ;;
+      sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
       filters: [grupo_materiales.tipo_nc: "Hoja"]
+
+      drill_fields: [desc_grupo_material,Total_Hoja]
       value_format: "$#,##0.00"
     }
 
