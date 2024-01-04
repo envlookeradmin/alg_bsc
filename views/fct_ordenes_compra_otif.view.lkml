@@ -74,7 +74,17 @@ view: fct_ordenes_compra_otif {
   }
 
   measure: otif {
-    sql: ${ordenes_en_tiempo} / ${total_ordenes} ;;
+    sql: case when ${ordenes_en_tiempo} = 0 then 0 else ${ordenes_en_tiempo} / ${total_ordenes} end;;
     value_format: "0.00%"
+    html:
+    {% if value >= 92.0 %}
+    <span style="color: green;">{{ rendered_value }}</span></p>
+    {% elsif  value < 90.0 %}
+    <span style="color: red;">{{ rendered_value }}</span></p>
+    {% elsif  value >= 90.0 and value <= 91.9 %}
+    <span style="color: #FFA800;">{{ rendered_value }}</span></p>
+    {% else %}
+    {{rendered_value}}
+    {% endif %} ;;
   }
 }

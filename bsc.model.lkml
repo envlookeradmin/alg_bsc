@@ -132,4 +132,15 @@ explore: inventario_fletes {
 
 }
 
-explore: fct_ordenes_compra_otif {}
+explore: fct_ordenes_compra_otif {
+  join: comprador {
+    type: left_outer
+    sql_on: ${fct_ordenes_compra_otif.grupo_compras} = ${comprador.grupo_compras} ;;
+    relationship: many_to_one
+    }
+  join: planta {
+    type: left_outer
+    sql_on: ${fct_ordenes_compra_otif.planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+}
