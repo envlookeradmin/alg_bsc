@@ -14,8 +14,6 @@ view: tiempos_estadia {
       Fecha_de_Despacho,
       Hora_de_Despacho,
       Tiempo_de_Estadia,
-      DATETIME_DIFF(CAST(CONCAT(Fecha_de_Despacho,' ',Hora_de_Despacho) AS DATETIME),
-      CAST(CONCAT(Fecha_de_Entrada,' ',Hora_de_Entrada) AS DATETIME), SECOND)/3600 AS Tiempo_Estadia,
       Peso_de_Entrada,
       Peso_de_Salida
       FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_tiempo_estadia`
@@ -57,15 +55,6 @@ view: tiempos_estadia {
       link: {
         label: "Maniobra"
         url: "https://envases.cloud.looker.com/dashboards/137?&Fecha={{ _filters['tiempos_estadia.date_filter'] | url_encode }}&Planta={{ tiempos_estadia.Planta._value | url_encode}}"
-      }
-    }
-    dimension: PlantaComercializadora {
-      type: string
-      sql: ${planta.planta_comercializadora} ;;
-
-      link: {
-        label: "Maniobra"
-        url: "https://envases.cloud.looker.com/dashboards/137?&Fecha={{ _filters['tiempos_estadia.date_filter'] | url_encode }}&Planta={{ tiempos_estadia.PlantaComercializadora._value | url_encode}}"
       }
     }
     dimension: OrdenDeCompra {
@@ -219,11 +208,6 @@ view: tiempos_estadia {
       drill_fields: [actividad.descripcion ,Diferencia]
 
       value_format: "0.00\%"
-    }
-
-    measure: registros {
-      type: count_distinct
-      sql: ${TABLE}.PO ;;
     }
 
     measure: count {

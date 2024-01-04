@@ -104,18 +104,46 @@ explore: materiales_inventario {
 
 }
 
-explore: inventarios{
+explore: fct_ordenes_pedidos {
+
+  join: material {
+    type: left_outer
+    sql_on:${fct_ordenes_pedidos.id_material}=${material.id_material};;
+    relationship: many_to_one
+  }
+
+  join: grupo_materiales  {
+    type: left_outer
+    sql_on: ${material.grupo_material} = ${grupo_materiales.id_grupo} ;;
+    relationship: many_to_one
+  }
+
   join: planta {
     type: left_outer
-    sql_on: ${inventarios.Planta} = ${planta.planta_id} ;;
+    sql_on: ${fct_ordenes_pedidos.planta} = ${planta.planta_id} ;;
     relationship: many_to_one
   }
   join: fecha {
     type: left_outer
-    sql_on: ${inventarios.Fecha} = ${fecha.fecha} ;;
+    sql_on: ${fct_ordenes_pedidos.fecha_entrega_planeada} = ${fecha.fecha} ;;
+    relationship: many_to_one
+  }
+
+}
+
+explore: inventarios_ciclicos {
+  join: planta {
+    type: left_outer
+    sql_on: ${inventarios_ciclicos.planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+  join: fecha {
+    type: left_outer
+    sql_on: ${inventarios_ciclicos.fecha_documento} = ${fecha.CALDAY} ;;
     relationship: many_to_one
   }
 }
+
 
 explore: inventario_fletes {
   join: planta {
@@ -128,8 +156,19 @@ explore: inventario_fletes {
     sql_on: ${inventario_fletes.Fecha} = ${fecha.fecha} ;;
     relationship: many_to_one
   }
+}
 
-
+explore: calidad {
+  join: planta {
+    type: left_outer
+    sql_on: ${calidad.Planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+  join: fecha {
+    type: left_outer
+    sql_on: ${calidad.Fecha} = ${fecha.fecha} ;;
+    relationship: many_to_one
+  }
 }
 
 explore: fct_ordenes_compra_otif {

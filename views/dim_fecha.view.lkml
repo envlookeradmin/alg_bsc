@@ -14,6 +14,14 @@ view: fecha {
     type: date
     sql: ${TABLE}.DATE ;;
   }
+
+
+  dimension: CALDAY {
+    type: string
+    sql: ${TABLE}.CALDAY ;;
+  }
+
+
   dimension_group: date {
     type: time
     timeframes: [raw, date, week, month, quarter, year]
@@ -40,6 +48,15 @@ view: fecha {
     type: number
     sql: ${TABLE}.QUARTER ;;
   }
+
+
+  dimension: trimestre_Letra {
+    type: string
+    sql: concat("Q", ${TABLE}.QUARTER) ;;
+  }
+
+
+
   dimension: anio {
     type: number
     sql: ${TABLE}.YEAR ;;
