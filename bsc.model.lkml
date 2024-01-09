@@ -170,3 +170,17 @@ explore: calidad {
     relationship: many_to_one
   }
 }
+
+
+explore: fct_seguridad {
+  join: planta {
+    type: left_outer
+    sql_on: ${fct_seguridad.centro} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+  join: fecha {
+    type: left_outer
+    sql_on: ${fct_seguridad.fecha}echa} = ${fecha.fecha} ;;
+    relationship: many_to_one
+  }
+}
