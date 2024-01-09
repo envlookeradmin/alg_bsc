@@ -67,7 +67,7 @@ explore: tiempos_estadia{
   }
   join: actividad {
     type: left_outer
-    sql_on: ${tiempos_estadia.Actividad} = ${actividad.actividad_id} ;;
+    sql_on: ${tiempos_estadia.IdActividad} = ${actividad.actividad_id} ;;
     relationship: many_to_one
   }
   join: proveedor {
