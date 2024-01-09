@@ -7,6 +7,7 @@ view: tiempos_estadia {
       Actividad,
       Placa,
       Planta,
+      Locacion,
       Orden_de_Compra,
       ID_Proveedor,
       Fecha_de_Entrada,
@@ -36,10 +37,16 @@ view: tiempos_estadia {
       type: string
       sql: ${TABLE}.Bascula ;;
     }
-    dimension: Actividad {
+    dimension: IdActividad {
       type: string
       sql: ${TABLE}.Actividad ;;
     }
+
+    dimension: Actividad {
+      type: string
+      sql: ${actividad.descripcion} ;;
+    }
+
     dimension: Placa {
       type: string
       sql: ${TABLE}.Placa ;;
@@ -48,15 +55,40 @@ view: tiempos_estadia {
       type: string
       sql: ${TABLE}.Planta ;;
     }
+
     dimension: PlantaCompleto {
       type: string
       sql: ${planta.planta_completo} ;;
-
-      link: {
-        label: "Maniobra"
-        url: "https://envases.cloud.looker.com/dashboards/137?&Fecha={{ _filters['tiempos_estadia.date_filter'] | url_encode }}&Planta={{ tiempos_estadia.Planta._value | url_encode}}"
-      }
     }
+
+    dimension: Orden_locacion {
+      type: number
+      sql:  CASE
+                WHEN ${TABLE}.Locacion = 'CUAUTITLÁN' THEN 1
+                WHEN ${TABLE}.Locacion = 'CEDIS' THEN 2
+                WHEN ${TABLE}.Locacion = 'MAZATLÁN' THEN 3
+            END
+                ;;
+    }
+
+    dimension: Locacion {
+      label: "Locación"
+      type: string
+      sql:  ${TABLE}.Locacion
+          /*CASE
+                WHEN ${TABLE}.Planta IN ('MF01','MF51') AND ${TABLE}.Bascula IN ('SC_F01','SC_F05') THEN 'CUAUTITLÁN'
+                WHEN ${TABLE}.Planta IN ('MF01','MF51') AND ${TABLE}.Bascula IN ('SC_F02','SC_F03') THEN 'CEDIS'
+                WHEN ${TABLE}.Planta IN ('MF03','MF53') THEN 'MAZATLÁN'
+            END */
+            ;;
+      link: {
+        label: "Bascula"
+        url: "https://envases.cloud.looker.com/dashboards/137?&Fecha={{ _filters['tiempos_estadia.date_filter'] | url_encode }}&Locación={{ tiempos_estadia.Locacion._value | url_encode}}&Actividad={{ tiempos_estadia.Actividad._value | url_encode }}"
+        }
+
+      #order_by_field: Orden_locacion
+    }
+
     dimension: OrdenDeCompra {
       type: string
       sql: ${TABLE}.OrdenDeCompra ;;
@@ -84,11 +116,6 @@ view: tiempos_estadia {
     dimension: TiempoDeEstadia{
       type: number
       sql: ${TABLE}.Tiempo_de_Estadia ;;
-    }
-
-    dimension: TiempoEstadia{
-      type: number
-      sql: ${TABLE}.Tiempo_Estadia ;;
     }
 
     dimension: PesoDeEntrada{
@@ -153,7 +180,19 @@ view: tiempos_estadia {
       type: average
       sql: ${TiempoDeEstadia} ;;
 
-      drill_fields: [actividad.descripcion ,Prom_Estadia]
+      html:
+      {% if value > 4.0 %}
+      <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8> {{ rendered_value }} </p>
+      {% elsif value < 4.0 %}
+      <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Green.png" height=8 width=8> {{ rendered_value }} </p>
+      {% elsif value == 4.0 %}
+      <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8> {{ rendered_value }} </p>
+      {% else %}
+      {{rendered_value}}
+      {% endif %} ;;
+
+      drill_fields: [Bascula ,Prom_Estadia]
+
 
       value_format: "0.0"
     }
@@ -168,7 +207,7 @@ view: tiempos_estadia {
         value: "yes"
       }
 
-      drill_fields: [actividad.descripcion ,Prom_Estadia_AA]
+      drill_fields: [Bascula ,Prom_Estadia_AA]
 
       value_format: "0.0"
     }
@@ -196,16 +235,9 @@ view: tiempos_estadia {
     measure: Diferencia {
       label: "Diferencia"
       type: number
-    sql: (1-(${Prom_Estadia_Mes_Anterior}/NULLIF(${Prom_Estadia_Mes_Actual},0)))*100  ;;
+      sql: (1-(${Prom_Estadia_Mes_Anterior}/NULLIF(${Prom_Estadia_Mes_Actual},0)))*100  ;;
 
-      html:
-      {% if value <= 4.0 %}
-      <span style="color: red;">{{ rendered_value }}</span></p>
-      {% else %}
-      {{rendered_value}}
-      {% endif %} ;;
-
-      drill_fields: [actividad.descripcion ,Diferencia]
+      drill_fields: [Bascula ,Diferencia]
 
       value_format: "0.00\%"
     }

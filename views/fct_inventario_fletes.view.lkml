@@ -40,11 +40,11 @@ view: inventario_fletes {
 
     dimension: GpoPlantaFletes {
       type: string
-      sql: CASE WHEN ${TABLE}.Planta in ('MF01','MF51')
+      sql: CASE WHEN ${TABLE}.Planta in ('MF01','MF51','MF08','MF58','MF09','MF59')
                 THEN 'MF01'
                 WHEN ${TABLE}.Planta in ('MF02','MF52')
                 THEN 'MF02'
-                WHEN ${TABLE}.Planta in ('MF03','MF53','MF04','MF54','MF05','MF55','MF07','MF57')
+                WHEN ${TABLE}.Planta in ('MF03','MF53','MF04','MF54','MF05','MF55','MF06','MF56','MF07','MF57')
                 THEN 'MF03, MF04, MF05, MF07'
                 WHEN ${TABLE}.Planta in ('MF10','MF60')
                 THEN 'MF10'
@@ -298,6 +298,22 @@ view: inventario_fletes {
       drill_fields: [ CentroBeneficio,RealCostoFletes]
 
       value_format: "$#,##0.00"
+    }
+
+    measure: RealCostoFletes01{
+      group_label: "Fletes"
+      label: "Real Costo de Fletes [MXN] V2"
+      type: sum
+      sql: ROUND( (${TABLE}.Real_costo_fletes/1000) )*1000 ;;
+
+      filters: {
+        field: mes_actual
+        value: "yes"
+      }
+
+      drill_fields: [ CentroBeneficio,RealCostoFletes]
+
+      value_format: "$#,##0"
     }
 
     measure: VentaTercerosFletes{
