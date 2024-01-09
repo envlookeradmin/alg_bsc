@@ -180,7 +180,7 @@ explore: fct_seguridad {
   }
   join: fecha {
     type: left_outer
-    sql_on: ${fct_seguridad.fecha}echa} = ${fecha.fecha} ;;
+    sql_on: ${fct_seguridad.fecha} = ${fecha.fecha} ;;
     relationship: many_to_one
   }
 }
