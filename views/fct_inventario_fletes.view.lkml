@@ -27,6 +27,7 @@ view: inventario_fletes {
       type: string
       sql: ${TABLE}.Sociedad ;;
     }
+
     dimension: CentroBeneficio {
       label: "Centro de Beneficio"
       type: string
@@ -34,22 +35,35 @@ view: inventario_fletes {
     }
 
     dimension: Planta {
+      label: "Id planta"
       type: string
       sql: ${TABLE}.Planta ;;
     }
 
-    dimension: GpoPlantaFletes {
+    dimension: Centro {
       type: string
       sql: CASE WHEN ${TABLE}.Planta in ('MF01','MF51','MF08','MF58','MF09','MF59')
                 THEN 'MF01'
                 WHEN ${TABLE}.Planta in ('MF02','MF52')
                 THEN 'MF02'
                 WHEN ${TABLE}.Planta in ('MF03','MF53','MF04','MF54','MF05','MF55','MF06','MF56','MF07','MF57')
-                THEN 'MF03, MF04, MF05, MF07'
+                THEN 'MF03 - MF04 - MF05 - MF07'
                 WHEN ${TABLE}.Planta in ('MF10','MF60')
                 THEN 'MF10'
                 ELSE ${TABLE}.Planta
                 END ;;
+
+      link: {
+        label: "Planta"
+        url: "https://envases.cloud.looker.com/dashboards/162?&Fecha={{ _filters['inventario_fletes.date_filter'] | url_encode }}&Centro={{ inventario_fletes.Centro._value | url_encode}}"
+      }
+
+    }
+
+    dimension: PlantaFletes {
+      label: "Planta"
+      type: string
+      sql: ${planta.planta_comercializadora} ;;
     }
 
     dimension: PlantaComercializadora {
@@ -295,7 +309,7 @@ view: inventario_fletes {
         value: "yes"
       }
 
-      drill_fields: [ CentroBeneficio,RealCostoFletes]
+      drill_fields: [ PlantaFletes ,RealCostoFletes]
 
       value_format: "$#,##0.00"
     }
@@ -335,7 +349,7 @@ view: inventario_fletes {
       type: number
       sql: ((${RealCostoFletes})/NULLIF(${VentaTercerosFletes},0))*100  ;;
 
-      drill_fields: [ CentroBeneficio,PorcRealFletesVentas]
+      drill_fields: [ PlantaFletes,PorcRealFletesVentas]
 
       value_format: "0.00\%"
     }
