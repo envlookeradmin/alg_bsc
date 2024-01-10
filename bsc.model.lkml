@@ -180,6 +180,7 @@ explore: fct_seguridad {
   join: fecha {
     type: left_outer
     sql_on: ${fct_seguridad.fecha} = ${fecha.fecha} ;;
+
     relationship: many_to_one
   }
 }
@@ -193,6 +194,7 @@ explore: fct_ordenes_compra_otif {
   join: planta {
     type: left_outer
     sql_on: ${fct_ordenes_compra_otif.planta} = ${planta.planta_id} ;;
+
     relationship: many_to_one
   }
 }

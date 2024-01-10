@@ -14,6 +14,11 @@ view: fct_seguridad {
     sql: ${TABLE}.ID_EVENTO ;;
   }
 
+  measure: coutn_id_evento {
+    type: count_distinct
+    sql: ${TABLE}.ID_EVENTO ;;
+  }
+
   dimension: titulo {
     type: string
     sql: ${TABLE}.TITULO ;;
@@ -30,8 +35,8 @@ view: fct_seguridad {
   }
 
   dimension: fecha {
-    type: string
-    sql:SUBSTR(${TABLE}.FECHA,1,10)  ;;
+    type: date
+    sql:${TABLE}.FECHA  ;;
   }
 
   dimension: clasificacion_incidente {
