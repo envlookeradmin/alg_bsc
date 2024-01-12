@@ -41,6 +41,17 @@ view: fct_manufactura {
     sql: ${TABLE}.ID_GRUPO_MATERIAL ;;
   }
 
+  dimension: Linea_producto {
+    type: string
+    sql: UPPER(${grupo_materiales.descripcion}) ;;
+  }
+
+  dimension: unidad_peso {
+    type: string
+    sql: ${TABLE}.UNIDAD_PESO ;;
+  }
+
+
   dimension: cantidad_rechazo_notificada {
     type: number
     sql: ${TABLE}.CANTIDAD_RECHAZO_NOTIFICADA ;;
@@ -56,10 +67,6 @@ view: fct_manufactura {
     sql: ${TABLE}.CANTIDAD_ENTREGADA ;;
   }
 
-  dimension: unidad_peso {
-    type: string
-    sql: ${TABLE}.UNIDAD_PESO ;;
-  }
 
   dimension: porcentaje_producto_no_conforme {
     type: number
@@ -70,6 +77,89 @@ view: fct_manufactura {
     type: number
     sql: ${TABLE}.CANTIDAD_BASE ;;
   }
+
+  measure: Total_cantidad_base {
+    label: "CAPACIDAD"
+    type: sum
+    sql: ${TABLE}.CANTIDAD_BASE ;;
+  }
+
+
+  measure: Total_cantidad_rechazo_notificada {
+    type: sum
+    sql: ${TABLE}.CANTIDAD_RECHAZO_NOTIFICADA ;;
+    value_format: "#,##0.00"
+  }
+
+  measure: Total_cantidad_buena_confirmada {
+    label: "PRODUCCIÓN"
+    type: sum
+    sql: ${TABLE}.CANTIDAD_BUENA_CONFIRMADA ;;
+    value_format: "#,##0.00"
+  }
+
+  measure: Total_cantidad_entregada {
+    label: "BUDGET"
+    type: sum
+    sql: ${TABLE}.CANTIDAD_ENTREGADA ;;
+    value_format: "#,##0.00"
+  }
+
+  measure: Total_NIVEL_PRONOSTICADO {
+    label: "% NIVEL DE OCUPACIÓN PRONOSTICADO"
+    type: number
+    sql:   ( ${Total_cantidad_entregada} /NULLIF(${Total_cantidad_base},0)) ;;
+
+    html:
+    {% if value <= 84.9 %}
+    <span style="color: green;">{{ rendered_value }}</span></p>
+    {% elsif  value >= 90.0 and value <= 100.0 %}
+    <span style="color: red;">{{ rendered_value }}</span></p>
+    {% elsif  value >= 85 and value <= 89.9 %}
+    <span style="color: #FFA800;">{{ rendered_value }}</span></p>
+    {% else %}
+    {{rendered_value}}
+    {% endif %} ;;
+
+    value_format: "0.00\%"
+  }
+
+
+  measure: Total_NIVEL_REAL {
+    label: "% NIVEL DE OCUPACIÓN REAL"
+    type: number
+    sql:   ( ${Total_cantidad_buena_confirmada} /NULLIF(${Total_cantidad_base},0)) ;;
+
+    html:
+    {% if value <= 84.9 %}
+    <span style="color: green;">{{ rendered_value }}</span></p>
+    {% elsif  value >= 90.0 and value <= 100.0 %}
+    <span style="color: red;">{{ rendered_value }}</span></p>
+    {% elsif  value >= 85 and value <= 89.9 %}
+    <span style="color: #FFA800;">{{ rendered_value }}</span></p>
+    {% else %}
+    {{rendered_value}}
+    {% endif %} ;;
+
+      value_format: "0.00\%"
+  }
+
+
+
+
+
+  measure: Total_porcentaje_producto_no_conforme {
+    type: sum
+    sql: ${TABLE}.PORCENTAJE_PRODUCTO_NO_CONFORME ;;
+
+  }
+
+
+
+
+
+
+
 
   set: detail {
     fields: [

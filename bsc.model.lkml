@@ -200,6 +200,18 @@ explore: fct_ordenes_compra_otif {
 }
 
 explore: fct_manufactura {
+
+  join: material {
+    type: left_outer
+    sql_on:${fct_manufactura.id_material}=${material.id_material};;
+    relationship: many_to_one
+  }
+
+  join: grupo_materiales  {
+    type: left_outer
+    sql_on: ${material.grupo_material} = ${grupo_materiales.id_grupo} ;;
+    relationship: many_to_one
+  }
   join: planta {
     type: left_outer
     sql_on: ${fct_manufactura.planta} = ${planta.planta_id} ;;
