@@ -1,7 +1,7 @@
 
 view: fct_manufactura {
   derived_table: {
-    sql: select * from envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_prod_cap_manufactura  ;;
+    sql: select * from envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_prod_cap_manufactura  ;;
   }
 
   measure: count {
