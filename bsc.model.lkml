@@ -198,3 +198,5 @@ explore: fct_ordenes_compra_otif {
     relationship: many_to_one
   }
 }
+
+explore: fct_manufactura {}
