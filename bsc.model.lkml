@@ -199,4 +199,17 @@ explore: fct_ordenes_compra_otif {
   }
 }
 
-explore: fct_manufactura {}
+explore: fct_manufactura {
+  join: planta {
+    type: left_outer
+    sql_on: ${fct_manufactura.planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+  join: fecha {
+    type: left_outer
+    sql_on: ${fct_manufactura.fecha_fin_real} = ${fecha.fecha} ;;
+
+    relationship: many_to_one
+  }
+
+}
