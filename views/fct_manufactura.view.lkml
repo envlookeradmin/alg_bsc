@@ -14,6 +14,15 @@ view: fct_manufactura {
     sql: ${TABLE}.PLANTA ;;
   }
 
+
+  dimension: Puesto_trabajo {
+    type: string
+    sql: ${TABLE}.PUESTO_TRABADO ;;
+  }
+
+
+
+
   dimension: fecha_fin_real {
     type: date
     datatype: date
@@ -79,7 +88,6 @@ view: fct_manufactura {
   }
 
   measure: Total_cantidad_base {
-    label: "CAPACIDAD"
     type: sum
     sql: ${TABLE}.CANTIDAD_BASE ;;
   }
@@ -99,7 +107,7 @@ view: fct_manufactura {
   }
 
   measure: Total_cantidad_entregada {
-    label: "BUDGET"
+    label: "CAPACIDAD"
     type: sum
     sql: ${TABLE}.CANTIDAD_ENTREGADA ;;
     value_format: "#,##0.00"
@@ -108,7 +116,7 @@ view: fct_manufactura {
   measure: Total_NIVEL_PRONOSTICADO {
     label: "% NIVEL DE OCUPACIÓN PRONOSTICADO"
     type: number
-    sql:   ( ${Total_cantidad_entregada} /NULLIF(${Total_cantidad_base},0)) ;;
+    sql:   ( ${Total_cantidad_buena_confirmada} /NULLIF(${Total_cantidad_entregada},0)) ;;
 
     html:
     {% if value <= 84.9 %}
