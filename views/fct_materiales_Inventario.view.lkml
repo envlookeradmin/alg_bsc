@@ -2,10 +2,41 @@ view: materiales_inventario {
   derived_table: {
     sql:
         SELECT
-        *
-        FROM `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_materiales_stock`
-        where  fecha between  DATE_TRUNC(DATE_ADD( CAST({% date_start date_filter %} AS DATE), INTERVAL -2 month) , month)
-        and  LAST_DAY(DATE (CAST({% date_start date_filter %} AS DATE)))   ;;
+        ms.fecha_costo,
+        ms.ID_MATERIAL,
+        ms.CENTRO,
+        ms.TIPO_PROVEEDOR_CLIENTE,
+        --ms.ID_PROVEDOR_CLIENTE,
+        ms.STOCK_LIBRE_UTILIZACION,
+        ms.STOCK_INSPECCION_CALIDAD,
+        ms.STOCK_BLOQUEADO,
+        ms.GRUPO_MATERIAL,
+        ms.TIPO_STOCK,
+        ms.FECHA,
+        --ms.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION,
+        ms.VALOR_ACTUAL_INSPECCION_CALIDAD,
+        ms.VALOR_ACTUAL_BLOQUEADO,
+        ar.tipo AS TIPO_NC
+        FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_materiales_stock` ms
+        left join `envases-analytics-eon-poc.RAW_S4H_MX.cat_grupo_articulos` as ar
+          ON GRUPO_MATERIAL = grupo
+          WHERE
+           GRUPO_MATERIAL in ('BAS1010','DPL1012','LID1015','OPP1018','BFT1012','DPL1014','LID1017','PAI1017','BLI1018',
+                      'DPL1015','LID1022','PLA1005','BPP1018','DPL1016','LID1023','PLA1008','BTM1016','DPL1017',
+                      'LID1060','PLA1010','BTP1014','DPL1021','LID5800','PLA1012','CAN1005','DPL1060','LPL1005',
+                      'PLA1014','CAN1010','DRM1022','LPL1008','PLA1015','CAN1012','DRM1023','LPL1010','PLA1016',
+                      'CAN1014','DRM1026','LPL1012','PLA1017','CAN1015','END1014','LPL1014','PLA1019','CAN1016',
+                      'END1017','LPL1015','PLA1021','CAN1019','EOE1005','LPL1016','PLA1023','CAN1024','EOE1010',
+                      'LPL1017','PLA1060','CAN1060','EOE1019','LPL1019','PLA4000','DOM1016','JRY1025','LPL1021',
+                      'TTP1014','DPL1005','LAM1030','LPL1030','TWO1021','DPL1008','LID1010','LPL1060','DPL1010',
+                      'LID1012','OLI1018')
+                      AND
+                      CENTRO in ('MF01','MF02','MF03','MF04','MF05','MF06','MF07','MF08','MF09','MF10' ) AND
+                      TIPO_PROVEEDOR_CLIENTE = 'Planta'
+
+        and FECHA between  DATE_TRUNC(DATE_ADD( CAST({% date_start date_filter %} AS DATE), INTERVAL -2 month) , month)
+        and LAST_DAY(DATE (CAST({% date_start date_filter %} AS DATE)))
+        ;;
   }
 
   measure: count {
@@ -43,6 +74,11 @@ view: materiales_inventario {
   dimension: grupo_material {
     type: string
     sql: ${TABLE}.GRUPO_MATERIAL ;;
+  }
+
+  dimension: tipo_nc {
+    type: string
+    sql: ${TABLE}.TIPO_NC ;;
   }
 
   dimension: fecha {
@@ -118,10 +154,10 @@ view: materiales_inventario {
       sql: ${TABLE}.LOTE ;;
     }
 
-    dimension: valor_actual_stock_libre_utilizacion {
-      type: number
-      sql: ${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION ;;
-    }
+    #dimension: valor_actual_stock_libre_utilizacion {
+      #type: number
+      #sql: ${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION ;;
+    #}
 
     dimension: valor_actual_inspeccion_calidad {
       type: number
@@ -156,7 +192,7 @@ view: materiales_inventario {
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
       ;;
-      filters: [grupo_materiales.tipo_nc: "PT"]
+      filters: [materiales_inventario.tipo_nc: "PT"]
       filters: {
         field: mes_actual
         value: "yes"
@@ -169,7 +205,7 @@ view: materiales_inventario {
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
           ;;
-      filters: [grupo_materiales.tipo_nc: "PT"]
+      filters: [materiales_inventario.tipo_nc: "PT"]
       filters: {
         field: mes_anterior
         value: "yes"
@@ -201,7 +237,7 @@ view: materiales_inventario {
       label: "Componentes"
       type: sum
       sql:( ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
-      filters: [grupo_materiales.tipo_nc: "Componentes"]
+      filters: [materiales_inventario.tipo_nc: "Componentes"]
 
       drill_fields: [desc_grupo_material,Total_Componentes]
       value_format: "$#,##0.00"
@@ -212,7 +248,7 @@ view: materiales_inventario {
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
         ;;
-      filters: [grupo_materiales.tipo_nc: "Componentes"]
+      filters: [materiales_inventario.tipo_nc: "Componentes"]
       filters: {
         field: mes_actual
         value: "yes"
@@ -225,7 +261,7 @@ view: materiales_inventario {
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
         ;;
-      filters: [grupo_materiales.tipo_nc: "Componentes"]
+      filters: [materiales_inventario.tipo_nc: "Componentes"]
       filters: {
         field: mes_anterior
         value: "yes"
@@ -260,7 +296,7 @@ view: materiales_inventario {
       label: "Hoja"
       type: sum
       sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
-      filters: [grupo_materiales.tipo_nc: "Hoja"]
+      filters: [materiales_inventario.tipo_nc: "Hoja"]
 
       drill_fields: [desc_grupo_material,Total_Hoja]
       value_format: "$#,##0.00"
@@ -271,7 +307,7 @@ view: materiales_inventario {
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
         ;;
-      filters: [grupo_materiales.tipo_nc: "Hoja"]
+      filters: [materiales_inventario.tipo_nc: "Hoja"]
       filters: {
         field: mes_actual
         value: "yes"
@@ -284,7 +320,7 @@ view: materiales_inventario {
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
         ;;
-      filters: [grupo_materiales.tipo_nc: "Hoja"]
+      filters: [materiales_inventario.tipo_nc: "Hoja"]
       filters: {
         field: mes_anterior
         value: "yes"
@@ -323,7 +359,6 @@ view: materiales_inventario {
         grupo_material,
         fecha,
         lote,
-        valor_actual_stock_libre_utilizacion,
         valor_actual_inspeccion_calidad,
         valor_actual_bloqueado
       ]
