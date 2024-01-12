@@ -87,6 +87,16 @@ view: materiales_inventario {
       AND ${TABLE}.FECHA <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 MONTH));;
   }
 
+  dimension: ultimos_2_meses{
+    type: number
+    sql:
+      CASE
+          WHEN ${TABLE}.FECHA >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH)
+          AND ${TABLE}.FECHA <= DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL 0 DAY) THEN 1
+          ELSE 0
+          END;;
+  }
+
   dimension: desc_grupo_material {
     label: "Grupo material"
     type: string
