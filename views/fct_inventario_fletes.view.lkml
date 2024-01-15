@@ -13,7 +13,7 @@ view: inventario_fletes {
       GastoFabricacion,
       Cierre_anio_anterior
       FROM `RPT_S4H_MX.vw_bsc_reporte_inventario_fletes`
-      where TRIM(Planta) is not null;;
+      where TRIM(Planta) is not null or TRIM(Planta) != '';;
     }
 
     #Filtro
