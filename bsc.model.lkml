@@ -147,7 +147,7 @@ explore: inventarios_ciclicos {
 
 explore: inventario_fletes {
   join: planta {
-    type: left_outer
+    type: inner
     sql_on: ${inventario_fletes.Planta} = ${planta.planta_id} ;;
     relationship: many_to_one
   }
