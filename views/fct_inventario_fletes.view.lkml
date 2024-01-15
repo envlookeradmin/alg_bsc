@@ -2,7 +2,7 @@ view: inventario_fletes {
     derived_table: {
       sql:
       select
-      Sociedad,
+      --Sociedad,
       Centro_Beneficio,
       Planta,
       Fecha,

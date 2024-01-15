@@ -13,6 +13,7 @@ view: materiales_inventario {
         ms.GRUPO_MATERIAL,
         ms.TIPO_STOCK,
         ms.FECHA,
+        ms.FECHA as FECHA_ANT,
         --ms.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION,
         ms.VALOR_ACTUAL_INSPECCION_CALIDAD,
         ms.VALOR_ACTUAL_BLOQUEADO,
@@ -119,8 +120,8 @@ view: materiales_inventario {
   dimension: mes_anterior{
     hidden: yes
     type: yesno
-    sql: ${TABLE}.FECHA >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH)
-      AND ${TABLE}.FECHA <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 MONTH));;
+    sql: ${TABLE}.FECHA_ANT >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH)
+      AND ${TABLE}.FECHA_ANT <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 MONTH));;
   }
 
   dimension: ultimos_2_meses{
@@ -177,190 +178,188 @@ view: materiales_inventario {
   }
 
 
-    measure: Total_pt {
-      label: "PT"
-      type: sum
-      sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
-      filters: [grupo_materiales.tipo_nc: "PT"]
+  measure: Total_pt {
+    label: "PT"
+    type: sum
+    sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
+    filters: [grupo_materiales.tipo_nc: "PT"]
 
-      drill_fields: [desc_grupo_material,Total_pt]
-      value_format: "$#,##0.00"
+    drill_fields: [desc_grupo_material,Total_pt]
+    value_format: "$#,##0.00"
+  }
+
+  measure: Total_pt_mes_act {
+    hidden: yes
+    type: sum
+    sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
+    ;;
+    filters: [materiales_inventario.tipo_nc: "PT"]
+    filters: {
+      field: mes_actual
+      value: "yes"
     }
 
-    measure: Total_pt_mes_act {
-      hidden: yes
-      type: sum
-      sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
+  }
+
+  measure: Total_pt_mes_ant {
+    hidden: yes
+    type: sum
+    sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
+        ;;
+    filters: [materiales_inventario.tipo_nc: "PT"]
+    filters: {
+      field: mes_anterior
+      value: "yes"
+    }
+  }
+
+  measure: Variacion_pt {
+    label: "Variación PT"
+    type: number
+    sql: ${Total_pt_mes_act}
       ;;
-      filters: [materiales_inventario.tipo_nc: "PT"]
-      filters: {
-        field: mes_actual
-        value: "yes"
-      }
 
+    html:
+    {% if materiales_inventario.Total_pt_mes_act._value == materiales_inventario.Total_pt_mes_ant._value %}
+    <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8> {{ rendered_value }} </p>
+    {% elsif materiales_inventario.Total_pt_mes_act._value > materiales_inventario.Total_pt_mes_ant._value %}
+    <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8> {{ rendered_value }} </p>
+    {% elsif materiales_inventario.Total_pt_mes_act._value < materiales_inventario.Total_pt_mes_ant._value %}
+    <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Green.png" height=8 width=8> {{ rendered_value }} </p>
+    {% else %}
+    <p> {{ rendered_value }} </p>
+    {% endif %} ;;
+
+    value_format: "$#,##0.00"
+
+  }
+
+
+  measure: Total_Componentes {
+    label: "Componentes"
+    type: sum
+    sql:( ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
+    filters: [materiales_inventario.tipo_nc: "Componentes"]
+
+    drill_fields: [desc_grupo_material,Total_Componentes]
+    value_format: "$#,##0.00"
+  }
+
+  measure: Total_comp_mes_act {
+    hidden: yes
+    type: sum
+    sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
+      ;;
+    filters: [materiales_inventario.tipo_nc: "Componentes"]
+    filters: {
+      field: mes_actual
+      value: "yes"
     }
 
-    measure: Total_pt_mes_ant {
-      hidden: yes
-      type: sum
-      sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
-          ;;
-      filters: [materiales_inventario.tipo_nc: "PT"]
-      filters: {
-        field: mes_anterior
-        value: "yes"
-      }
-    }
+  }
 
-    measure: Variacion_pt {
-      label: "Variación PT"
-      type: number
-      sql: ${Total_pt_mes_ant}
+  measure: Total_comp_mes_ant {
+    hidden: yes
+    type: sum
+    sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
+      ;;
+    filters: [materiales_inventario.tipo_nc: "Componentes"]
+
+    filters: {
+      field: mes_anterior
+      value: "yes"
+    }
+  }
+
+  measure: Variacion_componente {
+    label: "Variación Componente"
+    type: number
+    sql: ${Total_comp_mes_act}
         ;;
 
+    html:
+    {% if materiales_inventario.Total_comp_mes_act._value == materiales_inventario.Total_comp_mes_ant._value %}
+    <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8> {{ rendered_value }} </p>
+    {% elsif materiales_inventario.Total_comp_mes_act._value > materiales_inventario.Total_comp_mes_ant._value %}
+    <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8> {{ rendered_value }} </p>
+    {% elsif materiales_inventario.Total_comp_mes_act._value < materiales_inventario.Total_comp_mes_ant._value %}
+    <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Green.png" height=8 width=8> {{ rendered_value }} </p>
+    {% else %}
+    <p> {{ rendered_value }} </p>
+    {% endif %} ;;
+
+    value_format: "$#,##0.00"
+
+    }
+
+  measure: Total_Hoja {
+    label: "Hoja"
+    type: sum
+    sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
+    filters: [materiales_inventario.tipo_nc: "Hoja"]
+
+    drill_fields: [desc_grupo_material,Total_Hoja]
+    value_format: "$#,##0.00"
+  }
+
+  measure: Total_hoja_mes_act {
+    hidden: yes
+    type: sum
+    sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
+      ;;
+    filters: [materiales_inventario.tipo_nc: "Hoja"]
+    filters: {
+      field: mes_actual
+      value: "yes"
+    }
+
+  }
+
+  measure: Total_hoja_mes_ant {
+    hidden: yes
+    type: sum
+    sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
+      ;;
+    filters: [materiales_inventario.tipo_nc: "Hoja"]
+    filters: {
+      field: mes_anterior
+      value: "yes"
+    }
+  }
+
+  measure: Variacion_hoja {
+    label: "Variación Hoja"
+    type: number
+    sql: ${Total_hoja_mes_act}
+          ;;
+
       html:
-      {% if materiales_inventario.Total_pt_mes_act._value == materiales_inventario.Total_pt_mes_ant._value %}
+      {% if materiales_inventario.Total_hoja_mes_act._value == materiales_inventario.Total_hoja_mes_ant._value %}
       <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8> {{ rendered_value }} </p>
-      {% elsif materiales_inventario.Total_pt_mes_act._value > materiales_inventario.Total_pt_mes_ant._value %}
+      {% elsif materiales_inventario.Total_hoja_mes_act._value > materiales_inventario.Total_hoja_mes_ant._value %}
       <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8> {{ rendered_value }} </p>
-      {% elsif materiales_inventario.Total_pt_mes_act._value < materiales_inventario.Total_pt_mes_ant._value %}
+      {% elsif materiales_inventario.Total_hoja_mes_act._value < materiales_inventario.Total_hoja_mes_ant._value %}
       <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Green.png" height=8 width=8> {{ rendered_value }} </p>
       {% else %}
       <p> {{ rendered_value }} </p>
       {% endif %} ;;
-      value_format: "$#,##0.00"
 
-    }
-
-
-    measure: Total_Componentes {
-      label: "Componentes"
-      type: sum
-      sql:( ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
-      filters: [materiales_inventario.tipo_nc: "Componentes"]
-
-      drill_fields: [desc_grupo_material,Total_Componentes]
-      value_format: "$#,##0.00"
-    }
-
-    measure: Total_comp_mes_act {
-      hidden: yes
-      type: sum
-      sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
-        ;;
-      filters: [materiales_inventario.tipo_nc: "Componentes"]
-      filters: {
-        field: mes_actual
-        value: "yes"
-      }
-
-    }
-
-    measure: Total_comp_mes_ant {
-      hidden: yes
-      type: sum
-      sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
-        ;;
-      filters: [materiales_inventario.tipo_nc: "Componentes"]
-      filters: {
-        field: mes_anterior
-        value: "yes"
-      }
-    }
-
-    measure: Variacion_componente {
-      label: "Variación Componente"
-      type: number
-      sql: CASE WHEN ${Total_comp_mes_act} = ${Total_comp_mes_ant} THEN 1 --AMARILLO
-                WHEN ${Total_comp_mes_act} > ${Total_comp_mes_ant} THEN 2 --ROJO
-                WHEN ${Total_comp_mes_act} < ${Total_comp_mes_ant} THEN 3 --VERDE
-                END
-          ;;
-
-        html:
-        {% if value == 1 %}
-        <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8>{{ materiales_inventario.Total_comp_mes_act._value }}</p>
-        {% elsif value == 2 %}
-        <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8>{{ materiales_inventario.Total_comp_mes_act._value }}</p>
-        {% elsif value == 3 %}
-        <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Green.png" height=8 width=8>{{ materiales_inventario.Total_comp_mes_act._value }}</p>
-        {% else %}
-        <p>{{ materiales_inventario.Total_comp_mes_act._value }}</p>
-        {% endif %} ;;
-
-      value_format: "$#,##0.00"
+    value_format: "$#,##0.00"
 
       }
 
-    measure: Total_Hoja {
-      label: "Hoja"
-      type: sum
-      sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
-      filters: [materiales_inventario.tipo_nc: "Hoja"]
-
-      drill_fields: [desc_grupo_material,Total_Hoja]
-      value_format: "$#,##0.00"
-    }
-
-    measure: Total_hoja_mes_act {
-      hidden: yes
-      type: sum
-      sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
-        ;;
-      filters: [materiales_inventario.tipo_nc: "Hoja"]
-      filters: {
-        field: mes_actual
-        value: "yes"
-      }
-
-    }
-
-    measure: Total_hoja_mes_ant {
-      hidden: yes
-      type: sum
-      sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
-        ;;
-      filters: [materiales_inventario.tipo_nc: "Hoja"]
-      filters: {
-        field: mes_anterior
-        value: "yes"
-      }
-    }
-
-    measure: Variacion_hoja {
-      label: "Variación Hoja"
-      type: number
-      sql: CASE WHEN ${Total_hoja_mes_act} = ${Total_hoja_mes_ant} THEN 1 --AMARILLO
-                WHEN ${Total_hoja_mes_act} > ${Total_hoja_mes_ant} THEN 2 --ROJO
-                WHEN ${Total_hoja_mes_act} < ${Total_hoja_mes_ant} THEN 3 --VERDE
-                END
-            ;;
-
-        html:
-          {% if value == 1 %}
-          <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8>{{ materiales_inventario.Total_hoja_mes_act._value }} </p>
-          {% elsif value == 2 %}
-          <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8>{{ materiales_inventario.Total_hoja_mes_act._value }} </p>
-          {% elsif value == 3 %}
-          <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Green.png" height=8 width=8>{{ materiales_inventario.Total_hoja_mes_act._value }} </p>
-          {% else %}
-          <p>{{ materiales_inventario.Total_hoja_mes_act._value }}</p>
-          {% endif %} ;;
-
-        }
-
-    set: detail {
-      fields: [
-        id_material,
-        centro,
-        stock_libre_utilizacion,
-        stock_inspeccion_calidad,
-        stock_bloqueado,
-        grupo_material,
-        fecha,
-        lote,
-        valor_actual_inspeccion_calidad,
-        valor_actual_bloqueado
-      ]
-    }
+  set: detail {
+    fields: [
+      id_material,
+      centro,
+      stock_libre_utilizacion,
+      stock_inspeccion_calidad,
+      stock_bloqueado,
+      grupo_material,
+      fecha,
+      lote,
+      valor_actual_inspeccion_calidad,
+      valor_actual_bloqueado
+    ]
   }
+}
