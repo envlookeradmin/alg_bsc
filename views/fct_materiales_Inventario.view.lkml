@@ -13,6 +13,7 @@ view: materiales_inventario {
         ms.GRUPO_MATERIAL,
         ms.TIPO_STOCK,
         ms.FECHA,
+        ms.FECHA as FECHA_ANT,
         --ms.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION,
         ms.VALOR_ACTUAL_INSPECCION_CALIDAD,
         ms.VALOR_ACTUAL_BLOQUEADO,
@@ -119,18 +120,49 @@ view: materiales_inventario {
   dimension: mes_anterior{
     hidden: yes
     type: yesno
-    sql: ${TABLE}.FECHA >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH)
-      AND ${TABLE}.FECHA <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 MONTH));;
+    sql: ${TABLE}.FECHA_ANT >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH)
+      AND ${TABLE}.FECHA_ANT <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 MONTH));;
   }
 
-  dimension: ultimos_2_meses{
+  dimension: 2_meses{
     type: number
     sql:
       CASE
-          WHEN ${TABLE}.FECHA >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH)
-          AND ${TABLE}.FECHA <= DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL 0 DAY) THEN 1
+          WHEN ${TABLE}.FECHA >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH)
+          AND ${TABLE}.FECHA <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 MONTH)) THEN 1
           ELSE 0
           END;;
+  }
+
+  dimension: desc_mes_actual {
+    type: string
+    sql: CASE
+         WHEN EXTRACT(MONTH FROM CAST({% date_start date_filter %} AS DATE) ) = 1
+         THEN 'Enero'
+         WHEN EXTRACT(MONTH FROM CAST({% date_start date_filter %} AS DATE) ) = 2
+         THEN 'Febrero'
+         WHEN EXTRACT(MONTH FROM CAST({% date_start date_filter %} AS DATE) ) = 3
+         THEN 'Marzo'
+         WHEN EXTRACT(MONTH FROM CAST({% date_start date_filter %} AS DATE) ) = 4
+         THEN 'Abril'
+         WHEN EXTRACT(MONTH FROM CAST({% date_start date_filter %} AS DATE) ) = 5
+         THEN 'Mayo'
+         WHEN EXTRACT(MONTH FROM CAST({% date_start date_filter %} AS DATE) ) = 6
+         THEN 'Junio'
+         WHEN EXTRACT(MONTH FROM CAST({% date_start date_filter %} AS DATE) ) = 7
+         THEN 'Julio'
+         WHEN EXTRACT(MONTH FROM CAST({% date_start date_filter %} AS DATE) ) = 8
+         THEN 'Agosto'
+         WHEN EXTRACT(MONTH FROM CAST({% date_start date_filter %} AS DATE) ) = 9
+         THEN 'Septiembre'
+         WHEN EXTRACT(MONTH FROM CAST({% date_start date_filter %} AS DATE) ) = 10
+         THEN 'Octubre'
+         WHEN EXTRACT(MONTH FROM CAST({% date_start date_filter %} AS DATE) ) = 11
+         THEN 'Noviembre'
+         WHEN EXTRACT(MONTH FROM CAST({% date_start date_filter %} AS DATE) ) = 12
+         THEN 'Diciembre'
+         END
+        ;;
   }
 
   dimension: desc_grupo_material {
@@ -169,25 +201,29 @@ view: materiales_inventario {
       sql: ${TABLE}.VALOR_ACTUAL_BLOQUEADO ;;
     }
 
-  filter: date_filter {
-    label: "Período"
-    description: "Use this date filter in combination with the timeframes dimension for dynamic date filtering"
-    type: date
-
-  }
+    filter: date_filter {
+      label: "Período"
+      description: "Use this date filter in combination with the timeframes dimension for dynamic date filtering"
+      type: date
+    }
 
 
     measure: Total_pt {
       label: "PT"
       type: sum
       sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
-      filters: [grupo_materiales.tipo_nc: "PT"]
+      filters: [materiales_inventario.tipo_nc: "PT"]
+
+      html:
+      <p> {{ rendered_value }} </p>
+      ;;
 
       drill_fields: [desc_grupo_material,Total_pt]
       value_format: "$#,##0.00"
     }
 
     measure: Total_pt_mes_act {
+      label: "Total PT mes actual"
       hidden: yes
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
@@ -201,6 +237,7 @@ view: materiales_inventario {
     }
 
     measure: Total_pt_mes_ant {
+      label: "Total PT mes anterior"
       hidden: yes
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
@@ -213,9 +250,9 @@ view: materiales_inventario {
     }
 
     measure: Variacion_pt {
-      label: "Variación PT"
+      label: "PT "
       type: number
-      sql: ${Total_pt_mes_ant}
+      sql: ${Total_pt_mes_act}
         ;;
 
       html:
@@ -228,7 +265,10 @@ view: materiales_inventario {
       {% else %}
       <p> {{ rendered_value }} </p>
       {% endif %} ;;
+
       value_format: "$#,##0.00"
+
+      drill_fields: [desc_grupo_material,Total_pt_mes_ant,Total_pt_mes_act ]
 
     }
 
@@ -239,11 +279,16 @@ view: materiales_inventario {
       sql:( ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
       filters: [materiales_inventario.tipo_nc: "Componentes"]
 
+      html:
+      <p> {{ rendered_value }} </p>
+      ;;
+
       drill_fields: [desc_grupo_material,Total_Componentes]
       value_format: "$#,##0.00"
     }
 
     measure: Total_comp_mes_act {
+      label: "Total componente mes actual"
       hidden: yes
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
@@ -257,11 +302,13 @@ view: materiales_inventario {
     }
 
     measure: Total_comp_mes_ant {
+      label: "Total componente mes anterior"
       hidden: yes
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
         ;;
       filters: [materiales_inventario.tipo_nc: "Componentes"]
+
       filters: {
         field: mes_anterior
         value: "yes"
@@ -269,26 +316,25 @@ view: materiales_inventario {
     }
 
     measure: Variacion_componente {
-      label: "Variación Componente"
+      label: "Componente "
       type: number
-      sql: CASE WHEN ${Total_comp_mes_act} = ${Total_comp_mes_ant} THEN 1 --AMARILLO
-                WHEN ${Total_comp_mes_act} > ${Total_comp_mes_ant} THEN 2 --ROJO
-                WHEN ${Total_comp_mes_act} < ${Total_comp_mes_ant} THEN 3 --VERDE
-                END
+      sql: ${Total_comp_mes_act}
           ;;
 
-        html:
-        {% if value == 1 %}
-        <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8>{{ materiales_inventario.Total_comp_mes_act._value }}</p>
-        {% elsif value == 2 %}
-        <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8>{{ materiales_inventario.Total_comp_mes_act._value }}</p>
-        {% elsif value == 3 %}
-        <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Green.png" height=8 width=8>{{ materiales_inventario.Total_comp_mes_act._value }}</p>
-        {% else %}
-        <p>{{ materiales_inventario.Total_comp_mes_act._value }}</p>
-        {% endif %} ;;
+      html:
+      {% if materiales_inventario.Total_comp_mes_act._value == materiales_inventario.Total_comp_mes_ant._value %}
+      <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8> {{ rendered_value }} </p>
+      {% elsif materiales_inventario.Total_comp_mes_act._value > materiales_inventario.Total_comp_mes_ant._value %}
+      <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8> {{ rendered_value }} </p>
+      {% elsif materiales_inventario.Total_comp_mes_act._value < materiales_inventario.Total_comp_mes_ant._value %}
+      <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Green.png" height=8 width=8> {{ rendered_value }} </p>
+      {% else %}
+      <p> {{ rendered_value }} </p>
+      {% endif %} ;;
 
       value_format: "$#,##0.00"
+
+      drill_fields: [desc_grupo_material,Total_comp_mes_ant,Total_comp_mes_act ]
 
       }
 
@@ -298,11 +344,16 @@ view: materiales_inventario {
       sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
       filters: [materiales_inventario.tipo_nc: "Hoja"]
 
+      html:
+      <p> {{ rendered_value }} </p>
+      ;;
+
       drill_fields: [desc_grupo_material,Total_Hoja]
       value_format: "$#,##0.00"
     }
 
     measure: Total_hoja_mes_act {
+      label: "Total hoja mes actual"
       hidden: yes
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
@@ -316,6 +367,7 @@ view: materiales_inventario {
     }
 
     measure: Total_hoja_mes_ant {
+      label: "Total hoja mes anterior"
       hidden: yes
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
@@ -328,24 +380,25 @@ view: materiales_inventario {
     }
 
     measure: Variacion_hoja {
-      label: "Variación Hoja"
+      label: "Hoja "
       type: number
-      sql: CASE WHEN ${Total_hoja_mes_act} = ${Total_hoja_mes_ant} THEN 1 --AMARILLO
-                WHEN ${Total_hoja_mes_act} > ${Total_hoja_mes_ant} THEN 2 --ROJO
-                WHEN ${Total_hoja_mes_act} < ${Total_hoja_mes_ant} THEN 3 --VERDE
-                END
+      sql: ${Total_hoja_mes_act}
             ;;
 
         html:
-          {% if value == 1 %}
-          <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8>{{ materiales_inventario.Total_hoja_mes_act._value }} </p>
-          {% elsif value == 2 %}
-          <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8>{{ materiales_inventario.Total_hoja_mes_act._value }} </p>
-          {% elsif value == 3 %}
-          <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Green.png" height=8 width=8>{{ materiales_inventario.Total_hoja_mes_act._value }} </p>
-          {% else %}
-          <p>{{ materiales_inventario.Total_hoja_mes_act._value }}</p>
-          {% endif %} ;;
+        {% if materiales_inventario.Total_hoja_mes_act._value == materiales_inventario.Total_hoja_mes_ant._value %}
+        <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8> {{ rendered_value }} </p>
+        {% elsif materiales_inventario.Total_hoja_mes_act._value > materiales_inventario.Total_hoja_mes_ant._value %}
+        <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8> {{ rendered_value }} </p>
+        {% elsif materiales_inventario.Total_hoja_mes_act._value < materiales_inventario.Total_hoja_mes_ant._value %}
+        <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Green.png" height=8 width=8> {{ rendered_value }} </p>
+        {% else %}
+        <p> {{ rendered_value }} </p>
+        {% endif %} ;;
+
+      value_format: "$#,##0.00"
+
+      drill_fields: [desc_grupo_material,Total_hoja_mes_ant,Total_hoja_mes_act ]
 
         }
 
@@ -363,4 +416,4 @@ view: materiales_inventario {
         valor_actual_bloqueado
       ]
     }
-  }
+}

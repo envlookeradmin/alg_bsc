@@ -2,9 +2,9 @@ view: inventario_fletes {
     derived_table: {
       sql:
       select
-      Sociedad,
+      --Sociedad,
       Centro_Beneficio,
-      Planta,
+      TRIM(Planta) as Planta,
       Fecha,
       Valor_stock,
       Venta_terceros,
@@ -12,7 +12,9 @@ view: inventario_fletes {
       GastoCuentas5,
       GastoFabricacion,
       Cierre_anio_anterior
-      FROM `RPT_S4H_MX.vw_bsc_reporte_inventario_fletes`;;
+      FROM `RPT_S4H_MX.vw_bsc_reporte_inventario_fletes`
+      where TRIM(Planta) in ('MF01','MF51','MF08','MF58','MF09','MF59','MF02','MF52', 'MF03','MF53','MF04','MF54','MF05','MF55','MF06','MF56','MF07','MF57', 'MF10','MF60')
+      ;;
     }
 
     #Filtro
