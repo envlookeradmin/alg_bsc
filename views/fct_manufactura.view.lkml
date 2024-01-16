@@ -1,7 +1,34 @@
 
 view: fct_manufactura {
   derived_table: {
-    sql: select * from envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_prod_cap_manufactura  ;;
+    sql: select * from envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_prod_cap_manufactura   ;;
+  }
+
+
+
+  dimension_group: created {
+    label: "Fecha"
+    type: time
+    timeframes: [
+      raw,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      month_name,
+      year
+    ]
+    sql: CAST(${TABLE}.FECHA_FIN_REAL AS TIMESTAMP) ;;
+
+  }
+
+
+  dimension: is_current_period_MONTH{
+    hidden: yes
+    type: yesno
+    sql: DATE_TRUNC(CAST(${created_date} AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH) AND DATE_TRUNC(CAST(${created_date} AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)  ;;
+
   }
 
   measure: count {
