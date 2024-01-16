@@ -214,6 +214,10 @@ view: materiales_inventario {
       sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
       filters: [materiales_inventario.tipo_nc: "PT"]
 
+      html:
+      <p> {{ rendered_value }} </p>
+      ;;
+
       drill_fields: [desc_grupo_material,Total_pt]
       value_format: "$#,##0.00"
     }
@@ -246,7 +250,7 @@ view: materiales_inventario {
     }
 
     measure: Variacion_pt {
-      label: "Variación PT"
+      label: "PT "
       type: number
       sql: ${Total_pt_mes_act}
         ;;
@@ -274,6 +278,10 @@ view: materiales_inventario {
       type: sum
       sql:( ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
       filters: [materiales_inventario.tipo_nc: "Componentes"]
+
+      html:
+      <p> {{ rendered_value }} </p>
+      ;;
 
       drill_fields: [desc_grupo_material,Total_Componentes]
       value_format: "$#,##0.00"
@@ -308,7 +316,7 @@ view: materiales_inventario {
     }
 
     measure: Variacion_componente {
-      label: "Variación Componente"
+      label: "Componente "
       type: number
       sql: ${Total_comp_mes_act}
           ;;
@@ -335,6 +343,10 @@ view: materiales_inventario {
       type: sum
       sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
       filters: [materiales_inventario.tipo_nc: "Hoja"]
+
+      html:
+      <p> {{ rendered_value }} </p>
+      ;;
 
       drill_fields: [desc_grupo_material,Total_Hoja]
       value_format: "$#,##0.00"
@@ -368,7 +380,7 @@ view: materiales_inventario {
     }
 
     measure: Variacion_hoja {
-      label: "Variación Hoja"
+      label: "Hoja "
       type: number
       sql: ${Total_hoja_mes_act}
             ;;
