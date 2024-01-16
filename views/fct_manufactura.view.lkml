@@ -4,7 +4,12 @@ view: fct_manufactura {
     sql: select * from envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_prod_cap_manufactura   ;;
   }
 
+  filter: date_filter {
+    label: "Período"
+    description: "Use this date filter in combination with the timeframes dimension for dynamic date filtering"
+    type: date
 
+  }
 
   dimension_group: created {
     label: "Fecha"
@@ -138,6 +143,12 @@ view: fct_manufactura {
     type: sum
     sql: ${TABLE}.CANTIDAD_ENTREGADA ;;
     value_format: "#,##0.00"
+
+    filters: {
+      field: is_current_period_MONTH
+      value: "yes"
+    }
+
   }
 
   measure: Total_NIVEL_PRONOSTICADO {

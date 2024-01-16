@@ -1,7 +1,7 @@
 
 view: fct_seguridad {
   derived_table: {
-    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_reporte_seguridad`;;
+    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_reporte_seguridad`;;
   }
 
   measure: count {
