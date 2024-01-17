@@ -252,7 +252,6 @@ explore: fct_presupuesto_ventas {
     relationship: many_to_one
   }
 
-
-
-
 }
+
+explore: fct_materiales_stock {}

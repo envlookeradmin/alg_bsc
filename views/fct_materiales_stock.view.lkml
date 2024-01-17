@@ -1,7 +1,7 @@
 
-view: vw_bsc_materiales_stock {
+view: fct_materiales_stock {
   derived_table: {
-    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_materiales_stock` LIMIT 10 ;;
+    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_materiales_stock`  ;;
   }
 
   measure: count {
@@ -89,20 +89,20 @@ view: vw_bsc_materiales_stock {
   set: detail {
     fields: [
         fecha_costo,
-	id_material,
-	centro,
-	tipo_proveedor_cliente,
-	id_provedor_cliente,
-	stock_libre_utilizacion,
-	stock_inspeccion_calidad,
-	stock_bloqueado,
-	grupo_material,
-	tipo_stock,
-	fecha,
-	valor_actual_stock_libre_utilizacion,
-	valor_actual_inspeccion_calidad,
-	valor_actual_bloqueado,
-	row_num
+  id_material,
+  centro,
+  tipo_proveedor_cliente,
+  id_provedor_cliente,
+  stock_libre_utilizacion,
+  stock_inspeccion_calidad,
+  stock_bloqueado,
+  grupo_material,
+  tipo_stock,
+  fecha,
+  valor_actual_stock_libre_utilizacion,
+  valor_actual_inspeccion_calidad,
+  valor_actual_bloqueado,
+  row_num
     ]
   }
 }
