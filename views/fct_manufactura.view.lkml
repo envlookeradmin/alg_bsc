@@ -1,7 +1,7 @@
 
 view: fct_manufactura {
   derived_table: {
-    sql: select * from envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_prod_cap_manufactura   ;;
+    sql: select * from envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_prod_cap_manufactura WHERE CAST(FECHA_FIN_REAL AS date) between DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) and  DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)    ;;
   }
 
   filter: date_filter {
@@ -28,11 +28,24 @@ view: fct_manufactura {
 
   }
 
+  dimension: F1 {
+    type: string
+    sql: DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH)  ;;
+  }
+
+  dimension: F2 {
+    type: string
+    sql:  DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)   ;;
+  }
+
+
+
+
 
   dimension: is_current_period_MONTH{
     hidden: yes
     type: yesno
-    sql: DATE_TRUNC(CAST(${created_date} AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) AND DATE_TRUNC(CAST(${created_date} AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)  ;;
+    sql: DATE_TRUNC(CAST(${created_date} AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH) AND DATE_TRUNC(CAST(${created_date} AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)  ;;
 
   }
 
@@ -122,6 +135,7 @@ view: fct_manufactura {
   measure: Total_cantidad_base {
     type: sum
     sql: ${TABLE}.CANTIDAD_BASE ;;
+
   }
 
 
@@ -129,6 +143,7 @@ view: fct_manufactura {
     type: sum
     sql: ${TABLE}.CANTIDAD_RECHAZO_NOTIFICADA ;;
     value_format: "#,##0.00"
+
   }
 
   measure: Total_cantidad_buena_confirmada {
@@ -136,6 +151,7 @@ view: fct_manufactura {
     type: sum
     sql: ${TABLE}.CANTIDAD_BUENA_CONFIRMADA ;;
     value_format: "#,##0.00"
+
   }
 
   measure: Total_cantidad_entregada {
@@ -144,10 +160,7 @@ view: fct_manufactura {
     sql: ${TABLE}.CANTIDAD_ENTREGADA ;;
     value_format: "#,##0.00"
 
-    filters: {
-      field: is_current_period_MONTH
-      value: "yes"
-    }
+
 
   }
 

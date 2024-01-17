@@ -225,3 +225,34 @@ explore: fct_manufactura {
   }
 
 }
+
+explore: fct_presupuesto_ventas {
+
+  join: grupo_materiales  {
+    type: left_outer
+    sql_on: ${fct_presupuesto_ventas.id_grupo_material} = ${grupo_materiales.id_grupo} ;;
+    relationship: many_to_one
+  }
+  join: planta {
+    type: left_outer
+    sql_on: ${fct_presupuesto_ventas.planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+  join: fecha {
+    type: left_outer
+    sql_on: ${fct_presupuesto_ventas.fecha} = ${fecha.fecha} ;;
+
+    relationship: many_to_one
+  }
+
+  join: cliente {
+    type: left_outer
+    sql_on: ${fct_presupuesto_ventas.id_cliente} = ${cliente.id_cliente} ;;
+
+    relationship: many_to_one
+  }
+
+
+
+
+}
