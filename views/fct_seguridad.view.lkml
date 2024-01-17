@@ -4,7 +4,7 @@ view: fct_seguridad {
 
 
     sql: SELECT *,'Trimestral' tempo FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_reporte_seguridad` where  TITULO like '%ADP%'
-   and DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -4 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+  -- and DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -4 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
 
 
     ;;
@@ -33,7 +33,24 @@ view: fct_seguridad {
     ]
     sql: CAST(${TABLE}.FECHA AS TIMESTAMP) ;;
 
+
   }
+
+
+  dimension: fecha {
+    type: date
+    sql: ${TABLE}.FECHA  ;;
+
+
+  }
+
+
+
+
+
+
+
+
 
 
 
@@ -41,7 +58,15 @@ view: fct_seguridad {
   dimension: is_current_period_trimestre{
     hidden: yes
     type: yesno
-    sql: DATE_TRUNC(CAST(${created_date} AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) AND DATE_TRUNC(CAST(${created_date} AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)  ;;
+    sql: DATE_TRUNC(CAST(${fecha} AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -4 MONTH) AND DATE_TRUNC(CAST(${fecha} AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)  ;;
+
+  }
+
+
+  dimension: is_current_period_anual{
+    hidden: yes
+    type: yesno
+    sql: DATE_TRUNC(CAST(${created_date} AS DATE),DAY) >= DATE_TRUNC(CAST({% date_start date_filter %} AS DATE), year)  AND DATE_TRUNC(CAST(${created_date} AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)  ;;
 
   }
 
@@ -74,7 +99,10 @@ view: fct_seguridad {
     type: count_distinct
     sql: ${TABLE}.ID_EVENTO ;;
 
-    filters: [tempo: "Trimestral"]
+    filters: {
+      field: is_current_period_trimestre
+      value: "yes"
+    }
   }
 
 
@@ -82,7 +110,11 @@ view: fct_seguridad {
     type: count_distinct
     sql: ${TABLE}.ID_EVENTO ;;
 
-    filters: [tempo: "anual"]
+    filters: {
+      field: is_current_period_anual
+      value: "yes"
+    }
+
   }
 
   dimension: titulo {
@@ -100,10 +132,7 @@ view: fct_seguridad {
     sql: ${TABLE}.DESCRIPCION_EQUIPO ;;
   }
 
-  dimension: fecha {
-    type: date
-    sql:${TABLE}.FECHA  ;;
-  }
+
 
   dimension: clasificacion_incidente {
     type: string
