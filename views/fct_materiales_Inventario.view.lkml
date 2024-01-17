@@ -32,7 +32,7 @@ view: materiales_inventario {
                       'TTP1014','DPL1005','LAM1030','LPL1030','TWO1021','DPL1008','LID1010','LPL1060','DPL1010',
                       'LID1012','OLI1018')
                       AND
-                      CENTRO in ('MF01','MF02','MF03','MF04','MF05','MF06','MF07','MF08','MF09','MF10' ) AND
+                      CENTRO in ('MF01','MF02','MF03','MF04','MF05','MF06','MF07','MF08','MF09','MF10','GF01' ) AND
                       TIPO_PROVEEDOR_CLIENTE = 'Planta'
 
         and FECHA between  DATE_TRUNC(DATE_ADD( CAST({% date_start date_filter %} AS DATE), INTERVAL -2 month) , month)
@@ -207,8 +207,9 @@ view: materiales_inventario {
       type: date
     }
 
-
+    #metricas expresadas en dinero
     measure: Total_pt {
+      group_label: "Pesos"
       label: "PT"
       type: sum
       sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
@@ -223,7 +224,8 @@ view: materiales_inventario {
     }
 
     measure: Total_pt_mes_act {
-      label: "Total PT mes actual"
+      group_label: "Pesos Semaforo"
+      label: "PT mes actual"
       hidden: yes
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
@@ -237,7 +239,8 @@ view: materiales_inventario {
     }
 
     measure: Total_pt_mes_ant {
-      label: "Total PT mes anterior"
+      group_label: "Pesos Semaforo"
+      label: "PT mes anterior"
       hidden: yes
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
@@ -250,7 +253,8 @@ view: materiales_inventario {
     }
 
     measure: Variacion_pt {
-      label: "PT "
+      group_label: "Pesos Semaforo"
+      label: "PT"
       type: number
       sql: ${Total_pt_mes_act}
         ;;
@@ -274,6 +278,7 @@ view: materiales_inventario {
 
 
     measure: Total_Componentes {
+      group_label: "Pesos"
       label: "Componentes"
       type: sum
       sql:( ${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
@@ -288,7 +293,8 @@ view: materiales_inventario {
     }
 
     measure: Total_comp_mes_act {
-      label: "Total componente mes actual"
+      group_label: "Pesos Semaforo"
+      label: "Componentes mes actual"
       hidden: yes
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
@@ -302,7 +308,8 @@ view: materiales_inventario {
     }
 
     measure: Total_comp_mes_ant {
-      label: "Total componente mes anterior"
+      group_label: "Pesos Semaforo"
+      label: "Componentes mes anterior"
       hidden: yes
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
@@ -316,7 +323,8 @@ view: materiales_inventario {
     }
 
     measure: Variacion_componente {
-      label: "Componente "
+      group_label: "Pesos Semaforo"
+      label: "Componentes "
       type: number
       sql: ${Total_comp_mes_act}
           ;;
@@ -339,6 +347,7 @@ view: materiales_inventario {
       }
 
     measure: Total_Hoja {
+      group_label: "Pesos"
       label: "Hoja"
       type: sum
       sql:(${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO);;
@@ -353,7 +362,8 @@ view: materiales_inventario {
     }
 
     measure: Total_hoja_mes_act {
-      label: "Total hoja mes actual"
+      group_label: "Pesos Semaforo"
+      label: "Hoja mes actual"
       hidden: yes
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
@@ -367,7 +377,8 @@ view: materiales_inventario {
     }
 
     measure: Total_hoja_mes_ant {
-      label: "Total hoja mes anterior"
+      group_label: "Pesos Semaforo"
+      label: "Hoja mes anterior"
       hidden: yes
       type: sum
       sql: (${TABLE}.VALOR_ACTUAL_INSPECCION_CALIDAD + ${TABLE}.VALOR_ACTUAL_BLOQUEADO)
@@ -380,7 +391,8 @@ view: materiales_inventario {
     }
 
     measure: Variacion_hoja {
-      label: "Hoja "
+      group_label: "Pesos Semaforo"
+      label: "Hoja"
       type: number
       sql: ${Total_hoja_mes_act}
             ;;
@@ -401,6 +413,214 @@ view: materiales_inventario {
       drill_fields: [desc_grupo_material,Total_hoja_mes_ant,Total_hoja_mes_act ]
 
         }
+
+    #metricas expresadas en piezas
+
+    measure: Total_pt_pzas {
+      group_label: "Piezas"
+      label: "PT"
+      type: sum
+      sql:(${TABLE}.STOCK_INSPECCION_CALIDAD + ${TABLE}.STOCK_BLOQUEADO);;
+      filters: [materiales_inventario.tipo_nc: "PT"]
+
+      html:
+        <p> {{ rendered_value }} </p>
+        ;;
+
+      drill_fields: [desc_grupo_material,Total_pt_pzas]
+      value_format: "#,##0"
+    }
+
+    measure: Total_pt_mes_act_pzas {
+      group_label: "Piezas Semaforo"
+      label: "PT mes actual"
+      hidden: yes
+      type: sum
+      sql: (${TABLE}.STOCK_INSPECCION_CALIDAD + ${TABLE}.STOCK_BLOQUEADO)
+        ;;
+      filters: [materiales_inventario.tipo_nc: "PT"]
+      filters: {
+        field: mes_actual
+        value: "yes"
+      }
+
+    }
+
+    measure: Total_pt_mes_ant_pzas {
+      group_label: "Piezas Semaforo"
+      label: "PT mes anterior"
+      hidden: yes
+      type: sum
+      sql: (${TABLE}.STOCK_INSPECCION_CALIDAD + ${TABLE}.STOCK_BLOQUEADO)
+        ;;
+      filters: [materiales_inventario.tipo_nc: "PT"]
+      filters: {
+        field: mes_anterior
+        value: "yes"
+      }
+    }
+
+    measure: Variacion_pt_pzas {
+      group_label: "Piezas Semaforo"
+      label: "PT"
+      type: number
+      sql: ${Total_pt_mes_act_pzas}
+        ;;
+
+      html:
+        {% if materiales_inventario.Total_pt_mes_act_pzas._value == materiales_inventario.Total_pt_mes_ant_pzas._value %}
+        <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8> {{ rendered_value }} </p>
+        {% elsif materiales_inventario.Total_pt_mes_act_pzas._value > materiales_inventario.Total_pt_mes_ant_pzas._value %}
+        <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8> {{ rendered_value }} </p>
+        {% elsif materiales_inventario.Total_pt_mes_act_pzas._value < materiales_inventario.Total_pt_mes_ant_pzas._value %}
+        <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Green.png" height=8 width=8> {{ rendered_value }} </p>
+        {% else %}
+        <p> {{ rendered_value }} </p>
+        {% endif %} ;;
+
+      value_format: "#,##0"
+
+      drill_fields: [desc_grupo_material,Total_pt_mes_ant_pzas,Total_pt_mes_act_pzas ]
+
+    }
+
+
+    measure: Total_Componentes_pzas {
+      group_label: "Piezas"
+      label: "Componentes"
+      type: sum
+      sql:( ${TABLE}.STOCK_INSPECCION_CALIDAD + ${TABLE}.STOCK_BLOQUEADO);;
+      filters: [materiales_inventario.tipo_nc: "Componentes"]
+
+      html:
+        <p> {{ rendered_value }} </p>
+        ;;
+
+      drill_fields: [desc_grupo_material,Total_Componentes_pzas]
+      value_format: "#,##0"
+    }
+
+    measure: Total_comp_mes_act_pzas {
+      group_label: "Piezas Semaforo"
+      label: "Componentes mes actual"
+      hidden: yes
+      type: sum
+      sql: (${TABLE}.STOCK_INSPECCION_CALIDAD + ${TABLE}.STOCK_BLOQUEADO)
+        ;;
+      filters: [materiales_inventario.tipo_nc: "Componentes"]
+      filters: {
+        field: mes_actual
+        value: "yes"
+      }
+
+    }
+
+    measure: Total_comp_mes_ant_pzas {
+      group_label: "Piezas Semaforo"
+      label: "Componentes mes anterior"
+      hidden: yes
+      type: sum
+      sql: (${TABLE}.STOCK_INSPECCION_CALIDAD + ${TABLE}.STOCK_BLOQUEADO)
+        ;;
+      filters: [materiales_inventario.tipo_nc: "Componentes"]
+
+      filters: {
+        field: mes_anterior
+        value: "yes"
+      }
+    }
+
+    measure: Variacion_componente_pzas {
+      group_label: "Piezas Semaforo"
+      label: "Componentes"
+      type: number
+      sql: ${Total_comp_mes_act_pzas}
+        ;;
+
+      html:
+        {% if materiales_inventario.Total_comp_mes_act_pzas._value == materiales_inventario.Total_comp_mes_ant_pzas._value %}
+        <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8> {{ rendered_value }} </p>
+        {% elsif materiales_inventario.Total_comp_mes_act_pzas._value > materiales_inventario.Total_comp_mes_ant_pzas._value %}
+        <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8> {{ rendered_value }} </p>
+        {% elsif materiales_inventario.Total_comp_mes_act_pzas._value < materiales_inventario.Total_comp_mes_ant_pzas._value %}
+        <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Green.png" height=8 width=8> {{ rendered_value }} </p>
+        {% else %}
+        <p> {{ rendered_value }} </p>
+        {% endif %} ;;
+
+      value_format: "#,##0"
+
+      drill_fields: [desc_grupo_material,Total_comp_mes_ant_pzas,Total_comp_mes_act_pzas ]
+
+    }
+
+    measure: Total_Hoja_pzas {
+      group_label: "Piezas"
+      label: "Hoja"
+      type: sum
+      sql:(${TABLE}.STOCK_INSPECCION_CALIDAD + ${TABLE}.STOCK_BLOQUEADO);;
+      filters: [materiales_inventario.tipo_nc: "Hoja"]
+
+      html:
+        <p> {{ rendered_value }} </p>
+        ;;
+
+      drill_fields: [desc_grupo_material,Total_Hoja_pzas]
+      value_format: "#,##0"
+    }
+
+    measure: Total_hoja_mes_act_pzas {
+      group_label: "Piezas Semaforo"
+      label: "Hoja mes actual"
+      hidden: yes
+      type: sum
+      sql: (${TABLE}.STOCK_INSPECCION_CALIDAD + ${TABLE}.STOCK_BLOQUEADO)
+        ;;
+      filters: [materiales_inventario.tipo_nc: "Hoja"]
+      filters: {
+        field: mes_actual
+        value: "yes"
+      }
+
+    }
+
+    measure: Total_hoja_mes_ant_pzas {
+      group_label: "Piezas Semaforo"
+      label: "Hoja mes anterior"
+      hidden: yes
+      type: sum
+      sql: (${TABLE}.STOCK_INSPECCION_CALIDAD + ${TABLE}.STOCK_BLOQUEADO)
+        ;;
+      filters: [materiales_inventario.tipo_nc: "Hoja"]
+      filters: {
+        field: mes_anterior
+        value: "yes"
+      }
+    }
+
+    measure: Variacion_hoja_pzas {
+      group_label: "Piezas Semaforo"
+      label: "Hoja"
+      type: number
+      sql: ${Total_hoja_mes_act_pzas}
+        ;;
+
+      html:
+          {% if materiales_inventario.Total_hoja_mes_act_pzas._value == materiales_inventario.Total_hoja_mes_ant_pzas._value %}
+          <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8> {{ rendered_value }} </p>
+          {% elsif materiales_inventario.Total_hoja_mes_act_pzas._value > materiales_inventario.Total_hoja_mes_ant_pzas._value %}
+          <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8> {{ rendered_value }} </p>
+          {% elsif materiales_inventario.Total_hoja_mes_act_pzas._value < materiales_inventario.Total_hoja_mes_ant_pzas._value %}
+          <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Green.png" height=8 width=8> {{ rendered_value }} </p>
+          {% else %}
+          <p> {{ rendered_value }} </p>
+          {% endif %} ;;
+
+      value_format: "#,##0"
+
+      drill_fields: [desc_grupo_material,Total_hoja_mes_ant_pzas,Total_hoja_mes_act_pzas ]
+
+    }
 
     set: detail {
       fields: [
