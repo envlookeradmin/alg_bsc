@@ -133,6 +133,7 @@ view: fct_manufactura {
   }
 
   measure: Total_cantidad_base {
+    label: "CAPACAIDAD"
     type: sum
     sql: ${TABLE}.CANTIDAD_BASE ;;
 
@@ -147,7 +148,7 @@ view: fct_manufactura {
   }
 
   measure: Total_cantidad_buena_confirmada {
-    label: "PRODUCCIÓN"
+
     type: sum
     sql: ${TABLE}.CANTIDAD_BUENA_CONFIRMADA ;;
     value_format: "#,##0.00"
@@ -155,7 +156,7 @@ view: fct_manufactura {
   }
 
   measure: Total_cantidad_entregada {
-    label: "CAPACIDAD"
+    label: "PRODUCCIÓN"
     type: sum
     sql: ${TABLE}.CANTIDAD_ENTREGADA ;;
     value_format: "#,##0.00"
@@ -180,7 +181,7 @@ view: fct_manufactura {
   measure: Total_NIVEL_PRONOSTICADO {
     label: "% NIVEL DE OCUPACIÓN PRONOSTICADO"
     type: number
-    sql:   ( ${Total_cantidad_buena_confirmada} /NULLIF(${Total_cantidad_entregada},0)) ;;
+    sql:   ( ${Total_cantidad_base} /NULLIF(${Total_cantidad_entregada},0)) ;;
 
     html:
     {% if value <= 84.9 %}
