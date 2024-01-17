@@ -185,6 +185,23 @@ explore: fct_seguridad {
   }
 }
 
+explore: fct_seguridad_anual {
+  join: planta {
+    type: left_outer
+    sql_on: ${fct_seguridad_anual.centro} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+  join: fecha {
+    type: left_outer
+    sql_on: ${fct_seguridad_anual.fecha} = ${fecha.fecha} ;;
+
+    relationship: many_to_one
+  }
+}
+
+
+
+
 explore: fct_ordenes_compra_otif {
   join: comprador {
     type: left_outer

@@ -1,13 +1,12 @@
-
-view: fct_seguridad {
+view: fct_seguridad_anual {
   derived_table: {
 
 
     sql: SELECT *,'Trimestral' tempo FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_reporte_seguridad` where  TITULO like '%ADP%'
-   and DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -4 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+         and DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -12 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
 
 
-    ;;
+      ;;
   }
 
 
@@ -132,16 +131,16 @@ view: fct_seguridad {
 
   set: detail {
     fields: [
-        id_evento,
-  titulo,
-  circustancias_incendio,
-  descripcion_equipo,
-  fecha,
-  clasificacion_incidente,
-  clasificacion_herida,
-  estado,
-  centro,
-  tipo_evento
+      id_evento,
+      titulo,
+      circustancias_incendio,
+      descripcion_equipo,
+      fecha,
+      clasificacion_incidente,
+      clasificacion_herida,
+      estado,
+      centro,
+      tipo_evento
     ]
   }
 }
