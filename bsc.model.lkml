@@ -254,4 +254,17 @@ explore: fct_presupuesto_ventas {
 
 }
 
-explore: fct_materiales_stock {}
+explore: fct_materiales_stock {
+  join: planta {
+    type: left_outer
+    sql_on: ${fct_materiales_stock.centro} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+  join: fecha {
+    type: left_outer
+    sql_on: ${fct_materiales_stock.fecha} = ${fecha.fecha} ;;
+
+    relationship: many_to_one
+  }
+
+}
