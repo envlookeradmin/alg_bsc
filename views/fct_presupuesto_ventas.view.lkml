@@ -40,6 +40,17 @@ view: fct_presupuesto_ventas {
     sql: ${TABLE}.CANTIDAD ;;
   }
 
+  measure: total_cantidad {
+    type: sum
+     sql: ${TABLE}.CANTIDAD ;;
+  }
+
+  measure: total_monto {
+    type: sum
+    sql: ${TABLE}.MONTO ;;
+  }
+
+
   dimension: monto {
     type: number
     sql: ${TABLE}.MONTO ;;

@@ -224,6 +224,18 @@ explore: fct_manufactura {
     relationship: many_to_one
   }
 
+ # join: fct_presupuesto_ventas{
+#    type: left_outer
+ #   sql_on: ${fct_manufactura.id_grupo_material} = ${fct_presupuesto_ventas.id_grupo_material}
+#        and ${fct_manufactura.fecha_fin_real} = ${fct_presupuesto_ventas.fecha}
+ #       and ${fct_manufactura.planta} = ${fct_presupuesto_ventas.planta}  ;;
+
+  #  relationship: many_to_one
+
+  #}
+
+
+
 }
 
 explore: fct_presupuesto_ventas {

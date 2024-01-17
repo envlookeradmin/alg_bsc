@@ -86,6 +86,11 @@ view: fct_materiales_stock {
     sql: ${TABLE}.row_num ;;
   }
 
+  measure: valor_stock {
+    type: sum
+    sql: ${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION ;;
+  }
+
   set: detail {
     fields: [
         fecha_costo,

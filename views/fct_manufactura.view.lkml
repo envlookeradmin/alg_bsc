@@ -1,7 +1,18 @@
 
 view: fct_manufactura {
   derived_table: {
-    sql: select * from envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_prod_cap_manufactura WHERE CAST(FECHA_FIN_REAL AS date) between DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) and  DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)    ;;
+   #sql: select * from envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_prod_cap_manufactura WHERE CAST(FECHA_FIN_REAL AS date) between DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) and  DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)    ;;
+
+     sql:select m.*,b.cantidad Cantidad_ventas,b.MONTO Monto_ventas from envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_prod_cap_manufactura m
+        left join (select PLANTA,FECHA,ID_GRUPO_MATERIAL,SUM(CANTIDAD) CANTIDAD,SUM(MONTO) MONTO  from envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_presupuesto_ventas GROUP BY PLANTA,FECHA,ID_GRUPO_MATERIAL) b on
+        m.PLANTA=b.PLANTA
+    AND m.FECHA_FIN_REAL=b.FECHA
+    AND m.ID_GRUPO_MATERIAL=b.ID_GRUPO_MATERIAL
+
+   WHERE CAST(FECHA_FIN_REAL AS date) between DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) and  DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)    ;;
+
+
+
   }
 
   filter: date_filter {
@@ -27,17 +38,6 @@ view: fct_manufactura {
     sql: CAST(${TABLE}.FECHA_FIN_REAL AS TIMESTAMP) ;;
 
   }
-
-  dimension: F1 {
-    type: string
-    sql: DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH)  ;;
-  }
-
-  dimension: F2 {
-    type: string
-    sql:  DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)   ;;
-  }
-
 
 
 
@@ -159,10 +159,23 @@ view: fct_manufactura {
     type: sum
     sql: ${TABLE}.CANTIDAD_ENTREGADA ;;
     value_format: "#,##0.00"
-
-
-
   }
+
+  measure: Total_Monto_ventas {
+
+    type: sum
+    sql: ${TABLE}.Monto_ventas ;;
+    value_format: "#,##0.00"
+  }
+
+
+  measure: Total_Cantidad_ventas {
+
+    type: sum
+    sql: ${TABLE}.Cantidad_ventas ;;
+    value_format: "#,##0.00"
+  }
+
 
   measure: Total_NIVEL_PRONOSTICADO {
     label: "% NIVEL DE OCUPACIÓN PRONOSTICADO"
