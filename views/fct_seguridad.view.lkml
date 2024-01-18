@@ -3,8 +3,37 @@ view: fct_seguridad {
   derived_table: {
 
 
-    sql: SELECT *,'Trimestral' tempo FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_reporte_seguridad` where  TITULO like '%ADP%'
-  -- and DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -4 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+    sql:
+
+     SELECT * FROM (SELECT  ID_EVENTO,
+      TITULO,
+      CIRCUSTANCIAS_INCENDIO,
+      DESCRIPCION_EQUIPO,
+      CAST(FECHA AS DATE) FECHA,
+      CLASIFICACION_INCIDENTE,
+      CLASIFICACION_HERIDA,
+      ESTADO,
+      CENTRO,
+      TIPO_EVENTO ,
+      1 valor FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_reporte_seguridad` where  TITULO like '%ADP%'
+
+        union all
+
+        SELECT '' ID_EVENTO,
+      'ADP' TITULO,
+      ''  CIRCUSTANCIAS_INCENDIO,
+      '' DESCRIPCION_EQUIPO,
+      c.date FECHA,
+      '' CLASIFICACION_INCIDENTE,
+      '' CLASIFICACION_HERIDA,
+      '' ESTADO,
+      CENTRO,
+      '' TIPO_EVENTO,
+       0 valor
+      FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_reporte_seguridad` s
+      CROSS JOIN  (select DATE from `envases-analytics-eon-poc.ENVASES_REPORTING.CALENDAR`) c
+      GROUP BY  s.CENTRO, c.date) A
+      WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
 
 
     ;;
@@ -45,16 +74,6 @@ view: fct_seguridad {
   }
 
 
-
-
-
-
-
-
-
-
-
-
   dimension: is_current_period_trimestre{
     hidden: yes
     type: yesno
@@ -69,14 +88,6 @@ view: fct_seguridad {
     sql: DATE_TRUNC(CAST(${created_date} AS DATE),DAY) >= DATE_TRUNC(CAST({% date_start date_filter %} AS DATE), year)  AND DATE_TRUNC(CAST(${created_date} AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)  ;;
 
   }
-
-  dimension: tempo {
-    type: string
-    sql: ${TABLE}.tempo ;;
-  }
-
-
-
 
 
 
@@ -99,23 +110,17 @@ view: fct_seguridad {
     type: count_distinct
     sql: ${TABLE}.ID_EVENTO ;;
 
-    filters: {
-      field: is_current_period_trimestre
-      value: "yes"
-    }
   }
 
 
-  measure: count_anual {
-    type: count_distinct
-    sql: ${TABLE}.ID_EVENTO ;;
-
-    filters: {
-      field: is_current_period_anual
-      value: "yes"
-    }
-
+  measure: Total_ADP {
+    label: "ADP"
+    type: sum
+    sql:${TABLE}.valor ;;
   }
+
+
+
 
   dimension: titulo {
     type: string

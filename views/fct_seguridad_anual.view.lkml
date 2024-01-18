@@ -2,8 +2,37 @@ view: fct_seguridad_anual {
   derived_table: {
 
 
-    sql: SELECT *,'Trimestral' tempo FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_reporte_seguridad` where  TITULO like '%ADP%'
-         and DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -12 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+    sql:
+      SELECT * FROM (SELECT  ID_EVENTO,
+      TITULO,
+      CIRCUSTANCIAS_INCENDIO,
+      DESCRIPCION_EQUIPO,
+      CAST(FECHA AS DATE) FECHA,
+      CLASIFICACION_INCIDENTE,
+      CLASIFICACION_HERIDA,
+      ESTADO,
+      CENTRO,
+      TIPO_EVENTO ,
+      1 valor FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_reporte_seguridad` where  TITULO like '%ADP%'
+
+        union all
+
+        SELECT '' ID_EVENTO,
+      'ADP' TITULO,
+      ''  CIRCUSTANCIAS_INCENDIO,
+      '' DESCRIPCION_EQUIPO,
+      c.date FECHA,
+      '' CLASIFICACION_INCIDENTE,
+      '' CLASIFICACION_HERIDA,
+      '' ESTADO,
+      CENTRO,
+      '' TIPO_EVENTO,
+       0 valor
+      FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_reporte_seguridad` s
+      CROSS JOIN  (select DATE from `envases-analytics-eon-poc.ENVASES_REPORTING.CALENDAR`) c
+      GROUP BY  s.CENTRO, c.date) A
+      WHERE DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_TRUNC(CAST({% date_start date_filter %} AS DATE), year) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+
 
 
       ;;
@@ -44,11 +73,6 @@ view: fct_seguridad_anual {
 
   }
 
-  dimension: tempo {
-    type: string
-    sql: ${TABLE}.tempo ;;
-  }
-
 
 
 
@@ -69,20 +93,12 @@ view: fct_seguridad_anual {
     sql: ${TABLE}.ID_EVENTO ;;
   }
 
-  measure: count_trimestre {
-    type: count_distinct
-    sql: ${TABLE}.ID_EVENTO ;;
-
-    filters: [tempo: "Trimestral"]
+  measure: Total_ADP {
+    label: "ADP"
+    type: sum
+    sql:${TABLE}.valor ;;
   }
 
-
-  measure: count_anual {
-    type: count_distinct
-    sql: ${TABLE}.ID_EVENTO ;;
-
-    filters: [tempo: "anual"]
-  }
 
   dimension: titulo {
     type: string
