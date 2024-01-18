@@ -134,7 +134,7 @@ view: fct_manufactura {
   }
 
   measure: Total_cantidad_base {
-    label: "CAPACAIDAD"
+    label: "CAPACIDAD"
     type: sum
     sql: ${TABLE}.CANTIDAD_BASE ;;
 
