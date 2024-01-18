@@ -98,6 +98,7 @@ view: fct_seguridad_anual {
     type: sum
     sql:${TABLE}.valor ;;
     drill_fields: [titulo,Total_ADP]
+
   }
 
 
