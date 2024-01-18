@@ -204,13 +204,26 @@ view: fct_manufactura {
     type: number
     sql:   ( ${Total_cantidad_buena_confirmada} /NULLIF(${Total_cantidad_base},0)) ;;
 
+
+
+
+
+  # <p><img src="https://findicons.com/files/icons/1036/function/48/circle_green.png"    height=10 width=10>{{ rendered_value }}</p>
+
+  #  <p><img  src="https://findicons.com/files/icons/766/base_software/128/circle_red.png" height=10 width=10>{{ rendered_value }}</p>
+  # {% elsif  value >= 90.0 and value <= 100.0 %}
+
+
+
+
     html:
     {% if value <= 84.9 %}
-    <span style="color: green;">{{ rendered_value }}</span></p>
-    {% elsif  value >= 90.0 and value <= 100.0 %}
-    <span style="color: red;">{{ rendered_value }}</span></p>
+   <p> <span style="color: green;">{{ rendered_value }}</span><img src="https://findicons.com/files/icons/1036/function/48/circle_green.png"    height=10 width=10></p>
+
+    {% elsif  value >= 90.0  %}
+    <span style="color: red;">{{ rendered_value }}</span><img src="https://findicons.com/files/icons/1036/function/48/circle_red.png"    height=10 width=10></p>
     {% elsif  value >= 85 and value <= 89.9 %}
-    <span style="color: #FFA800;">{{ rendered_value }}</span></p>
+    <span style="color: #FFA800;">{{ rendered_value }}</span><img src="https://www.emojiall.com/images/240/apple/1f7e1.png"    height=10 width=10></p>
     {% else %}
     {{rendered_value}}
     {% endif %} ;;
