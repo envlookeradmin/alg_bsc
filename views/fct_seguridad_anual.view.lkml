@@ -97,12 +97,14 @@ view: fct_seguridad_anual {
     label: "ADP"
     type: sum
     sql:${TABLE}.valor ;;
+    drill_fields: [titulo,Total_ADP]
   }
 
 
   dimension: titulo {
     type: string
     sql: ${TABLE}.TITULO ;;
+
   }
 
   dimension: circustancias_incendio {

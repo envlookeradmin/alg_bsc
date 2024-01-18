@@ -117,6 +117,7 @@ view: fct_seguridad {
     label: "ADP"
     type: sum
     sql:${TABLE}.valor ;;
+    drill_fields: [titulo,Total_ADP]
   }
 
 
