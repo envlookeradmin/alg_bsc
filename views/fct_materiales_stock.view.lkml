@@ -1,7 +1,36 @@
 
 view: fct_materiales_stock {
   derived_table: {
-    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_materiales_stock`  ;;
+    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_materiales_stock`
+         WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+
+      ;;
+  }
+
+
+  filter: date_filter {
+    label: "Período"
+    description: "Use this date filter in combination with the timeframes dimension for dynamic date filtering"
+    type: date
+
+  }
+
+  dimension_group: created {
+    label: "Fecha"
+    type: time
+    timeframes: [
+      raw,
+      time,
+      date,
+      week,
+      month,
+      quarter,
+      month_name,
+      year
+    ]
+    sql: CAST(${TABLE}.FECHA AS TIMESTAMP) ;;
+
+
   }
 
   measure: count {
@@ -107,10 +136,78 @@ view: fct_materiales_stock {
   dimension: Clasificacion_proveedor {
     label: "Proveedor"
     type: string
-    sql: case when  ${tipo_proveedor_cliente}='Cliente' then ${Cliente_nombre}
-                    ${tipo_proveedor_cliente}='Proveedor' then ${Proveedor_nombre}
-                    else 'NA'  end ;;
+    sql: CASE WHEN  ${tipo_proveedor_cliente}='Cliente'   then ${Cliente_nombre}
+      WHEN  ${tipo_proveedor_cliente}='Proveedor' then ${Proveedor_nombre} ELSE 'NA'  END ;;
   }
+
+
+
+  dimension: Filtro_Mes_Actual{
+    hidden: yes
+    type: yesno
+    sql: DATE_TRUNC(CAST(${fecha} AS DATE),DAY) >=DATE_TRUNC(CAST({% date_start date_filter %} AS DATE), month) AND DATE_TRUNC(CAST(${fecha} AS DATE),DAY) <=  DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)  ;;
+
+  }
+
+  dimension: Filtro_Mes_Anterior{
+    hidden: yes
+    type: yesno
+    sql: DATE_TRUNC(CAST(${fecha} AS DATE),DAY) >= DATE_TRUNC(DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH), month) AND DATE_TRUNC(CAST(${fecha} AS DATE),DAY) <= LAST_DAY(DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH))  ;;
+
+  }
+
+  dimension: mD {
+    type:string
+    sql: CASE WHEN EXTRACT(MONTH FROM DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day))=11 THEN 'Noviembre' end ;;
+  }
+
+
+  dimension: mD1 {
+    type:number
+    sql: EXTRACT(MONTH FROM DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)) ;;
+  }
+
+  measure: Cantidad_stock_Mes_Actual {
+
+
+
+
+
+    type: sum
+    sql: ${TABLE}.STOCK_LIBRE_UTILIZACION ;;
+
+    filters: {
+      field: Filtro_Mes_Actual
+      value: "yes"
+    }
+
+
+    html:
+    {% if value < Cantidad_stock_Mes_Anterior._value %}
+   <p> <span style="color: green;">{{ rendered_value }}</span><img src="https://findicons.com/files/icons/1036/function/48/circle_green.png"    height=10 width=10></p>
+
+    {% else %}
+    <span style="color: red;">{{ rendered_value }}</span><img src="https://findicons.com/files/icons/1036/function/48/circle_red.png"    height=10 width=10></p>
+
+    {% endif %} ;;
+
+
+
+  }
+
+
+  measure: Cantidad_stock_Mes_Anterior {
+    label: "Cantidad Mes Anterior"
+    type: sum
+    sql: ${TABLE}.STOCK_LIBRE_UTILIZACION ;;
+
+    filters: {
+      field: Filtro_Mes_Anterior
+      value: "yes"
+    }
+
+  }
+
 
 
 
@@ -120,12 +217,14 @@ view: fct_materiales_stock {
     label: "Cantidad"
     type: sum
     sql: ${TABLE}.STOCK_LIBRE_UTILIZACION ;;
+    value_format: "#,##0"
   }
 
   measure: valor_stock {
-    label: "valor"
+    label: "Valor (MXN)"
     type: sum
     sql: ${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION ;;
+    value_format: "#,##0"
   }
 
 
