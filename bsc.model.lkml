@@ -284,6 +284,19 @@ explore: fct_presupuesto_ventas {
 }
 
 explore: fct_materiales_stock {
+
+  join: material {
+    type: left_outer
+    sql_on:${fct_materiales_stock.id_material}=${material.id_material};;
+    relationship: many_to_one
+  }
+
+  join: grupo_materiales  {
+    type: left_outer
+    sql_on: ${material.grupo_material} = ${grupo_materiales.id_grupo} ;;
+    relationship: many_to_one
+  }
+
   join: planta {
     type: left_outer
     sql_on: ${fct_materiales_stock.centro} = ${planta.planta_id} ;;
@@ -292,7 +305,17 @@ explore: fct_materiales_stock {
   join: fecha {
     type: left_outer
     sql_on: ${fct_materiales_stock.fecha} = ${fecha.fecha} ;;
+    relationship: many_to_one
+  }
 
+  join: proveedor {
+    type: left_outer
+    sql_on: ${fct_materiales_stock.id_provedor_cliente} = ${proveedor.proveedor_id} ;;
+    relationship: many_to_one
+  }
+  join: cliente {
+    type: left_outer
+    sql_on: ${fct_materiales_stock.tipo_proveedor_cliente} = ${cliente.id_cliente} ;;
     relationship: many_to_one
   }
 
