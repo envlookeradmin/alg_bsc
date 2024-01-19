@@ -92,22 +92,23 @@ view: fct_materiales_stock {
     sql: case when ${tipo_stock}=1 then 'Cliente' else 'Proveedor' end ;;
   }
 
-  dimension: Proveedor {
+  dimension: Proveedor_nombre {
     type: string
     sql: UPPER(${proveedor.nombre}) ;;
   }
 
 
-  dimension: Cliente {
+  dimension: Cliente_nombre {
     type: string
     sql: UPPER(${cliente.nombre}) ;;
   }
 
 
-  dimension: proveedor {
+  dimension: Clasificacion_proveedor {
+    label: "Proveedor"
     type: string
-    sql: case when  ${tipo_proveedor_cliente}='Cliente' then ${cliente.nombre}
-                 --   ${tipo_proveedor_cliente}='Proveedor' then ${proveedor.nombre}
+    sql: case when  ${tipo_proveedor_cliente}='Cliente' then ${Cliente_nombre}
+                    ${tipo_proveedor_cliente}='Proveedor' then ${Proveedor_nombre}
                     else 'NA'  end ;;
   }
 
@@ -137,21 +138,21 @@ view: fct_materiales_stock {
 
   set: detail {
     fields: [
-        fecha_costo,
-  id_material,
-  centro,
-  tipo_proveedor_cliente,
-  id_provedor_cliente,
-  stock_libre_utilizacion,
-  stock_inspeccion_calidad,
-  stock_bloqueado,
-  grupo_material,
-  tipo_stock,
-  fecha,
-  valor_actual_stock_libre_utilizacion,
-  valor_actual_inspeccion_calidad,
-  valor_actual_bloqueado,
-  row_num
+      fecha_costo,
+      id_material,
+      centro,
+      tipo_proveedor_cliente,
+      id_provedor_cliente,
+      stock_libre_utilizacion,
+      stock_inspeccion_calidad,
+      stock_bloqueado,
+      grupo_material,
+      tipo_stock,
+      fecha,
+      valor_actual_stock_libre_utilizacion,
+      valor_actual_inspeccion_calidad,
+      valor_actual_bloqueado,
+      row_num
     ]
   }
 }
