@@ -218,6 +218,7 @@ view: fct_materiales_stock {
     type: sum
     sql: ${TABLE}.STOCK_LIBRE_UTILIZACION ;;
     value_format: "#,##0"
+
   }
 
   measure: valor_stock {
@@ -225,6 +226,16 @@ view: fct_materiales_stock {
     type: sum
     sql: ${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION ;;
     value_format: "#,##0"
+
+    html:
+    {% if value >= 500000 %}
+    <p> <span style="color: green;">{{ rendered_value }}</span><img src="https://findicons.com/files/icons/1036/function/48/circle_green.png"    height=10 width=10></p>
+
+    {% else %}
+    <span style="color: red;">{{ rendered_value }}</span><img src="https://findicons.com/files/icons/1036/function/48/circle_red.png"    height=10 width=10></p>
+
+    {% endif %} ;;
+
   }
 
 
