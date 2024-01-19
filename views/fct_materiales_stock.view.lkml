@@ -86,10 +86,54 @@ view: fct_materiales_stock {
     sql: ${TABLE}.row_num ;;
   }
 
+
+  dimension: tipo_clasificacion {
+    type: string
+    sql: case when ${tipo_stock}=1 then 'Cliente' else 'Proveedor' end ;;
+  }
+
+  dimension: Proveedor {
+    type: string
+    sql: UPPER(${proveedor.nombre}) ;;
+  }
+
+
+  dimension: Cliente {
+    type: string
+    sql: UPPER(${cliente.nombre}) ;;
+  }
+
+
+  dimension: proveedor {
+    type: string
+    sql: case when  ${tipo_proveedor_cliente}='Cliente' then ${cliente.nombre}
+                 --   ${tipo_proveedor_cliente}='Proveedor' then ${proveedor.nombre}
+                    else 'NA'  end ;;
+  }
+
+
+
+
+
+  measure: Cantidad_stock {
+    label: "Cantidad"
+    type: sum
+    sql: ${TABLE}.STOCK_LIBRE_UTILIZACION ;;
+  }
+
   measure: valor_stock {
+    label: "valor"
     type: sum
     sql: ${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION ;;
   }
+
+
+
+
+
+
+
+
 
   set: detail {
     fields: [
