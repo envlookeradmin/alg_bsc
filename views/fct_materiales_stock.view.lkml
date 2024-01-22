@@ -156,23 +156,7 @@ view: fct_materiales_stock {
 
   }
 
-  dimension: mD {
-    type:string
-    sql: CASE WHEN EXTRACT(MONTH FROM DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day))=11 THEN 'Noviembre' end ;;
-  }
-
-
-  dimension: mD1 {
-    type:number
-    sql: EXTRACT(MONTH FROM DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)) ;;
-  }
-
   measure: Cantidad_stock_Mes_Actual {
-
-
-
-
-
     type: sum
     sql: ${TABLE}.STOCK_LIBRE_UTILIZACION ;;
 
@@ -199,7 +183,7 @@ view: fct_materiales_stock {
   measure: Cantidad_stock_Mes_Anterior {
     label: "Cantidad Mes Anterior"
     type: sum
-    sql: ${TABLE}.STOCK_LIBRE_UTILIZACION ;;
+    sql: ${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION ;;
 
     filters: {
       field: Filtro_Mes_Anterior
@@ -228,7 +212,7 @@ view: fct_materiales_stock {
     value_format: "#,##0"
 
     html:
-    {% if value >= 500000 %}
+    {% if value >= Cantidad_stock_Mes_Anterior._value %}
     <p> <span style="color: green;">{{ rendered_value }}</span><img src="https://findicons.com/files/icons/1036/function/48/circle_green.png"    height=10 width=10></p>
 
     {% else %}
@@ -236,6 +220,35 @@ view: fct_materiales_stock {
 
     {% endif %} ;;
 
+  }
+
+
+
+  dimension: mes{
+    type: string
+    sql: "Noviembre" ;;
+  }
+
+  dimension: last_year{
+    type: string
+    sql: extract(month from CAST({% date_start date_filter %} AS DATE))-2 ;;
+  }
+
+
+  dimension: year{
+    type: string
+    sql: extract(year from CAST({% date_start date_filter %} AS DATE))-0 ;;
+  }
+
+
+  measure: last_year_sales{
+    type: sum
+    sql:
+      CASE
+         WHEN (EXTRACT(month FROM ${created_date})-1) = ${last_year}
+         THEN ${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION
+      END;;
+    value_format_name: decimal_0
   }
 
 
