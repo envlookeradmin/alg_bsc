@@ -55,6 +55,16 @@ view: fct_ordenes_compra_otif {
     sql: ${TABLE}.Es_Recoleccion ;;
   }
 
+  dimension: grupo_material {
+    type: string
+    sql: ${TABLE}.GrupoMaterialPO ;;
+  }
+
+  dimension: material {
+    type: string
+    sql: ${TABLE}.MaterialPO ;;
+  }
+
 
   measure: count {
     type: count
