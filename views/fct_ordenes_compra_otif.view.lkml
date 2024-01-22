@@ -55,6 +55,16 @@ view: fct_ordenes_compra_otif {
     sql: ${TABLE}.Es_Recoleccion ;;
   }
 
+  dimension: grupo_material {
+    type: string
+    sql: ${TABLE}.GrupoMaterialPO ;;
+  }
+
+  dimension: material {
+    type: string
+    sql: ${TABLE}.MaterialPO ;;
+  }
+
 
   measure: count {
     type: count
@@ -77,14 +87,12 @@ view: fct_ordenes_compra_otif {
     sql: case when ${ordenes_en_tiempo} = 0 then 0 else ${ordenes_en_tiempo} / ${total_ordenes} end;;
     value_format: "0.00%"
     html:
-    {% if value >= 92.0 %}
+    {% if value >= 0.92 %}
     <span style="color: green;">{{ rendered_value }}</span></p>
-    {% elsif  value < 90.0 %}
+    {% elsif  value < 0.90 %}
     <span style="color: red;">{{ rendered_value }}</span></p>
-    {% elsif  value >= 90.0 and value <= 91.9 %}
-    <span style="color: #FFA800;">{{ rendered_value }}</span></p>
     {% else %}
-    {{rendered_value}}
+    <span style="color: #FFA800;">{{ rendered_value }}</span></p>
     {% endif %} ;;
   }
 }
