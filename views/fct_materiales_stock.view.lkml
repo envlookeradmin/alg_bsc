@@ -196,11 +196,10 @@ view: fct_materiales_stock {
 
 
 
-
   measure: Cantidad_stock {
     label: "Cantidad"
     type: sum
-    sql: ${TABLE}.STOCK_LIBRE_UTILIZACION ;;
+    sql: ${TABLE}.STOCK_LIBRE_UTILIZACION + ${TABLE}.STOCK_BLOQUEADO + ${TABLE}.STOCK_INSPECCION_CALIDAD ;;
     value_format: "#,##0"
 
   }
