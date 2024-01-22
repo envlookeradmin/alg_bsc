@@ -1,7 +1,7 @@
 
 view: fct_materiales_stock {
   derived_table: {
-    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_materiales_stock`
+    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_materiales_stock`
          WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
 
       ;;
@@ -137,7 +137,7 @@ view: fct_materiales_stock {
     label: "Proveedor"
     type: string
     sql: CASE WHEN  ${tipo_proveedor_cliente}='Cliente'   then ${Cliente_nombre}
-      WHEN  ${tipo_proveedor_cliente}='Proveedor' then ${Proveedor_nombre} ELSE 'NA'  END ;;
+              WHEN  ${tipo_proveedor_cliente}='Envases' then ${Proveedor_nombre} ELSE 'NA'  END ;;
   }
 
 
@@ -201,8 +201,33 @@ view: fct_materiales_stock {
     type: sum
     sql: ${TABLE}.STOCK_LIBRE_UTILIZACION + ${TABLE}.STOCK_BLOQUEADO + ${TABLE}.STOCK_INSPECCION_CALIDAD ;;
     value_format: "#,##0"
-
   }
+
+  measure: util_stock {
+
+    type: sum
+    sql: ${TABLE}.STOCK_LIBRE_UTILIZACION  ;;
+    value_format: "#,##0"
+  }
+
+
+  measure: bloque_stock {
+
+    type: sum
+    sql: ${TABLE}.STOCK_BLOQUEADO  ;;
+    value_format: "#,##0"
+  }
+
+  measure: Calidad_stock {
+
+    type: sum
+    sql:  ${TABLE}.STOCK_INSPECCION_CALIDAD ;;
+    value_format: "#,##0"
+  }
+
+
+
+
 
   measure: valor_stock {
     label: "Valor (MXN)"
