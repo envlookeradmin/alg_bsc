@@ -118,7 +118,7 @@ view: fct_materiales_stock {
 
   dimension: tipo_clasificacion {
     type: string
-    sql: case when ${tipo_stock}=1 then 'Cliente' else 'Proveedor' end ;;
+    sql: case when ${tipo_stock}=1 then 'Cliente' else 'Envases' end ;;
   }
 
   dimension: Proveedor_nombre {
@@ -137,7 +137,7 @@ view: fct_materiales_stock {
     label: "Proveedor"
     type: string
     sql: CASE WHEN  ${tipo_proveedor_cliente}='Cliente'   then ${Cliente_nombre}
-              WHEN  ${tipo_proveedor_cliente}='Envases' then ${Proveedor_nombre} ELSE 'NA'  END ;;
+              WHEN  ${tipo_proveedor_cliente}='Proveedor' then ${Proveedor_nombre} ELSE 'NA'  END ;;
   }
 
 
