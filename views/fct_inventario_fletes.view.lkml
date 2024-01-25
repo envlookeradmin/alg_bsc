@@ -2,9 +2,9 @@ view: inventario_fletes {
     derived_table: {
       sql:
       select
-      --Sociedad,
+      Sociedad,
       Centro_Beneficio,
-      TRIM(Planta) as Planta,
+      Planta as Planta,
       Fecha,
       Valor_stock,
       Venta_terceros,
@@ -13,7 +13,7 @@ view: inventario_fletes {
       GastoFabricacion,
       Cierre_anio_anterior
       FROM `RPT_S4H_MX.vw_bsc_reporte_inventario_fletes`
-      where TRIM(Planta) in ('MF01','MF51','MF08','MF58','MF09','MF59','MF02','MF52', 'MF03','MF53','MF04','MF54','MF05','MF55','MF06','MF56','MF07','MF57', 'MF10','MF60')
+      where Planta in ('MF01','MF51','MF08','MF58','MF09','MF59','MF02','MF52', 'MF03','MF53','MF04','MF54','MF05','MF55','MF06','MF56','MF07','MF57', 'MF10','MF60')
       ;;
     }
 
@@ -299,25 +299,26 @@ view: inventario_fletes {
       value_format: "0"
     }
 
-    #Metricas Fletes
-    measure: RealCostoFletes{
+    #Metricas Fletes Mesuales
+    measure: RealCostoFletesMTD{
       group_label: "Fletes"
-      label: "Real Costo de Fletes [MXN]"
+      label: "Real Costo de Fletes MTD [MXN]"
       type: sum
-      sql: ${TABLE}.Real_costo_fletes ;;
+      sql: CASE
+            WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
+            AND ${Fecha} <= CAST({% date_start date_filter %} AS DATE)
+            THEN ${TABLE}.Real_costo_fletes
+            ELSE 0
+           END;;
 
-      filters: {
-        field: mes_actual
-        value: "yes"
-      }
-
-      drill_fields: [ PlantaFletes ,RealCostoFletes]
+      drill_fields: [PlantaFletes, RealCostoFletesMTD]
 
       value_format: "$#,##0.00"
     }
 
     measure: RealCostoFletes01{
       group_label: "Fletes"
+      hidden: yes
       label: "Real Costo de Fletes [MXN] V2"
       type: sum
       sql: ROUND( (${TABLE}.Real_costo_fletes/1000) )*1000 ;;
@@ -327,34 +328,76 @@ view: inventario_fletes {
         value: "yes"
       }
 
-      drill_fields: [ CentroBeneficio,RealCostoFletes]
+      drill_fields: [CentroBeneficio, RealCostoFletes01]
 
       value_format: "$#,##0"
     }
 
-    measure: VentaTercerosFletes{
+    measure: VentaTercerosFletesMTD{
       group_label: "Fletes"
       type: sum
-      sql: (${TABLE}.Venta_terceros * -1);;
-
-      filters: {
-        field: mes_actual
-        value: "yes"
-      }
+      sql: CASE
+            WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
+            AND ${Fecha} <= CAST({% date_start date_filter %} AS DATE)
+            THEN (${TABLE}.Venta_terceros * -1)
+            ELSE 0
+           END;;
 
       value_format: "#,##0"
     }
 
-    measure: PorcRealFletesVentas {
+    measure: PorcRealFletesVentasMTD{
       group_label: "Fletes"
-      label: "Real % Fletes / Ventas"
+      label: "Real % Fletes / Ventas MTD"
       type: number
-      sql: ((${RealCostoFletes})/NULLIF(${VentaTercerosFletes},0))*100  ;;
+      sql: ((${RealCostoFletesMTD})/NULLIF(${VentaTercerosFletesMTD},0))*100  ;;
 
-      drill_fields: [ PlantaFletes,PorcRealFletesVentas]
+      drill_fields: [PlantaFletes, PorcRealFletesVentasMTD]
 
       value_format: "0.00\%"
     }
+
+    #Metricas Fletes Anuales
+    measure: RealCostoFletesYTD{
+      group_label: "Fletes"
+      label: "Real Costo de Fletes YTD [MXN]"
+      type: sum
+      sql: CASE
+            WHEN ${Fecha} >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
+            AND ${Fecha} <= CAST({% date_start date_filter %} AS DATE)
+            THEN ${TABLE}.Real_costo_fletes
+            ELSE 0
+           END  ;;
+
+      drill_fields: [PlantaFletes, RealCostoFletesYTD]
+
+      value_format: "$#,##0.00"
+    }
+
+    measure: VentaTercerosFletesYTD{
+      group_label: "Fletes"
+      type: sum
+      sql: CASE
+            WHEN ${Fecha} >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
+            AND ${Fecha} <= CAST({% date_start date_filter %} AS DATE)
+            THEN (${TABLE}.Venta_terceros * -1)
+            ELSE 0
+           END;;
+
+      value_format: "#,##0"
+    }
+
+    measure: PorcRealFletesVentasYTD{
+      group_label: "Fletes"
+      label: "Real % Fletes / Ventas YTD"
+      type: number
+      sql: ((${RealCostoFletesYTD})/NULLIF(${VentaTercerosFletesYTD},0))*100  ;;
+
+      drill_fields: [PlantaFletes, PorcRealFletesVentasYTD]
+
+      value_format: "0.00\%"
+    }
+
 
     measure: count {
       type: count

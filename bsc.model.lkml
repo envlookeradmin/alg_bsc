@@ -161,12 +161,17 @@ explore: inventario_fletes {
 explore: calidad {
   join: planta {
     type: left_outer
-    sql_on: ${calidad.Planta} = ${planta.planta_id} ;;
+    sql_on: ${calidad.planta} = ${planta.planta_id} ;;
     relationship: many_to_one
   }
   join: fecha {
     type: left_outer
-    sql_on: ${calidad.Fecha} = ${fecha.fecha} ;;
+    sql_on: ${calidad.fecha} = ${fecha.fecha} ;;
+    relationship: many_to_one
+  }
+  join: motivo_devolucion {
+    type:  left_outer
+    sql_on: ${calidad.codigo_devolucion} = ${motivo_devolucion.codigo_devolucion};;
     relationship: many_to_one
   }
 }
