@@ -307,7 +307,7 @@ explore: fct_materiales_stock {
   join: planta {
     type: left_outer
     sql_on: ${fct_materiales_stock.centro} = ${planta.planta_id} ;;
-    relationship: one_to_many
+    relationship: many_to_one
   }
 
   join: proveedor {

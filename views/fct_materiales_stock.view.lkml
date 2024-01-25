@@ -47,12 +47,6 @@ view: fct_materiales_stock {
     drill_fields: [detail*]
   }
 
-  dimension: id {
-    primary_key: yes
-    type: number
-
-    sql: ${TABLE}.id ;;
-  }
 
   dimension: id_material {
     type: string
