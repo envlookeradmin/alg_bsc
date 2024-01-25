@@ -109,7 +109,7 @@ view: calidad {
   #Dimensiones devolución
 
   dimension: fecha {
-    type: string
+    type: date
     sql: ${TABLE}.FECHA;;
   }
 
@@ -171,7 +171,7 @@ view: calidad {
       month_name,
       year
     ]
-    sql: ${TABLE}.FECHA ;;
+    sql: CAST(${TABLE}.FECHA AS DATE);;
   }
 
 
