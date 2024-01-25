@@ -1,8 +1,10 @@
 
 view: fct_materiales_stock {
   derived_table: {
-    sql: SELECT * FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_materiales_stock`
+    sql: SELECT  ROW_NUMBER() OVER (ORDER BY 1) AS id,  * FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_materiales_stock` c
          WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+         and GRUPO_MATERIAL = 'PAC9006'
+      --  and centro in ( select planta_id  from `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_planta`)
 
       ;;
   }
@@ -33,16 +35,18 @@ view: fct_materiales_stock {
 
   }
 
-  measure: count {
-    type: count
-    drill_fields: [detail*]
-  }
 
   dimension: fecha_costo {
     type: date
     datatype: date
     sql: ${TABLE}.fecha_costo ;;
   }
+
+  measure: count {
+    type: count
+    drill_fields: [detail*]
+  }
+
 
   dimension: id_material {
     type: string
@@ -52,6 +56,8 @@ view: fct_materiales_stock {
   dimension: centro {
     type: string
     sql: ${TABLE}.CENTRO ;;
+
+
   }
 
   dimension: tipo_proveedor_cliente {
