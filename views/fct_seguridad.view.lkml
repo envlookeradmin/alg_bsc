@@ -20,7 +20,7 @@ view: fct_seguridad {
         union all
 
         SELECT '' ID_EVENTO,
-      'ADP' TITULO,
+      '' TITULO,
       ''  CIRCUSTANCIAS_INCENDIO,
       '' DESCRIPCION_EQUIPO,
       c.date FECHA,
@@ -117,7 +117,7 @@ view: fct_seguridad {
     label: "ADP"
     type: sum
     sql:${TABLE}.valor ;;
-    drill_fields: [id_evento,titulo,Total_ADP]
+    drill_fields: [id_evento,titulo]
   }
 
 
