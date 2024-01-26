@@ -260,7 +260,9 @@ view: materiales_inventario {
         ;;
 
       html:
-      {% if materiales_inventario.Total_pt_mes_act._value == materiales_inventario.Total_pt_mes_ant._value %}
+      {% if materiales_inventario.Total_pt_mes_act._value == 0 %}
+      <p> {{ rendered_value }} </p>
+      {% elsif materiales_inventario.Total_pt_mes_act._value == materiales_inventario.Total_pt_mes_ant._value %}
       <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8> {{ rendered_value }} </p>
       {% elsif materiales_inventario.Total_pt_mes_act._value > materiales_inventario.Total_pt_mes_ant._value %}
       <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8> {{ rendered_value }} </p>
@@ -330,7 +332,9 @@ view: materiales_inventario {
           ;;
 
       html:
-      {% if materiales_inventario.Total_comp_mes_act._value == materiales_inventario.Total_comp_mes_ant._value %}
+      {% if materiales_inventario.Total_comp_mes_act._value == 0 %}
+      <p> {{ rendered_value }} </p>
+      {% elsif materiales_inventario.Total_comp_mes_act._value == materiales_inventario.Total_comp_mes_ant._value %}
       <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8> {{ rendered_value }} </p>
       {% elsif materiales_inventario.Total_comp_mes_act._value > materiales_inventario.Total_comp_mes_ant._value %}
       <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8> {{ rendered_value }} </p>
@@ -398,7 +402,9 @@ view: materiales_inventario {
             ;;
 
         html:
-        {% if materiales_inventario.Total_hoja_mes_act._value == materiales_inventario.Total_hoja_mes_ant._value %}
+        {% if materiales_inventario.Total_hoja_mes_act._value == 0 %}
+        <p> {{ rendered_value }} </p>
+        {% elsif materiales_inventario.Total_hoja_mes_act._value == materiales_inventario.Total_hoja_mes_ant._value %}
         <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8> {{ rendered_value }} </p>
         {% elsif materiales_inventario.Total_hoja_mes_act._value > materiales_inventario.Total_hoja_mes_ant._value %}
         <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8> {{ rendered_value }} </p>
@@ -468,7 +474,9 @@ view: materiales_inventario {
         ;;
 
       html:
-        {% if materiales_inventario.Total_pt_mes_act_pzas._value == materiales_inventario.Total_pt_mes_ant_pzas._value %}
+        {% if materiales_inventario.Total_pt_mes_act_pzas._value == 0 %}
+        <p> {{ rendered_value }} </p>
+        {% elsif materiales_inventario.Total_pt_mes_act_pzas._value == materiales_inventario.Total_pt_mes_ant_pzas._value %}
         <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8> {{ rendered_value }} </p>
         {% elsif materiales_inventario.Total_pt_mes_act_pzas._value > materiales_inventario.Total_pt_mes_ant_pzas._value %}
         <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8> {{ rendered_value }} </p>
@@ -538,7 +546,9 @@ view: materiales_inventario {
         ;;
 
       html:
-        {% if materiales_inventario.Total_comp_mes_act_pzas._value == materiales_inventario.Total_comp_mes_ant_pzas._value %}
+        {% if materiales_inventario.Total_comp_mes_act_pzas._value == 0 %}
+        <p> {{ rendered_value }} </p>
+        {% elsif materiales_inventario.Total_comp_mes_act_pzas._value == materiales_inventario.Total_comp_mes_ant_pzas._value %}
         <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8> {{ rendered_value }} </p>
         {% elsif materiales_inventario.Total_comp_mes_act_pzas._value > materiales_inventario.Total_comp_mes_ant_pzas._value %}
         <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8> {{ rendered_value }} </p>
@@ -606,7 +616,9 @@ view: materiales_inventario {
         ;;
 
       html:
-          {% if materiales_inventario.Total_hoja_mes_act_pzas._value == materiales_inventario.Total_hoja_mes_ant_pzas._value %}
+          {% if materiales_inventario.Total_hoja_mes_act_pzas._value == 0 %}
+          <p> {{ rendered_value }} </p>
+          {% elsif materiales_inventario.Total_hoja_mes_act_pzas._value == materiales_inventario.Total_hoja_mes_ant_pzas._value %}
           <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Yellow.png" height=8 width=8> {{ rendered_value }} </p>
           {% elsif materiales_inventario.Total_hoja_mes_act_pzas._value > materiales_inventario.Total_hoja_mes_ant_pzas._value %}
           <p><img src="https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Circle_Red.png" height=8 width=8> {{ rendered_value }} </p>
