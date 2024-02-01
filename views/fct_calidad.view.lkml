@@ -199,7 +199,7 @@ view: calidad {
   measure: costo_devolucion {
     type: sum
     sql:  CASE
-              WHEN ${ci_factura} IN ('ZR2M') /*and ${codigo_devolucion} IN ('Z08','104') */
+              WHEN ${ci_factura} IN ('ZR2M') and ${codigo_devolucion} IN ('Z08','104')
               THEN ${valor_neto} else 0
           END ;;
   }

@@ -177,7 +177,7 @@ view: materiales_inventario {
 
     #link: {
     # label: "Grupo Material"
-    #url: "https://envases.cloud.looker.com/dashboards/132?&Fecha={{ _filters['materiales_inventario.date_filter'] | url_encode }}&Planta={{ materiales_inventario.Planta._value | url_encode}}"
+    #url: "https://envases.cloud.looker.com/dashboards/132?&Fecha={{ _filters['materiales_inventario.date_filter'] | url_encode }}&Planta={{ materiales_inventario.planta._value | url_encode}}"
     #}
   }
 

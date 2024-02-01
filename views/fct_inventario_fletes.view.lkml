@@ -2,18 +2,24 @@ view: inventario_fletes {
     derived_table: {
       sql:
       select
-      Sociedad,
-      Centro_Beneficio,
-      Planta as Planta,
       Fecha,
+      Sociedad,
+      Planta,
+      Centro_Beneficio,
+      Valor_stock_acum,
+      Valor_stock_c,
       Valor_stock,
+      Valor_stock_aa,
       Venta_terceros,
       Real_costo_fletes,
       GastoCuentas5,
       GastoFabricacion,
-      Cierre_anio_anterior
-      FROM `RPT_S4H_MX.vw_bsc_reporte_inventario_fletes`
-      where Planta in ('MF01','MF51','MF08','MF58','MF09','MF59','MF02','MF52', 'MF03','MF53','MF04','MF54','MF05','MF55','MF06','MF56','MF07','MF57', 'MF10','MF60')
+      ReclasificacionIngresoCosto,
+      GastoCuentas5_12,
+      GastoFabricacion_12,
+      ReclasificacionIngresoCosto_12
+      FROM `RPT_S4H_MX.vw_bsc_reporte_inventario_fletes_v1`
+      where Planta in ('MF01','MF51','MF08','MF58','MF09','MF59','MF02','MF52', 'MF03','MF53','MF04','MF54','MF05','MF55','MF06','MF56','MF07','MF57', 'MF10','MF60', 'GF01')
       ;;
     }
 
@@ -25,6 +31,28 @@ view: inventario_fletes {
     }
 
     #Dimensiones
+
+    dimension: Fecha{
+      type: date
+      sql: ${TABLE}.Fecha ;;
+    }
+
+    dimension_group: fecha_filtro {
+      label: "Date"
+      type: time
+      timeframes: [
+        raw,
+        time,
+        date,
+        week,
+        month,
+        quarter,
+        month_name,
+        year
+      ]
+      sql: ${Fecha} ;;
+    }
+
     dimension: Sociedad {
       type: string
       sql: ${TABLE}.Sociedad ;;
@@ -72,36 +100,41 @@ view: inventario_fletes {
       type: string
       sql: ${planta.planta_comercializadora} ;;
 
-      link: {
-       label: "Centro benefico"
-       url: "https://envases.cloud.looker.com/dashboards/144?&Fecha={{ _filters['inventario_fletes.date_filter'] | url_encode }}&Planta={{ inventario_fletes.PlantaComercializadora._value | url_encode}}"
-      }
+      #link: {
+       #label: "Centro benefico"
+       #url: "https://envases.cloud.looker.com/dashboards/144?&Fecha={{ _filters['inventario_fletes.date_filter'] | url_encode }}&Planta={{ inventario_fletes.PlantaComercializadora._value | url_encode}}"
+      #}
+    }
+
+    dimension: grupo_planta_inv {
+      label: "Agrupador Planta"
+      type: string
+      sql: CASE
+            WHEN ${TABLE}.Planta in ('MF01','MF51', 'MF08','MF58', 'MF09', 'MF59')
+            THEN 'MF01'
+            WHEN ${TABLE}.Planta in ('MF02','MF52')
+            THEN 'MF02'
+            WHEN ${TABLE}.Planta in ('MF03','MF53','MF04','MF54','MF05','MF55','MF06','MF56','MF07','MF57')
+            THEN 'MF03'
+            WHEN ${TABLE}.Planta in ('MF10','MF60')
+            THEN 'MF10'
+            ELSE ${TABLE}.Planta
+          END ;;
+    }
+
+    dimension: vacio {
+    type: string
+    sql: '' ;;
     }
 
     dimension: Valor_Stock {
       type: number
-      sql: (${TABLE}.Valor_stock + IFNULL(${TABLE}.Cierre_anio_anterior,0)) ;;
+      sql: ${TABLE}.Valor_stock  ;;
     }
 
-    dimension: Fecha{
-      type: date
-      sql: ${TABLE}.Fecha ;;
-    }
-
-    dimension_group: fecha_filtro {
-      label: "Date"
-      type: time
-      timeframes: [
-        raw,
-        time,
-        date,
-        week,
-        month,
-        quarter,
-        month_name,
-        year
-      ]
-      sql: CAST(${Fecha}  AS TIMESTAMP) ;;
+    dimension: Gasto_Acumulado {
+      type: number
+      sql:  ${TABLE}.GastoCuentas5_12 + ${TABLE}.GastoFabricacion_12 + ReclasificacionIngresoCosto_12 ;;
     }
 
     dimension: anio_actual{
@@ -141,24 +174,28 @@ view: inventario_fletes {
       sql: DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
         AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= CAST({% date_start date_filter %} AS DATE)  ;;
     }
+
     dimension: mes_actual_anio_ant{
       hidden: yes
       type: yesno
       sql: DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH), INTERVAL -1 YEAR)
         AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL 0 YEAR)) ;;
     }
+
     dimension: mes_anterior{
       hidden: yes
       type: yesno
       sql: DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH)
         AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 MONTH));;
     }
+
     dimension: ultimos_12_meses{
       hidden: yes
       type: yesno
       sql: DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -12 MONTH)
         AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= LAST_DAY(CAST({% date_start date_filter %} AS DATE));;
     }
+
     dimension: ultimos_3_meses{
       type: number
       sql:
@@ -169,15 +206,16 @@ view: inventario_fletes {
             END;;
     }
 
-    #Metricas Inventarios
+    #Metricas Mensuales Inventarios
 
     measure: ValorStock{
       group_label: "Inventarios"
       label: "Valor Stock [MXN]"
       type: sum
-      sql: ${Valor_Stock};;
+      sql: ${Valor_Stock}
+      ;;
 
-      drill_fields: [ CentroBeneficio,ValorStock]
+      drill_fields: [CentroBeneficio, ValorStock]
 
       value_format: "$#,##0.00"
     }
@@ -185,12 +223,11 @@ view: inventario_fletes {
     measure: ValorStockMesActual{
       group_label: "Inventarios"
       type: sum
-      sql: ${Valor_Stock} ;;
-
-      filters: {
-        field: mes_actual
-        value: "yes"
-      }
+      sql: CASE
+           WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
+           AND ${Fecha} <= CAST({% date_start date_filter %} AS DATE)
+           THEN ${Valor_Stock}
+           END ;;
 
       value_format: "#,##0"
     }
@@ -198,40 +235,38 @@ view: inventario_fletes {
     measure: ValorStockMesActualAnioAnt{
       group_label: "Inventarios"
       type: sum
+      sql: CASE
+           WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
+           AND ${Fecha} <= CAST({% date_start date_filter %} AS DATE)
+           THEN ${TABLE}.Valor_stock_aa
+           END ;;
+
+      value_format: "#,##0"
+    }
+
+
+    measure: ValorStockMesActualAnioAnt2{
+      group_label: "Inventarios"
+      type: sum
       sql: ${Valor_Stock} ;;
 
-      filters: {
+       filters: {
         field: mes_actual_anio_ant
-        value: "yes"
+       value: "yes"
       }
 
       value_format: "#,##0"
     }
 
 
-  measure: ValorStockMesActualAnioAnt2{
-    group_label: "Inventarios"
-    type: sum
-    sql: ${Valor_Stock} ;;
-
-     filters: {
-      field: mes_actual_anio_ant
-     value: "yes"
-    }
-
-    value_format: "#,##0"
-  }
-
-
     measure: ValorStockMesAnterior{
       group_label: "Inventarios"
       type: sum
-      sql: ${Valor_Stock} ;;
-
-      filters: {
-        field: mes_anterior
-        value: "yes"
-      }
+      sql: CASE
+           WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH)
+           AND ${Fecha}  <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 MONTH))
+           THEN ${Valor_Stock}
+           END;;
 
       value_format: "#,##0"
     }
@@ -256,48 +291,76 @@ view: inventario_fletes {
       value_format: "0.00\%"
     }
 
-    measure: AcumuladoGasto{
+    measure: gasto_acum{
       group_label: "Inventarios"
       type: sum
-      sql: (${TABLE}.GastoCuentas5 + ${TABLE}.GastoFabricacion) ;;
-
-      filters: {
-        field: ultimos_12_meses
-        value: "yes"
-      }
+      sql: ${Gasto_Acumulado} ;;
 
       value_format: "#,##0"
     }
 
-    dimension: tiempo12meses {
-      hidden: yes
-      type: yesno
-      sql:DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= '2022-12-21' AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= '2023-12-21'
-                  ;;
+    measure: gasto_acum_mes_act{
+      group_label: "Inventarios"
+      type: sum
+      sql: CASE
+             WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
+             AND ${Fecha} <= CAST({% date_start date_filter %} AS DATE)
+             THEN ${Gasto_Acumulado}
+             END ;;
+
+      value_format: "#,##0"
     }
+
+    #Calculo dias inventario mes
 
     measure: DiasInventarioMes{
       group_label: "Inventarios"
-      label: "Días de Inventario"
       type: number
       sql: ((${ValorStockMesActual} + ${ValorStockMesActualAnioAnt}) / 2 )
-        / (NULLIF(${AcumuladoGasto},0) / 360);;
+        / (NULLIF(${gasto_acum_mes_act},0) / 360);;
 
       drill_fields: [ CentroBeneficio,DiasInventarioMes]
 
-      value_format: "0"
+      value_format: "0.00"
+    }
+
+
+    #Calculos dias inventario trimestre
+
+    measure: valor_stock_trimestre {
+      group_label: "Inventarios"
+      type: sum
+      sql: ${Valor_Stock} ;;
+    }
+
+    measure: valor_stock_aa_trimestre {
+      group_label: "Inventarios"
+      type: sum
+      sql: ${Valor_Stock} ;;
+    }
+
+    measure: gasto_acum_trimestre {
+      group_label: "Inventarios"
+      type: sum
+      sql: ${Gasto_Acumulado} ;;
     }
 
     measure: DiasInventarioTrimestre{
       group_label: "Inventarios"
       type: number
-      sql: ((${ValorStockMesActual} + ${ValorStockMesActualAnioAnt}) / 2 )
-        / (NULLIF(${AcumuladoGasto},0) / 360);;
+      sql: /*CASE
+           WHEN ${fecha.mes} in (3,6,9,12)
+           THEN */
+          ((${valor_stock_trimestre} + ${valor_stock_aa_trimestre}) / 2 ) / (NULLIF(${gasto_acum_trimestre},0) / 360)
+          -- END
+          ;;
 
-      drill_fields: [ CentroBeneficio,DiasInventarioTrimestre]
+      drill_fields: [ CentroBeneficio, DiasInventarioTrimestre]
 
-      value_format: "0"
+      value_format: "0.00"
     }
+
+
 
     #Metricas Fletes Mesuales
     measure: RealCostoFletesMTD{
