@@ -1,10 +1,10 @@
 
 view: fct_materiales_stock {
   derived_table: {
-    sql: SELECT  ROW_NUMBER() OVER (ORDER BY 1) AS id,  * FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_materiales_stock` c
+    sql: SELECT  * FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_materiales_stock` c
          WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
          and GRUPO_MATERIAL = 'PAC9006'
-      --  and centro in ( select planta_id  from `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_planta`)
+          and centro in ( select planta_id  from `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_planta`)
 
       ;;
   }
@@ -51,6 +51,12 @@ view: fct_materiales_stock {
   dimension: id_material {
     type: string
     sql: ${TABLE}.ID_MATERIAL ;;
+  }
+
+
+  dimension: Familia {
+    type: string
+    sql: ${TABLE}.familia ;;
   }
 
   dimension: centro {
@@ -124,18 +130,18 @@ view: fct_materiales_stock {
 
   dimension: tipo_clasificacion {
     type: string
-    sql: case when ${tipo_stock}=1 then 'Cliente' else 'Envases' end ;;
+    sql: case when ${tipo_stock}=2 then 'Cliente' else 'Envases' end ;;
   }
 
   dimension: Proveedor_nombre {
     type: string
-    sql: UPPER(${proveedor.nombre}) ;;
+    sql:  UPPER(${proveedor.nombre})    ;;
   }
 
 
   dimension: Cliente_nombre {
     type: string
-    sql: UPPER(${cliente.nombre}) ;;
+    sql:  UPPER(${cliente.nombre})  ;;
   }
 
 
@@ -143,7 +149,8 @@ view: fct_materiales_stock {
     label: "Proveedor"
     type: string
     sql: CASE WHEN  ${tipo_proveedor_cliente}='Cliente'   then ${Cliente_nombre}
-              WHEN  ${tipo_proveedor_cliente}='Proveedor' then ${Proveedor_nombre} ELSE 'NA'  END ;;
+              WHEN  ${tipo_proveedor_cliente}='Proveedor' then ${Proveedor_nombre}
+              WHEN  ${tipo_proveedor_cliente}='Planta'    then 'NA' ELSE ${id_provedor_cliente}  END ;;
   }
 
 
