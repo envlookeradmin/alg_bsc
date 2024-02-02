@@ -124,7 +124,8 @@ view: inventario_fletes {
 
     dimension: vacio {
     type: string
-    sql: '' ;;
+    label: "_"
+    sql: '_' ;;
     }
 
     dimension: Valor_Stock {
@@ -319,7 +320,7 @@ view: inventario_fletes {
       sql: ((${ValorStockMesActual} + ${ValorStockMesActualAnioAnt}) / 2 )
         / (NULLIF(${gasto_acum_mes_act},0) / 360);;
 
-      drill_fields: [ CentroBeneficio,DiasInventarioMes]
+      #drill_fields: [ CentroBeneficio,DiasInventarioMes]
 
       value_format: "0.00"
     }
@@ -355,7 +356,7 @@ view: inventario_fletes {
           -- END
           ;;
 
-      drill_fields: [ CentroBeneficio, DiasInventarioTrimestre]
+      #drill_fields: [ CentroBeneficio, DiasInventarioTrimestre]
 
       value_format: "0.00"
     }

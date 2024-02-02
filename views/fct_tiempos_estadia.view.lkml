@@ -127,6 +127,12 @@ view: tiempos_estadia {
       sql: ${TABLE}.Peso_de_Salida ;;
     }
 
+    dimension: vacio {
+      type: string
+      label: "_"
+      sql: '_' ;;
+    }
+
     dimension_group: fecha_filtro {
       label: "Date"
       type: time
@@ -176,7 +182,7 @@ view: tiempos_estadia {
 
     #Metricas
     measure: Prom_Estadia {
-      label: "Tiempo Promedio de Estadia"
+      label: "Tiempo Prom. de Estadia"
       type: average
       sql: ${TiempoDeEstadia} ;;
 
@@ -198,7 +204,7 @@ view: tiempos_estadia {
     }
 
     measure: Prom_Estadia_AA {
-      label: "Tiempo Promedio de Estadia AA"
+      label: "Tiempo Prom. de Estadia AA"
       type: average
       sql: ${TiempoDeEstadia} ;;
 
