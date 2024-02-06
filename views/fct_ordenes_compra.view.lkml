@@ -63,20 +63,20 @@ view: ordenes_compra {
     type: string
     sql: ${planta.planta_completo} ;;
 
-    link: {
-      label: "Gerencia"
-      url: "https://envases.cloud.looker.com/dashboards/132?&Fecha={{ _filters['ordenes_compra.date_filter'] | url_encode }}&Planta={{ ordenes_compra.Planta._value | url_encode}}"
-    }
+    #link: {
+    #  label: "Gerencia"
+    #  url: "https://envases.cloud.looker.com/dashboards/132?&Fecha={{ _filters['ordenes_compra.date_filter'] | url_encode }}&Planta={{ ordenes_compra.Planta._value | url_encode}}"
+    #}
   }
 
   dimension: PlantaCompletoProd {
     type: string
     sql: ${planta.planta_completo} ;;
 
-    link: {
-      label: "Gerencia"
-      url: "https://envases.cloud.looker.com/dashboards/133?&Fecha={{ _filters['ordenes_compra.date_filter'] | url_encode }}&Planta={{ ordenes_compra.Planta._value | url_encode}}"
-    }
+    #link: {
+    #  label: "Gerencia"
+    #  url: "https://envases.cloud.looker.com/dashboards/133?&Fecha={{ _filters['ordenes_compra.date_filter'] | url_encode }}&Planta={{ ordenes_compra.Planta._value | url_encode}}"
+    #}
   }
 
 
@@ -160,41 +160,41 @@ view: ordenes_compra {
   }
 
   #Metricas
-  measure: Orden_Completa {
-    label: "Orden completa"
-    type: count_distinct
-    sql: CASE
-        WHEN ${TABLE}.FechaEntregaReal <= DATE_ADD (${TABLE}.FechaEntregaPlan, INTERVAL 1 DAY) THEN ${TABLE}.UID_PR
-        END ;;
-  }
+  #measure: Orden_Completa {
+  #  label: "Orden completa"
+  #  type: count_distinct
+  #  sql: CASE
+  #      WHEN ${TABLE}.FechaEntregaReal <= DATE_ADD (${TABLE}.FechaEntregaPlan, INTERVAL 1 DAY) THEN ${TABLE}.UID_PR
+  #      END ;;
+  #}
 
 
-  measure: Orden_Mes {
-    label: "Total ordenes"
-    type: count_distinct
-    sql: ${TABLE}.UID_PO ;;
-  }
+  #measure: Orden_Mes {
+  #  label: "Total ordenes"
+  #  type: count_distinct
+  #  sql: ${TABLE}.UID_PO ;;
+  #}
 
-  measure: OTIF {
-    label: "OTIF"
-    type: number
-    sql: (${Orden_Completa}/NULLIF(${Orden_Mes},0))*100  ;;
+  #measure: OTIF {
+  #  label: "OTIF"
+  #  type: number
+  #  sql: (${Orden_Completa}/NULLIF(${Orden_Mes},0))*100  ;;
 
-    html:
-    {% if value >= 92.0 %}
-    <span style="color: green;">{{ rendered_value }}</span></p>
-    {% elsif  value < 90.0 %}
-    <span style="color: red;">{{ rendered_value }}</span></p>
-    {% elsif  value >= 90.0 and value <= 91.9 %}
-    <span style="color: #FFA800;">{{ rendered_value }}</span></p>
-    {% else %}
-    {{rendered_value}}
-    {% endif %} ;;
+  #  html:
+  #  {% if value >= 92.0 %}
+  #  <span style="color: green;">{{ rendered_value }}</span></p>
+  #  {% elsif  value < 90.0 %}
+  #  <span style="color: red;">{{ rendered_value }}</span></p>
+  #  {% elsif  value >= 90.0 and value <= 91.9 %}
+  #  <span style="color: #FFA800;">{{ rendered_value }}</span></p>
+  #  {% else %}
+  #  {{rendered_value}}
+  #  {% endif %} ;;
 
-    drill_fields: [comprador.gerencia,OTIF]
+  #  drill_fields: [comprador.gerencia,OTIF]
 
-    value_format: "0.00\%"
-  }
+  #  value_format: "0.00\%"
+  #}
 
   measure: Prom_Dias_Atencion{
     label: "Promedio Días de Atención"
@@ -206,7 +206,7 @@ view: ordenes_compra {
     #  value: "yes"
     #}
 
-    drill_fields: [comprador.gerencia,Prom_Dias_Atencion]
+    #drill_fields: [comprador.gerencia,Prom_Dias_Atencion]
 
     value_format: "0"
   }
@@ -223,6 +223,7 @@ view: ordenes_compra {
     #  value: "yes"
     #}
   }
+
   measure: Orden_En_Tiempo_Obj {
     label: "Orden en tiempo obj"
     type: count_distinct
@@ -241,10 +242,10 @@ view: ordenes_compra {
     type: count_distinct
     sql: ${TABLE}.UID_PR ;;
 
-#    filters: {
-#      field: mes_actual_solicitud
-#      value: "yes"
-#    }
+  #    filters: {
+  #      field: mes_actual_solicitud
+  #      value: "yes"
+  #    }
   }
 
   measure: Porc_Productividad_Alcanzada {
@@ -262,7 +263,7 @@ view: ordenes_compra {
     {{rendered_value}}
     {% endif %} ;;
 
-    drill_fields: [comprador.gerencia,Porc_Productividad_Alcanzada]
+    #drill_fields: [comprador.gerencia,Porc_Productividad_Alcanzada]
 
     value_format: "0.00\%"
   }
