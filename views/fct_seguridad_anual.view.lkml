@@ -29,7 +29,7 @@ view: fct_seguridad_anual {
       '' TIPO_EVENTO,
        0 valor
       FROM `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_reporte_seguridad` s
-      CROSS JOIN  (select DATE from `@{GCP_PROJECT}.@{REPORTING_DATASET}.CALENDAR`) c
+      CROSS JOIN  (select DATE from `@{GCP_PROJECT}.@{REPORTING_DATASET2}.CALENDAR`) c
       GROUP BY  s.CENTRO, c.date) A
       WHERE DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_TRUNC(CAST({% date_start date_filter %} AS DATE), year) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
 
