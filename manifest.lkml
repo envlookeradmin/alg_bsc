@@ -21,7 +21,7 @@ constant: REPORTING_DATASET2 {
 }
 
 constant: REPORTING_DATASET3 {
-  value: "RPT_EHS_MX_UPG"
+  value: "RPT_S4H_MX_UPG"
   export: override_required
 
   #CALENDAR
@@ -31,3 +31,5 @@ constant: REPORTING_DATASET3 {
 #`envases-analytics-qa.ENVASES_REPORTING_UPG.CALENDAR`
 # `envases-analytics-qa.RPT_EHS_MX_UPG.vw_bsc_reporte_seguridad`
 # `envases-analytics-qa.RPT_S4H_MX_UPG.vw_bsc_planta`
+#`envases-analytics-qa.RPT_S4H_MX_UPG.vw_bsc_planta
+#SELECT * FROM `envases-analytics-qa.RPT_EHS_MX_UPG.vw_bsc_reporte_seguridad` LIMIT 10
