@@ -1,5 +1,5 @@
 view: planta{
-  sql_table_name: `@{GCP_PROJECT}.@{REPORTING_DATASET3}.vw_bsc_planta` ;;
+  sql_table_name: `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_planta` ;;
 
   dimension: ciudad {
     type: string

@@ -21,7 +21,7 @@ view: ordenes_compra {
         DiasAtencion,
         FechaEntregaPlan,
         FechaEntregaReal
-      FROM `envases-analytics-qa.RPT_S4H_MX.vw_bsc_ordenes_compra`;;
+      FROM `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_ordenes_compra`;;
   }
 
   #Filtro

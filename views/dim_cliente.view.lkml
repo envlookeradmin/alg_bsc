@@ -1,7 +1,7 @@
 
 view: cliente {
   derived_table: {
-    sql: SELECT * FROM `envases-analytics-qa.RPT_S4H_MX_QA.vw_bsc_cliente` ;;
+    sql: SELECT * FROM `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_cliente` ;;
   }
 
   measure: count {
