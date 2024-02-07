@@ -5,7 +5,7 @@ view: estatus_calidad{
         ID,
         ESTADO,
         ORDEN
-        from `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_Estatus`
+        from `envases-analytics-qa.RPT_S4H_MX_QA.vw_bsc_Estatus`
         group by 1,2,3
         ;;
   }

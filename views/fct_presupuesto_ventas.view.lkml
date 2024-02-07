@@ -1,7 +1,7 @@
 
 view: fct_presupuesto_ventas {
   derived_table: {
-    sql: select * from envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_presupuesto_ventas ;;
+    sql: select * from envases-analytics-qa.RPT_S4H_MX.vw_bsc_presupuesto_ventas ;;
   }
 
   measure: count {

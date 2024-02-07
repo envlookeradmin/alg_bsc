@@ -21,7 +21,7 @@ view: ordenes_compra {
         DiasAtencion,
         FechaEntregaPlan,
         FechaEntregaReal
-      FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_ordenes_compra`;;
+      FROM `envases-analytics-qa.RPT_S4H_MX.vw_bsc_ordenes_compra`;;
   }
 
   #Filtro

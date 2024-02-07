@@ -1,5 +1,5 @@
 view: motivo_devolucion {
-  sql_table_name: `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_motivo_devolucion` ;;
+  sql_table_name: `envases-analytics-qa.RPT_S4H_MX.vw_bsc_motivo_devolucion` ;;
 
   dimension: codigo_devolucion {
     type: string

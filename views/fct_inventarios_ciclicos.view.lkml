@@ -16,10 +16,10 @@ view: inventarios_ciclicos {
           c.WEEK,
           SUBSTRING(a.FECHA_DOCUMENTO,1 ,4) AS ANIO,
           COUNT(distinct a.MATERIAL) OVER (PARTITION BY a.MATERIAL,a.PLANTA, SUBSTRING(a.FECHA_DOCUMENTO,1 ,4), c.WEEK ) as CONTEO_MATERIAL
-          FROM `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_inventarios_ciclicos` a
-          left join `envases-analytics-eon-poc.RPT_S4H_MX_QA.vw_bsc_ic_metas` b
+          FROM `envases-analytics-qa.RPT_S4H_MX_QA.vw_bsc_inventarios_ciclicos` a
+          left join `envases-analytics-qa.RPT_S4H_MX_QA.vw_bsc_ic_metas` b
           on TRIM(a.PLANTA) = TRIM(b.PLANTA) and SUBSTRING(a.FECHA_DOCUMENTO,1 ,4) = b.ANIO_EJERCICIO and TRIM(a.MATERIAL) = TRIM(b.MATERIAL)
-          left join `envases-analytics-eon-poc.ENVASES_REPORTING.CALENDAR` c
+          left join `envases-analytics-qa.ENVASES_REPORTING.CALENDAR` c
           on a.FECHA_DOCUMENTO = c.CALDAY  ;;
   }
 

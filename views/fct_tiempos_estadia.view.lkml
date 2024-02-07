@@ -17,7 +17,7 @@ view: tiempos_estadia {
       Tiempo_de_Estadia,
       Peso_de_Entrada,
       Peso_de_Salida
-      FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_tiempo_estadia`
+      FROM `envases-analytics-qa.RPT_S4H_MX.vw_bsc_tiempo_estadia`
       ;;
     }
 

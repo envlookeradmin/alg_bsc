@@ -18,8 +18,8 @@ view: materiales_inventario {
         ms.VALOR_ACTUAL_INSPECCION_CALIDAD,
         ms.VALOR_ACTUAL_BLOQUEADO,
         ar.tipo AS TIPO_NC
-        FROM `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_materiales_stock` ms
-        left join `envases-analytics-eon-poc.RAW_S4H_MX.cat_grupo_articulos` as ar
+        FROM `envases-analytics-qa.RPT_S4H_MX.vw_bsc_materiales_stock` ms
+        left join `envases-analytics-qa.RAW_S4H_MX.cat_grupo_articulos` as ar
           ON GRUPO_MATERIAL = grupo
           WHERE
            GRUPO_MATERIAL in ('BAS1010','DPL1012','LID1015','OPP1018','BFT1012','DPL1014','LID1017','PAI1017','BLI1018',

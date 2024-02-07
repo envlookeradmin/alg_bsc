@@ -27,7 +27,7 @@ view: calidad {
       'Sin info.' as ESTATUS_QUEJA,
       0 as CANTIDAD_RECHAZO_NOTIFICADA,
       0 as CANTIDAD_ENTREGADA
-      from `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_calidad_devoluciones`
+      from `envases-analytics-qa.RPT_S4H_MX.vw_bsc_calidad_devoluciones`
       where FECHA >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
       and FECHA <= CAST({% date_start date_filter %} AS DATE)
       UNION ALL
@@ -63,7 +63,7 @@ view: calidad {
       ESTATUS,
       0 as CANTIDAD_RECHAZO_NOTIFICADA,
       0 as CANTIDAD_ENTREGADA
-      from `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_calidad_quejas`
+      from `envases-analytics-qa.RPT_S4H_MX.vw_bsc_calidad_quejas`
       where CAST(FECHA AS DATE) >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
       and CAST(FECHA AS DATE) <= CAST({% date_start date_filter %} AS DATE)
       UNION ALL
@@ -93,7 +93,7 @@ view: calidad {
       'Sin info.' as ESTATUS,
       CANTIDAD_RECHAZO_NOTIFICADA,
       CANTIDAD_ENTREGADA
-      from `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_prod_cap_manufactura`
+      from `envases-analytics-qa.RPT_S4H_MX.vw_bsc_prod_cap_manufactura`
       where FECHA_FIN_REAL >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
       and FECHA_FIN_REAL <= CAST({% date_start date_filter %} AS DATE)
       ;;

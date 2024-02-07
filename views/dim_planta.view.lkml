@@ -1,5 +1,5 @@
 view: planta{
-  sql_table_name: `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_planta` ;;
+  sql_table_name: `envases-analytics-qa.RPT_S4H_MX.vw_bsc_planta` ;;
 
   dimension: ciudad {
     type: string

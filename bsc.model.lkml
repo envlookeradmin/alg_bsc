@@ -1,4 +1,4 @@
-connection: "envases-eon-alg"
+connection: "envases_analytics_qa"
 
 
 include: "/views/*.view.lkml"                # include all views in the views/ folder in this project

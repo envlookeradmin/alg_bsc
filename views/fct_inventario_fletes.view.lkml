@@ -18,7 +18,7 @@ view: inventario_fletes {
       GastoCuentas5_12,
       GastoFabricacion_12,
       ReclasificacionIngresoCosto_12
-      FROM `RPT_S4H_MX.vw_bsc_reporte_inventario_fletes_v1`
+      FROM `envases-analytics-qa.RPT_S4H_MX.vw_bsc_reporte_inventario_fletes_v1`
       where Planta in ('MF01','MF51','MF08','MF58','MF09','MF59','MF02','MF52', 'MF03','MF53','MF04','MF54','MF05','MF55','MF06','MF56','MF07','MF57', 'MF10','MF60', 'GF01')
       ;;
     }

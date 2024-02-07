@@ -1,5 +1,5 @@
 view: fecha_solicitud {
-  sql_table_name: `envases-analytics-eon-poc.ENVASES_REPORTING.CALENDAR` ;;
+  sql_table_name: `envases-analytics-qa.ENVASES_REPORTING.CALENDAR` ;;
 
   dimension: fecha {
     type: date
