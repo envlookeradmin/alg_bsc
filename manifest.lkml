@@ -24,6 +24,23 @@ constant: REPORTING_DATASET3 {
   export: override_required
 }
 
+constant: REPORTING_DATASET4 {
+  value: "RAW_S4H_MX"
+  export: override_required
+}
+
+constant: REPORTING_DATASET5 {
+  value: "CDC_S4H_MX"
+  export: override_required
+}
+
+
+
+
+
+
+
+
 
 
 

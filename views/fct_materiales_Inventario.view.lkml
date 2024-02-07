@@ -19,7 +19,7 @@ view: materiales_inventario {
         ms.VALOR_ACTUAL_BLOQUEADO,
         ar.tipo AS TIPO_NC
         FROM `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_materiales_stock` ms
-        left join `@{GCP_PROJECT}.@{REPORTING_DATASET}.cat_grupo_articulos` as ar
+        left join `@{GCP_PROJECT}.@{REPORTING_DATASET4}.cat_grupo_articulos` as ar
           ON GRUPO_MATERIAL = grupo
           WHERE
            GRUPO_MATERIAL in ('BAS1010','DPL1012','LID1015','OPP1018','BFT1012','DPL1014','LID1017','PAI1017','BLI1018',

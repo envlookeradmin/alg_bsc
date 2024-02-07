@@ -1,5 +1,5 @@
 view: fecha_orden {
-  sql_table_name: `@{GCP_PROJECT}.@{REPORTING_DATASET}.CALENDAR` ;;
+  sql_table_name: `@{GCP_PROJECT}.@{REPORTING_DATASET2}.CALENDAR` ;;
 
   dimension: fecha {
     type: date
