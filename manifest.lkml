@@ -13,5 +13,13 @@ constant: REPORTING_DATASET {
   export: override_required
 }
 
+constant: REPORTING_DATASET2 {
+  value: "ENVASES_REPORTING_UPG"
+  export: override_required
+
+  #CALENDAR
+}
+
 #`@{GCP_PROJECT}.@{REPORTING_DATASET}.tabla
+#`envases-analytics-qa.ENVASES_REPORTING_UPG.CALENDAR`
 #`envases-analytics-qa.RPT_EHS_MX_UPG.vw_bsc_reporte_seguridad`
