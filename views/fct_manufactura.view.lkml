@@ -3,7 +3,7 @@ view: fct_manufactura {
   derived_table: {
    #sql: select * from envases-analytics-qa.RPT_S4H_MX.vw_bsc_prod_cap_manufactura WHERE CAST(FECHA_FIN_REAL AS date) between DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) and  DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)    ;;
 
-     sql:select m.*,b.cantidad Cantidad_ventas,b.MONTO Monto_ventas from `@{GCP_PROJECT}.@{REPORTING_DATASET3}.vw_fact_prod_cap_manufactura` m
+     sql:select m.*,b.cantidad Cantidad_ventas,b.MONTO Monto_ventas from `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_fact_prod_cap_manufactura` m
         left join (select PLANTA,FECHA,ID_GRUPO_MATERIAL,SUM(CANTIDAD) CANTIDAD,SUM(MONTO) MONTO  from `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_presupuesto_ventas` GROUP BY PLANTA,FECHA,ID_GRUPO_MATERIAL) b on
       --  m.PLANTA=b.PLANTA
        CONCAT('MF', cast(SUBSTR(m.PLANTA,3,3) as int)+50)=b.PLANTA
