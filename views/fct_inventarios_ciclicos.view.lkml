@@ -19,7 +19,7 @@ view: inventarios_ciclicos {
           FROM `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_inventarios_ciclicos` a
           left join `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_ic_metas` b
           on TRIM(a.PLANTA) = TRIM(b.PLANTA) and SUBSTRING(a.FECHA_DOCUMENTO,1 ,4) = b.ANIO_EJERCICIO and TRIM(a.MATERIAL) = TRIM(b.MATERIAL)
-          left join `@{GCP_PROJECT}.@{REPORTING_DATASET}.CALENDAR` c
+          left join `@{GCP_PROJECT}.@{REPORTING_DATASET2}.CALENDAR` c
           on a.FECHA_DOCUMENTO = c.CALDAY  ;;
   }
 

@@ -15,18 +15,22 @@
       \ 18px;\">\n\t\t<img style=\"height: 50px; float: left\" src=\"https://www.envases.mx/media/1245/icon_brands.png\"\
       />\n<a style=\"color: #5e2129; padding: 5px 20px;\n        float: left; line-height:\
       \ 40px; font-weight: bold; color: white;\n        border-radius: 5px; margin-left:\
-      \ 5px; background-color: #b46e68;\"\n        href=\"https://envases.cloud.looker.com/dashboards/130\"\
-      >COMPRAS</a>\n<a style=\"color: #5e2129; padding: 5px 20px;\n        float:\
-      \ left; line-height: 40px; font-weight: bold; color: white;\n        border-radius:\
-      \ 5px; margin-left: 5px; background-color: #b46e68;\"\n        href=\"https://envases.cloud.looker.com/dashboards/143\"\
-      >INVENTARIO</a>\n<a style=\"color: #5e2129; padding: 5px 20px;\n        float:\
-      \ left; line-height: 40px; font-weight: bold; color: white;\n        border-radius:\
-      \ 5px; margin-left: 5px; background-color: #b46e68;\"\n        href=\"https://envases.cloud.looker.com/dashboards/139\"\
+      \ 5px; background-color: #b46e68;\"\n        href=\"https://envases.cloud.looker.com/dashboards/139\"\
       >INVENTARIO NO CONFORME</a>\n<a style=\"color: #5e2129; padding: 5px 20px;\n\
       \        float: left; line-height: 40px; font-weight: bold; color: white;\n\
       \        border-radius: 5px; margin-left: 5px; background-color: #b46e68;\"\n\
-      \        href=\"https://envases.cloud.looker.com/dashboards/134\">TIEMPOS DE\
-      \ ESTADIA</a>\n\t</nav>\n</div>"
+      \        href=\"https://envases.cloud.looker.com/dashboards/169\">MATERIAL DE\
+      \ EMPAQUE</a>\n<a style=\"color: #5e2129; padding: 5px 20px;\n        float:\
+      \ left; line-height: 40px; font-weight: bold; color: white;\n        border-radius:\
+      \ 5px; margin-left: 5px; background-color: #b46e68;\"\n        href=\"https://envases.cloud.looker.com/dashboards/134\"\
+      >TIEMPOS DE ESTADIA</a>\n<a style=\"color: #5e2129; padding: 5px 20px;\n   \
+      \     float: left; line-height: 40px; font-weight: bold; color: white;\n   \
+      \     border-radius: 5px; margin-left: 5px; background-color: #b46e68;\"\n \
+      \       href=\"https://envases.cloud.looker.com/folders/96\">COMPRAS</a>\n<a\
+      \ style=\"color: #5e2129; padding: 5px 20px;\n        float: left; line-height:\
+      \ 40px; font-weight: bold; color: white;\n        border-radius: 5px; margin-left:\
+      \ 5px; background-color: #b46e68;\"\n        href=\"https://envases.cloud.looker.com/dashboards/157\"\
+      >SEGURIDAD</a>\n\t</nav>\n</div>"
     row: 0
     col: 0
     width: 24
@@ -37,17 +41,7 @@
     subtitle_text: ''
     body_text: '[{"type":"h1","children":[{"text":"COMPRAS"}],"align":"center"}]'
     rich_content_json: '{"format":"slate"}'
-    row: 28
-    col: 0
-    width: 24
-    height: 2
-  - name: " (Copy)"
-    type: text
-    title_text: " (Copy)"
-    subtitle_text: ''
-    body_text: '[{"type":"h1","children":[{"text":"INVENTARIO"}],"align":"center"}]'
-    rich_content_json: '{"format":"slate"}'
-    row: 40
+    row: 37
     col: 0
     width: 24
     height: 2
@@ -57,327 +51,10 @@
     subtitle_text: ''
     body_text: '[{"type":"h1","children":[{"text":"TIEMPOS DE ESTADÍA"}],"align":"center"}]'
     rich_content_json: '{"format":"slate"}'
-    row: 65
+    row: 31
     col: 0
     width: 24
     height: 2
-  - title: Últimos 3 meses
-    name: Últimos 3 meses
-    model: bsc
-    explore: inventario_fletes
-    type: looker_grid
-    fields: [inventario_fletes.ValorStock, fecha.nombre_mes, inventario_fletes.PlantaComercializadora]
-    pivots: [fecha.nombre_mes]
-    filters:
-      inventario_fletes.date_filter: 2023/12/15
-      inventario_fletes.ultimos_3_meses: '1'
-    sorts: [fecha.nombre_mes, inventario_fletes.PlantaComercializadora]
-    limit: 500
-    column_limit: 50
-    total: true
-    show_view_names: false
-    show_row_numbers: false
-    transpose: false
-    truncate_text: true
-    hide_totals: false
-    hide_row_totals: false
-    size_to_fit: true
-    table_theme: white
-    limit_displayed_rows: false
-    enable_conditional_formatting: false
-    header_text_alignment: left
-    header_font_size: '12'
-    rows_font_size: '10'
-    conditional_formatting_include_totals: false
-    conditional_formatting_include_nulls: false
-    show_sql_query_menu_options: false
-    column_order: [inventario_fletes.PlantaComercializadora, Octubre|FIELD|10_inventario_fletes.ValorStock,
-      Noviembre|FIELD|11_inventario_fletes.ValorStock, Diciembre|FIELD|12_inventario_fletes.ValorStock]
-    show_totals: true
-    show_row_totals: true
-    truncate_header: false
-    minimum_column_width: 75
-    series_labels:
-      inventario_fletes.PlantaCompleto: Planta
-      fecha.nombre_mes: Mes
-      inventario_fletes.PlantaComercializadora: Planta
-    series_column_widths:
-      inventario_fletes.PlantaComercializadora: 200
-    series_cell_visualizations:
-      inventario_fletes.ValorStock:
-        is_active: false
-    header_font_color: "#FFFFFF"
-    header_background_color: "#5e2129"
-    x_axis_gridlines: false
-    y_axis_gridlines: true
-    show_y_axis_labels: true
-    show_y_axis_ticks: true
-    y_axis_tick_density: default
-    y_axis_tick_density_custom: 5
-    show_x_axis_label: true
-    show_x_axis_ticks: true
-    y_axis_scale_mode: linear
-    x_axis_reversed: false
-    y_axis_reversed: false
-    plot_size_by_field: false
-    trellis: ''
-    stacking: ''
-    legend_position: center
-    point_style: none
-    show_value_labels: false
-    label_density: 25
-    x_axis_scale: auto
-    y_axis_combined: true
-    ordering: none
-    show_null_labels: false
-    show_totals_labels: false
-    show_silhouette: false
-    totals_color: "#808080"
-    defaults_version: 1
-    hidden_pivots: {}
-    hidden_fields: []
-    listen: {}
-    row: 42
-    col: 0
-    width: 14
-    height: 6
-  - title: Variación vs mes anterior
-    name: Variación vs mes anterior
-    model: bsc
-    explore: inventario_fletes
-    type: looker_grid
-    fields: [inventario_fletes.VariacionMesPrevio, inventario_fletes.PlantaComercializadora]
-    filters:
-      inventario_fletes.date_filter: 2023/12/15
-    sorts: [inventario_fletes.PlantaComercializadora]
-    limit: 500
-    column_limit: 50
-    total: true
-    show_view_names: false
-    show_row_numbers: false
-    transpose: false
-    truncate_text: true
-    hide_totals: false
-    hide_row_totals: false
-    size_to_fit: true
-    table_theme: white
-    limit_displayed_rows: false
-    enable_conditional_formatting: false
-    header_text_alignment: left
-    header_font_size: '12'
-    rows_font_size: '10'
-    conditional_formatting_include_totals: false
-    conditional_formatting_include_nulls: false
-    show_sql_query_menu_options: false
-    column_order: [inventario_fletes.PlantaComercializadora, inventario_fletes.VariacionMesPrevio]
-    show_totals: true
-    show_row_totals: true
-    truncate_header: false
-    minimum_column_width: 75
-    series_labels:
-      inventario_fletes.PlantaCompleto: Planta
-      fecha.nombre_mes: Mes
-      inventario_fletes.PlantaComercializadora: Planta
-    series_column_widths:
-      inventario_fletes.PlantaComercializadora: 200
-    series_cell_visualizations:
-      inventario_fletes.ValorStock:
-        is_active: false
-    header_font_color: "#FFFFFF"
-    header_background_color: "#5e2129"
-    x_axis_gridlines: false
-    y_axis_gridlines: true
-    show_y_axis_labels: true
-    show_y_axis_ticks: true
-    y_axis_tick_density: default
-    y_axis_tick_density_custom: 5
-    show_x_axis_label: true
-    show_x_axis_ticks: true
-    y_axis_scale_mode: linear
-    x_axis_reversed: false
-    y_axis_reversed: false
-    plot_size_by_field: false
-    trellis: ''
-    stacking: ''
-    legend_position: center
-    point_style: none
-    show_value_labels: false
-    label_density: 25
-    x_axis_scale: auto
-    y_axis_combined: true
-    ordering: none
-    show_null_labels: false
-    show_totals_labels: false
-    show_silhouette: false
-    totals_color: "#808080"
-    defaults_version: 1
-    hidden_pivots: {}
-    hidden_fields: []
-    listen: {}
-    row: 42
-    col: 14
-    width: 10
-    height: 6
-  - title: Días inventario trimestre
-    name: Días inventario trimestre
-    model: bsc
-    explore: inventario_fletes
-    type: looker_grid
-    fields: [fecha.date_quarter, inventario_fletes.DiasInventarioMes, inventario_fletes.PlantaComercializadora]
-    pivots: [fecha.date_quarter]
-    fill_fields: [fecha.date_quarter]
-    filters:
-      inventario_fletes.date_filter: 2023/12/15
-      inventario_fletes.anio_actual: '1'
-    sorts: [fecha.date_quarter, inventario_fletes.PlantaComercializadora]
-    limit: 500
-    column_limit: 50
-    total: true
-    show_view_names: false
-    show_row_numbers: false
-    transpose: false
-    truncate_text: true
-    hide_totals: false
-    hide_row_totals: false
-    size_to_fit: true
-    table_theme: white
-    limit_displayed_rows: false
-    enable_conditional_formatting: false
-    header_text_alignment: left
-    header_font_size: '12'
-    rows_font_size: '10'
-    conditional_formatting_include_totals: false
-    conditional_formatting_include_nulls: false
-    show_sql_query_menu_options: false
-    column_order: [inventario_fletes.PlantaComercializadora, 2023-01_inventario_fletes.DiasInventarioMes,
-      2023-04_inventario_fletes.DiasInventarioMes, 2023-07_inventario_fletes.DiasInventarioMes,
-      2023-10_inventario_fletes.DiasInventarioMes]
-    show_totals: true
-    show_row_totals: true
-    truncate_header: false
-    minimum_column_width: 75
-    series_labels:
-      inventario_fletes.PlantaCompleto: Planta
-      fecha.nombre_mes: Mes
-      fecha.date_quarter: Trimestre
-      inventario_fletes.PlantaComercializadora: Planta
-    series_column_widths:
-      inventario_fletes.PlantaComercializadora: 200
-    series_cell_visualizations:
-      inventario_fletes.ValorStock:
-        is_active: false
-    header_font_color: "#FFFFFF"
-    header_background_color: "#5e2129"
-    x_axis_gridlines: false
-    y_axis_gridlines: true
-    show_y_axis_labels: true
-    show_y_axis_ticks: true
-    y_axis_tick_density: default
-    y_axis_tick_density_custom: 5
-    show_x_axis_label: true
-    show_x_axis_ticks: true
-    y_axis_scale_mode: linear
-    x_axis_reversed: false
-    y_axis_reversed: false
-    plot_size_by_field: false
-    trellis: ''
-    stacking: ''
-    legend_position: center
-    point_style: none
-    show_value_labels: false
-    label_density: 25
-    x_axis_scale: auto
-    y_axis_combined: true
-    ordering: none
-    show_null_labels: false
-    show_totals_labels: false
-    show_silhouette: false
-    totals_color: "#808080"
-    defaults_version: 1
-    hidden_pivots: {}
-    hidden_fields: []
-    listen: {}
-    row: 48
-    col: 0
-    width: 14
-    height: 6
-  - title: Días inventario mes
-    name: Días inventario mes
-    model: bsc
-    explore: inventario_fletes
-    type: looker_grid
-    fields: [inventario_fletes.DiasInventarioMes, inventario_fletes.PlantaComercializadora]
-    filters:
-      inventario_fletes.date_filter: 2023/12/15
-    sorts: [inventario_fletes.PlantaComercializadora]
-    limit: 500
-    column_limit: 50
-    total: true
-    show_view_names: false
-    show_row_numbers: false
-    transpose: false
-    truncate_text: true
-    hide_totals: false
-    hide_row_totals: false
-    size_to_fit: true
-    table_theme: white
-    limit_displayed_rows: false
-    enable_conditional_formatting: false
-    header_text_alignment: left
-    header_font_size: '12'
-    rows_font_size: '10'
-    conditional_formatting_include_totals: false
-    conditional_formatting_include_nulls: false
-    show_sql_query_menu_options: false
-    show_totals: true
-    show_row_totals: true
-    truncate_header: false
-    minimum_column_width: 75
-    series_labels:
-      inventario_fletes.PlantaCompleto: Planta
-      fecha.nombre_mes: Mes
-      fecha.date_quarter: Trimestre
-      inventario_fletes.PlantaComercializadora: Planta
-    series_column_widths:
-      inventario_fletes.PlantaComercializadora: 200
-    series_cell_visualizations:
-      inventario_fletes.ValorStock:
-        is_active: false
-    header_font_color: "#FFFFFF"
-    header_background_color: "#5e2129"
-    x_axis_gridlines: false
-    y_axis_gridlines: true
-    show_y_axis_labels: true
-    show_y_axis_ticks: true
-    y_axis_tick_density: default
-    y_axis_tick_density_custom: 5
-    show_x_axis_label: true
-    show_x_axis_ticks: true
-    y_axis_scale_mode: linear
-    x_axis_reversed: false
-    y_axis_reversed: false
-    plot_size_by_field: false
-    trellis: ''
-    stacking: ''
-    legend_position: center
-    point_style: none
-    show_value_labels: false
-    label_density: 25
-    x_axis_scale: auto
-    y_axis_combined: true
-    ordering: none
-    show_null_labels: false
-    show_totals_labels: false
-    show_silhouette: false
-    totals_color: "#808080"
-    defaults_version: 1
-    hidden_pivots: {}
-    hidden_fields: []
-    listen: {}
-    row: 48
-    col: 14
-    width: 10
-    height: 6
   - title: ADP TRIMESTRE
     name: ADP TRIMESTRE
     model: bsc
@@ -425,10 +102,10 @@
     hidden_pivots: {}
     listen:
       Fecha: fct_seguridad_anual.date_filter
-    row: 19
+    row: 51
     col: 0
     width: 12
-    height: 5
+    height: 6
   - title: ADP ACUMULADO
     name: ADP ACUMULADO
     model: bsc
@@ -474,82 +151,7 @@
     hidden_pivots: {}
     listen:
       Fecha: fct_seguridad_anual.date_filter
-    row: 24
-    col: 0
-    width: 24
-    height: 4
-  - title: Fletes
-    name: Fletes
-    model: bsc
-    explore: inventario_fletes
-    type: looker_grid
-    fields: [inventario_fletes.Centro, inventario_fletes.RealCostoFletesMTD, inventario_fletes.PorcRealFletesVentasMTD,
-      inventario_fletes.RealCostoFletesYTD, inventario_fletes.PorcRealFletesVentasYTD]
-    filters:
-      inventario_fletes.Planta: "-GF01"
-    sorts: [inventario_fletes.Centro]
-    limit: 500
-    column_limit: 50
-    total: true
-    show_view_names: false
-    show_row_numbers: false
-    transpose: false
-    truncate_text: true
-    hide_totals: false
-    hide_row_totals: false
-    size_to_fit: true
-    table_theme: white
-    limit_displayed_rows: false
-    enable_conditional_formatting: false
-    header_text_alignment: center
-    header_font_size: '12'
-    rows_font_size: '10'
-    conditional_formatting_include_totals: false
-    conditional_formatting_include_nulls: false
-    show_sql_query_menu_options: false
-    show_totals: true
-    show_row_totals: true
-    truncate_header: false
-    minimum_column_width: 75
-    series_labels:
-      planta.planta_completo: Planta
-      planta.planta_comercializadora: Planta
-      inventario_fletes.GpoPlantaFletes: Planta
-    series_cell_visualizations:
-      inventario_fletes.RealCostoFletes:
-        is_active: false
-    header_font_color: "#FFFFFF"
-    header_background_color: "#5e2129"
-    x_axis_gridlines: false
-    y_axis_gridlines: true
-    show_y_axis_labels: true
-    show_y_axis_ticks: true
-    y_axis_tick_density: default
-    y_axis_tick_density_custom: 5
-    show_x_axis_label: true
-    show_x_axis_ticks: true
-    y_axis_scale_mode: linear
-    x_axis_reversed: false
-    y_axis_reversed: false
-    plot_size_by_field: false
-    trellis: ''
-    stacking: ''
-    legend_position: center
-    point_style: none
-    show_value_labels: false
-    label_density: 25
-    x_axis_scale: auto
-    y_axis_combined: true
-    ordering: none
-    show_null_labels: false
-    show_totals_labels: false
-    show_silhouette: false
-    totals_color: "#808080"
-    defaults_version: 1
-    hidden_pivots: {}
-    listen:
-      Fecha: inventario_fletes.date_filter
-    row: 73
+    row: 57
     col: 0
     width: 24
     height: 5
@@ -612,27 +214,17 @@
     defaults_version: 1
     listen:
       Fecha: fct_seguridad.date_filter
-    row: 19
+    row: 51
     col: 12
     width: 12
-    height: 5
+    height: 6
   - name: " (Copy 2) (Copiar)"
     type: text
     title_text: " (Copy 2) (Copiar)"
     subtitle_text: ''
     body_text: '[{"type":"h1","children":[{"text":"SEGURIDAD"}],"align":"center"}]'
     rich_content_json: '{"format":"slate"}'
-    row: 17
-    col: 0
-    width: 24
-    height: 2
-  - name: " (Copy 2) (Copiar 2)"
-    type: text
-    title_text: " (Copy 2) (Copiar 2)"
-    subtitle_text: ''
-    body_text: '[{"type":"h1","children":[{"text":"FLETES"}],"align":"center"}]'
-    rich_content_json: '{"format":"slate"}'
-    row: 71
+    row: 49
     col: 0
     width: 24
     height: 2
@@ -690,10 +282,10 @@
     hidden_fields: []
     listen:
       Fecha: fct_materiales_stock.date_filter
-    row: 4
-    col: 1
-    width: 23
-    height: 6
+    row: 15
+    col: 0
+    width: 24
+    height: 8
   - title: 'MATERIAL DE EMPAQUE TOTALES '
     name: 'MATERIAL DE EMPAQUE TOTALES '
     model: bsc
@@ -744,17 +336,17 @@
     defaults_version: 1
     listen:
       Fecha: fct_materiales_stock.date_filter
-    row: 10
-    col: 1
-    width: 23
-    height: 7
+    row: 23
+    col: 0
+    width: 24
+    height: 8
   - name: " (Copy 2) (Copiar 3)"
     type: text
     title_text: " (Copy 2) (Copiar 3)"
     subtitle_text: ''
     body_text: '[{"type":"h1","children":[{"text":"MATERIAL DE EMPAQUE"}],"align":"center"}]'
     rich_content_json: '{"format":"slate"}'
-    row: 2
+    row: 13
     col: 0
     width: 24
     height: 2
@@ -808,7 +400,7 @@
     hidden_fields: [tiempos_estadia.Orden_locacion]
     listen:
       Fecha: tiempos_estadia.date_filter
-    row: 67
+    row: 33
     col: 0
     width: 7
     height: 4
@@ -867,7 +459,7 @@
     hidden_fields: [tiempos_estadia.Orden_locacion]
     listen:
       Fecha: tiempos_estadia.date_filter
-    row: 67
+    row: 33
     col: 7
     width: 10
     height: 4
@@ -920,7 +512,7 @@
     hidden_fields: [tiempos_estadia.Orden_locacion]
     listen:
       Fecha: tiempos_estadia.date_filter
-    row: 67
+    row: 33
     col: 17
     width: 7
     height: 4
@@ -930,7 +522,7 @@
     subtitle_text: ''
     body_text: '[{"type":"h1","children":[{"text":"INVENTARIO NO CONFORME"}],"align":"center"}]'
     rich_content_json: '{"format":"slate"}'
-    row: 54
+    row: 2
     col: 0
     width: 24
     height: 2
@@ -984,7 +576,7 @@
     defaults_version: 1
     listen:
       Fecha: materiales_inventario.date_filter
-    row: 56
+    row: 4
     col: 0
     width: 15
     height: 9
@@ -1038,7 +630,7 @@
     defaults_version: 1
     listen:
       Fecha: materiales_inventario.date_filter
-    row: 56
+    row: 4
     col: 15
     width: 9
     height: 9
@@ -1090,7 +682,7 @@
     hidden_fields:
     listen:
       Fecha: ordenes_compra.date_filter
-    row: 30
+    row: 39
     col: 0
     width: 12
     height: 10
@@ -1168,7 +760,7 @@
     hidden_pivots: {}
     listen:
       Fecha: fct_ordenes_compra_otif.fecha
-    row: 30
+    row: 39
     col: 12
     width: 12
     height: 10
