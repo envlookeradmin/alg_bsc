@@ -101,8 +101,8 @@ measure: Total_flag_otif {
 }
 
 measure: Total_flag_otif_entregadas {
-  type: count_distinct
-  sql: ${TABLE}.FLAG_OTIF ;;
+  type: count
+ # sql: ${TABLE}.FLAG_OTIF ;;
   filters: [flag_otif: "1"]
 }
 

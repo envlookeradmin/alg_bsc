@@ -97,13 +97,13 @@ view: fct_ordenes_pedidos {
 
 
   measure: Total_flag_otif {
-    type: count_distinct
-    sql: ${TABLE}.FLAG_OTIF ;;
+    type: count
+   # sql: ${TABLE}.FLAG_OTIF ;;
   }
 
   measure: Total_flag_otif_entregadas {
-    type: count_distinct
-    sql: ${TABLE}.FLAG_OTIF ;;
+    type: count
+   # sql: ${TABLE}.FLAG_OTIF ;;
     filters: [flag_otif: "1"]
   }
 
