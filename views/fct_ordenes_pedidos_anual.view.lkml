@@ -160,7 +160,7 @@ measure: Total_fill_rate {
   type: sum
   sql: ${TABLE}.FILL_RATE ;;
   value_format: "0.00\%"
-  drill_fields: [grupo_materiales.descripcion,Total_cantidad_pedida,Total_cantidad_entregada]
+  drill_fields: [grupo_materiales.descripcion,Total_fill_rate]
 }
 
   measure: Total_FLAG_OTIF {
@@ -168,7 +168,7 @@ measure: Total_fill_rate {
     type: sum
     sql: ${TABLE}.FLAG_OTIF ;;
     value_format: "0.00\%"
-    drill_fields: [grupo_materiales.descripcion,Total_cantidad_pedida,Total_cantidad_entregada]
+    drill_fields: [grupo_materiales.descripcion,Total_FLAG_OTIF]
   }
 
 
