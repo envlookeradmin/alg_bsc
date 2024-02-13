@@ -148,7 +148,7 @@ measure: Total_cantidad_pendiente {
 
 
 measure: OTIF {
-  label: "calculado OTIF"
+  label: "OTIF"
   type: number
   sql:(${Total_flag_otif_entregadas} /nullif( ${Total_flag_otif},0)) *100  ;;
   value_format: "0.00\%"
@@ -164,7 +164,7 @@ measure: Total_fill_rate {
 }
 
   measure: Total_FLAG_OTIF {
-    label: "OTIF"
+    label: "total OTIF"
     type: average
     sql: ${TABLE}.FLAG_OTIF*100  ;;
     value_format: "0.00\%"
