@@ -148,7 +148,7 @@ measure: Total_cantidad_pendiente {
 
 
 measure: OTIF {
-  label: "OTIF"
+  label: "calculado OTIF"
   type: number
   sql:(${Total_flag_otif_entregadas} /nullif( ${Total_flag_otif},0)) *100  ;;
   value_format: "0.00\%"
@@ -162,6 +162,15 @@ measure: Total_fill_rate {
   value_format: "0.00\%"
   drill_fields: [grupo_materiales.descripcion,Total_cantidad_pedida,Total_cantidad_entregada]
 }
+
+  measure: Total_FLAG_OTIF {
+    label: "OTIF"
+    type: sum
+    sql: ${TABLE}.FLAG_OTIF ;;
+    value_format: "0.00\%"
+    drill_fields: [grupo_materiales.descripcion,Total_cantidad_pedida,Total_cantidad_entregada]
+  }
+
 
 
 
