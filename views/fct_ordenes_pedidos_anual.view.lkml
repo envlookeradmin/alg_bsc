@@ -157,16 +157,16 @@ measure: OTIF {
 
 measure: Total_fill_rate {
   label: "FILL RATE"
-  type: sum
-  sql: ${TABLE}.FILL_RATE ;;
+  type: average
+  sql: ${TABLE}.FILL_RATE*100 ;;
   value_format: "0.00\%"
   drill_fields: [grupo_materiales.descripcion,Total_fill_rate]
 }
 
   measure: Total_FLAG_OTIF {
     label: "OTIF"
-    type: sum
-    sql: ${TABLE}.FLAG_OTIF ;;
+    type: average
+    sql: ${TABLE}.FLAG_OTIF*100  ;;
     value_format: "0.00\%"
     drill_fields: [grupo_materiales.descripcion,Total_FLAG_OTIF]
   }
