@@ -96,8 +96,8 @@ dimension: flag_otif {
 
 
 measure: Total_flag_otif {
-  type: count_distinct
-  sql: ${TABLE}.FLAG_OTIF ;;
+  type: count
+ # sql: ${TABLE}.FLAG_OTIF ;;
 }
 
 measure: Total_flag_otif_entregadas {
