@@ -1,9 +1,20 @@
 view: fct_ordenes_pedidos {
   derived_table: {
-    sql: SELECT * FROM `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_fact_ordenes_pedidos`;;
+    sql: SELECT * FROM `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_fact_ordenes_pedidos`
+      WHERE  DATE_TRUNC(CAST(fecha_entrega_planeada AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH) AND DATE_TRUNC(CAST(fecha_entrega_planeada AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+
+
+    ;;
   }
 
 
+
+  filter: date_filter {
+    label: "Período"
+    description: "Use this date filter in combination with the timeframes dimension for dynamic date filtering"
+    type: date
+
+  }
 
   measure: count {
     type: count
