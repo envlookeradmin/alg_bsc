@@ -2,6 +2,39 @@ view: presupuesto_inventario_fletes {
   derived_table: {
     sql:
       select
+      inv_fle.Fecha,
+      inv_fle.Planta,
+      inv_fle.Valor_stock,
+      inv_fle.Valor_stock_aa,
+      inv_fle.Venta_terceros,
+      inv_fle.Real_costo_fletes,
+      inv_fle.GastoCuentas5,
+      inv_fle.GastoFabricacion,
+      inv_fle.ReclasificacionIngresoCosto,
+      pre_inv_fle.Pre_Valor_Stock,
+      pre_inv_fle.Pre_Fletes,
+      pre_inv_fle.Pre_GastoCuentas5,
+      pre_inv_fle.Pre_GastoFabricacion,
+      pre_inv_fle.Pre_ReclasificacionIngresoCosto,
+      pre_inv_fle.Pre_Venta_terceros
+      from
+      (
+      select
+      Fecha,
+      Planta,
+      SUM(Valor_stock) AS Valor_stock,
+      SUM(Valor_stock_aa) AS Valor_stock_aa,
+      SUM(Venta_terceros) AS Venta_terceros,
+      SUM(Real_costo_fletes) AS Real_costo_fletes,
+      SUM(GastoCuentas5) AS GastoCuentas5,
+      SUM(GastoFabricacion) AS GastoFabricacion,
+      SUM(ReclasificacionIngresoCosto) AS ReclasificacionIngresoCosto
+      FROM `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_reporte_inventario_fletes`
+      where Planta in ('MF01','MF51','MF08','MF58','MF09','MF59','MF02','MF52', 'MF03','MF53','MF04','MF54','MF05','MF55','MF06','MF56','MF07','MF57', 'MF10','MF60', 'GF01')
+      GROUP BY 1,2
+      ) inv_fle left join
+      (
+      select
       FECHA,
       PLANTA,
       SUM(CASE
@@ -21,13 +54,13 @@ view: presupuesto_inventario_fletes {
         "1106020003",
         "1106020004"
         )
-      THEN VALOR ELSE 0 END ) AS Valor_Stock,
+      THEN VALOR ELSE 0 END ) AS Pre_Valor_Stock,
 
       SUM( CASE WHEN CUENTA IN (
-        "5000000044",
-        "5000000045",
-        "5000000047" )
-      THEN VALOR ELSE 0 END ) AS Fletes,
+      "5000000044",
+      "5000000045",
+      "5000000047" )
+      THEN VALOR ELSE 0 END ) AS Pre_Fletes,
 
       SUM( CASE WHEN CAST(CUENTA AS INT64) IN (
       5000000000,
@@ -60,7 +93,7 @@ view: presupuesto_inventario_fletes {
       5000000048,
       5000000051
       )
-      THEN VALOR ELSE 0 END ) AS GastoCuentas5,
+      THEN VALOR ELSE 0 END ) AS Pre_GastoCuentas5,
 
       SUM( CASE WHEN CAST(CUENTA AS INT64) IN (
       6000010000,
@@ -176,19 +209,20 @@ view: presupuesto_inventario_fletes {
       6000180005
       )
 
-      THEN VALOR ELSE 0 END ) AS GastoFabricacion,
+      THEN VALOR ELSE 0 END ) AS Pre_GastoFabricacion,
 
-    SUM( CASE WHEN SAFE_CAST(CAST(CUENTA AS INT64) AS STRING) LIKE "4201%" OR SAFE_CAST(CAST(CUENTA AS INT64) AS STRING) LIKE "4301%"
-          THEN VALOR ELSE 0 END ) +
+      SUM( CASE WHEN SAFE_CAST(CAST(CUENTA AS INT64) AS STRING) LIKE "4201%" OR SAFE_CAST(CAST(CUENTA AS INT64) AS STRING) LIKE "4301%"
+      THEN VALOR ELSE 0 END ) +
 
-    SUM( CASE WHEN CAST(CUENTA AS INT64) IN (4101010004,4101010001)
-          THEN VALOR ELSE 0 END ) AS ReclasificacionIngresoCosto,
+      SUM( CASE WHEN CAST(CUENTA AS INT64) IN (4101010004,4101010001)
+      THEN VALOR ELSE 0 END ) AS Pre_ReclasificacionIngresoCosto,
 
-    SUM( CASE WHEN (CUENTA  LIKE "410101%" OR CUENTA LIKE "410102%") AND (CUENTA NOT IN ("4101010004","4101010001"))
-          THEN VALOR ELSE 0 END ) AS CuentaTerceros
+      SUM( CASE WHEN (CUENTA  LIKE "410101%" OR CUENTA LIKE "410102%") AND (CUENTA NOT IN ("4101010004","4101010001"))
+      THEN VALOR ELSE 0 END ) AS Pre_Venta_terceros
 
-    FROM `@GCP_PROJECT.@REPORTING_DATASET5.tbl_mx_presupuesto_nivel_cuenta`
-    GROUP BY 1,2
+      FROM `@{GCP_PROJECT}.@{REPORTING_DATASET5}.tbl_mx_presupuesto_nivel_cuenta`
+      GROUP BY 1,2
+      ) pre_inv_fle on inv_fle.fecha = pre_inv_fle.fecha and inv_fle.planta = pre_inv_fle.planta
       ;;
   }
 
@@ -241,7 +275,7 @@ view: presupuesto_inventario_fletes {
 
     link: {
       label: "Planta"
-      url: "https://envases.cloud.looker.com/dashboards/162?&Fecha={{ _filters['inventario_fletes.date_filter'] | url_encode }}&Centro={{ inventario_fletes.Centro._value | url_encode}}"
+      url: "https://envases.cloud.looker.com/dashboards/162?&Fecha={{ _filters['presupuesto_inventario_fletes.date_filter'] | url_encode }}&Centro={{ presupuesto_inventario_fletes.Centro._value | url_encode}}"
     }
 
   }
@@ -311,14 +345,24 @@ view: presupuesto_inventario_fletes {
     sql: '_' ;;
   }
 
-  dimension: Valor_Stock {
+  dimension: valor_stock_aa {
     type: number
-    sql: ${TABLE}.Valor_stock  ;;
+    sql: ${TABLE}.Valor_stock_aa  ;;
   }
 
-  dimension: Gasto_Acumulado {
+  dimension: pre_valor_stock {
     type: number
-    sql:  ${TABLE}.GastoCuentas5 + ${TABLE}.GastoFabricacion + ReclasificacionIngresoCosto ;;
+    sql: ${TABLE}.Pre_Valor_Stock  ;;
+  }
+
+  dimension: gasto_acumulado {
+    type: number
+    sql:  ${TABLE}.GastoCuentas5 + ${TABLE}.GastoFabricacion + ${TABLE}.ReclasificacionIngresoCosto ;;
+  }
+
+  dimension: pre_gasto_acumulado {
+    type: number
+    sql:  ${TABLE}.Pre_GastoCuentas5 + ${TABLE}.Pre_GastoFabricacion + ${TABLE}.Pre_ReclasificacionIngresoCosto ;;
   }
 
   dimension: anio_actual{
@@ -359,178 +403,156 @@ view: presupuesto_inventario_fletes {
       AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= LAST_DAY(CAST({% date_start date_filter %} AS DATE));;
   }
 
+  dimension: mes_inicio_11 {
+    type: string
+    sql:  DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -12 MONTH) ;;
+  }
+
+  dimension: mes_fin_11 {
+    type: string
+    sql:  LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 MONTH)) ;;
+  }
+
+  dimension: mes_inicio {
+    type: string
+    sql:  DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH) ;;
+  }
+
+  dimension: mes_fin {
+    type: string
+    sql:  LAST_DAY(CAST({% date_start date_filter %} AS DATE) );;
+  }
+
   #Metricas Mensuales Inventarios
 
-  measure: ValorStockMesActual{
-    group_label: "Inventarios Presupuesto"
+  measure: pre_valor_stock_ma{
+    group_label: "Presupuesto Inventarios"
     type: sum
     sql: CASE
            WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
-           AND ${Fecha} <= CAST({% date_start date_filter %} AS DATE)
-           THEN ${Valor_Stock}
-           END ;;
+           AND ${Fecha} <= LAST_DAY(CAST({% date_start date_filter %} AS DATE) )
+           THEN ${pre_valor_stock}
+         END ;;
 
     value_format: "#,##0"
   }
 
-  measure: ValorStockMesActualAnioAnt{
-    group_label: "Inventarios Presupuesto"
+  measure: valor_stock_ma_aa{
+    group_label: "Presupuesto Inventarios"
     type: sum
     sql: CASE
-           WHEN ${Fecha} >= DATE_ADD(DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH), INTERVAL -1 YEAR)
-           AND ${Fecha} <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL 0 YEAR))
-           THEN ${Valor_Stock}
-           END ;;
+           WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
+           AND ${Fecha} <= LAST_DAY(CAST({% date_start date_filter %} AS DATE) )
+           THEN ${valor_stock_aa}
+         END ;;
 
     value_format: "#,##0"
   }
 
-
-  measure: ValorStockMesAnterior{
-    group_label: "Inventarios"
+  measure: gasto_acum_11_meses{
+    group_label: "Presupuesto Inventarios"
     type: sum
     sql: CASE
-           WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH)
-           AND ${Fecha}  <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 MONTH))
-           THEN ${Valor_Stock}
-           END;;
+           WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -12 MONTH)
+           AND ${Fecha} <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 MONTH))
+           THEN ${gasto_acumulado}
+         END ;;
 
     value_format: "#,##0"
   }
 
-  measure: gasto_acum{
-    group_label: "Inventarios"
-    type: sum
-    sql: ${Gasto_Acumulado} ;;
-
-    value_format: "#,##0"
-  }
-
-  measure: gasto_acum_mes_act{
-    group_label: "Inventarios"
+  measure: pre_gasto_acum_ma{
+    group_label: "Presupuesto Inventarios"
     type: sum
     sql: CASE
-             WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
-             AND ${Fecha} <= CAST({% date_start date_filter %} AS DATE)
-             THEN ${Gasto_Acumulado}
-             END ;;
+           WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
+           AND ${Fecha} <= LAST_DAY(CAST({% date_start date_filter %} AS DATE) )
+           THEN ${pre_gasto_acumulado}
+         END ;;
 
     value_format: "#,##0"
   }
 
-  #Calculo dias inventario mes
-
-  measure: DiasInventarioMes{
-    group_label: "Inventarios"
+  measure: pre_dias_inventario_mes{
+    group_label: "Presupuesto Inventarios"
     type: number
-    sql: ((${ValorStockMesActual} + ${ValorStockMesActualAnioAnt}) / 2 )
-      / (NULLIF(${gasto_acum_mes_act},0) / 360);;
+    sql: ((${valor_stock_ma_aa} + ${pre_valor_stock_ma}) / 2 )
+      / (NULLIF(${gasto_acum_11_meses} + ${pre_gasto_acum_ma},0) / 360);;
 
     value_format: "0.00"
   }
 
 
-  #Calculos dias inventario trimestre
-
-  measure: valor_stock_trimestre {
-    group_label: "Inventarios"
-    type: sum
-    sql: ${Valor_Stock} ;;
-  }
-
-  measure: valor_stock_aa_trimestre {
-    group_label: "Inventarios"
-    type: sum
-    sql: ${Valor_Stock} ;;
-  }
-
-  measure: gasto_acum_trimestre {
-    group_label: "Inventarios"
-    type: sum
-    sql: ${Gasto_Acumulado} ;;
-  }
-
-  measure: DiasInventarioTrimestre{
-    group_label: "Inventarios"
-    type: number
-    sql: ((${valor_stock_trimestre} + ${valor_stock_aa_trimestre}) / 2 ) / (NULLIF(${gasto_acum_trimestre},0) / 360)
-          ;;
-
-    value_format: "0.00"
-  }
-
-
-
-  #Metricas Fletes Mesuales
-  measure: RealCostoFletesMTD{
-    group_label: "Fletes"
-    label: "Real Costo de Fletes MTD [MXN]"
+  #Metricas Presupuesto Fletes Mesuales
+  measure: pre_costo_fletes_MTD{
+    group_label: "Presupuesto Fletes"
+    label: "Presupuesto Costo de Fletes MTD [MXN]"
     type: sum
     sql: CASE
             WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
-            AND ${Fecha} <= CAST({% date_start date_filter %} AS DATE)
-            THEN ${TABLE}.Real_costo_fletes
+            AND ${Fecha} <= LAST_DAY(CAST({% date_start date_filter %} AS DATE) )
+            THEN ${TABLE}.Pre_Fletes
             ELSE 0
            END;;
 
     value_format: "$#,##0.00"
   }
 
-  measure: VentaTercerosFletesMTD{
-    group_label: "Fletes"
+  measure: pre_venta_terceros_fletes_MTD{
+    group_label: "Presupuesto Fletes"
     type: sum
     sql: CASE
             WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
-            AND ${Fecha} <= CAST({% date_start date_filter %} AS DATE)
-            THEN (${TABLE}.Venta_terceros * -1)
+            AND ${Fecha} <= LAST_DAY(CAST({% date_start date_filter %} AS DATE) )
+            THEN (${TABLE}.Pre_Venta_terceros * -1)
             ELSE 0
            END;;
 
     value_format: "#,##0"
   }
 
-  measure: PorcRealFletesVentasMTD{
-    group_label: "Fletes"
-    label: "Real % Fletes / Ventas MTD"
+  measure: pre_porc_fletes_ventas_MTD{
+    group_label: "Presupuesto Fletes"
+    label: "Presupuesto % Fletes / Ventas MTD"
     type: number
-    sql: ((${RealCostoFletesMTD})/NULLIF(${VentaTercerosFletesMTD},0))*100  ;;
+    sql: ((${pre_costo_fletes_MTD})/NULLIF(${pre_venta_terceros_fletes_MTD},0))*100  ;;
 
     value_format: "0.00\%"
   }
 
-  #Metricas Fletes Anuales
-  measure: RealCostoFletesYTD{
-    group_label: "Fletes"
-    label: "Real Costo de Fletes YTD [MXN]"
+  #Metricas Presupuesto Fletes Anuales
+  measure: pre_costo_fletes_YTD{
+    group_label: "Presupuesto Fletes"
+    label: "Presupuesto Costo de Fletes YTD [MXN]"
     type: sum
     sql: CASE
             WHEN ${Fecha} >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
-            AND ${Fecha} <= CAST({% date_start date_filter %} AS DATE)
-            THEN ${TABLE}.Real_costo_fletes
+            AND ${Fecha} <= LAST_DAY(CAST({% date_start date_filter %} AS DATE) )
+            THEN ${TABLE}.Pre_Fletes
             ELSE 0
            END  ;;
 
     value_format: "$#,##0.00"
   }
 
-  measure: VentaTercerosFletesYTD{
-    group_label: "Fletes"
+  measure: pre_venta_terceros_fletes_YTD{
+    group_label: "Presupuesto Fletes"
     type: sum
     sql: CASE
             WHEN ${Fecha} >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
-            AND ${Fecha} <= CAST({% date_start date_filter %} AS DATE)
-            THEN (${TABLE}.Venta_terceros * -1)
+            AND ${Fecha} <= LAST_DAY(CAST({% date_start date_filter %} AS DATE) )
+            THEN (${TABLE}.Pre_Venta_terceros * -1)
             ELSE 0
            END;;
 
     value_format: "#,##0"
   }
 
-  measure: PorcRealFletesVentasYTD{
-    group_label: "Fletes"
-    label: "Real % Fletes / Ventas YTD"
+  measure: pre_porc_fletes_ventas_YTD{
+    group_label: "Presupuesto Fletes"
+    label: "Presupuesto % Fletes / Ventas YTD"
     type: number
-    sql: ((${RealCostoFletesYTD})/NULLIF(${VentaTercerosFletesYTD},0))*100  ;;
+    sql: ((${pre_costo_fletes_YTD})/NULLIF(${pre_venta_terceros_fletes_YTD},0))*100  ;;
 
     value_format: "0.00\%"
   }

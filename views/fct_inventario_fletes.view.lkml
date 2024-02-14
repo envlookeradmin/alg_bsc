@@ -178,7 +178,7 @@ view: inventario_fletes {
 
     dimension: Gasto_Acumulado {
       type: number
-      sql:  ${TABLE}.GastoCuentas5_12 + ${TABLE}.GastoFabricacion_12 + ReclasificacionIngresoCosto_12 ;;
+      sql:  ${TABLE}.GastoCuentas5_12 + ${TABLE}.GastoFabricacion_12 + ${TABLE}.ReclasificacionIngresoCosto_12 ;;
     }
 
     dimension: anio_actual{
