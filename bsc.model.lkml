@@ -141,7 +141,7 @@ explore: inventarios_ciclicos {
   }
   join: fecha {
     type: left_outer
-    sql_on: ${inventarios_ciclicos.fecha_documento} = ${fecha.CALDAY} ;;
+    sql_on: ${inventarios_ciclicos.fecha_documento} = ${fecha.fecha} ;;
     relationship: many_to_one
   }
 }

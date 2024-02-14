@@ -7,20 +7,34 @@ view: inventarios_ciclicos {
           a.ID_ITEM,
           a.ESTATUS,
           a.FECHA_DOCUMENTO,
+
+          CASE
+          WHEN ROW_NUMBER() OVER (PARTITION BY EXTRACT(YEAR FROM a.FECHA_DOCUMENTO), EXTRACT(WEEK FROM a.FECHA_DOCUMENTO) order by a.FECHA_DOCUMENTO ) =1
+          THEN EXTRACT(WEEK FROM a.FECHA_DOCUMENTO)
+          END AS NUM_SEMANA_TRANS,
+
+          CASE
+          WHEN ROW_NUMBER() OVER (PARTITION BY EXTRACT(YEAR FROM a.FECHA_DOCUMENTO), EXTRACT(WEEK FROM a.FECHA_DOCUMENTO) order by a.FECHA_DOCUMENTO ) = 1
+          THEN MAX(EXTRACT(WEEK FROM a.FECHA_DOCUMENTO)) OVER (PARTITION BY EXTRACT(YEAR FROM a.FECHA_DOCUMENTO) )
+          END AS NUM_SEMANA_ANIO,
+
           a.ESTATUS_CANTIDAD,
           a.CANTIDAD_TEORICA,
           a.CANTIDAD_CONTADA,
           a.MATERIAL,
           b.CLASIFICACION,
           b.CONTEOS,
-          c.WEEK,
-          SUBSTRING(a.FECHA_DOCUMENTO,1 ,4) AS ANIO,
-          COUNT(distinct a.MATERIAL) OVER (PARTITION BY a.MATERIAL,a.PLANTA, SUBSTRING(a.FECHA_DOCUMENTO,1 ,4), c.WEEK ) as CONTEO_MATERIAL
+
+          CASE
+          WHEN ROW_NUMBER() OVER (PARTITION BY a.MATERIAL,a.PLANTA, EXTRACT(YEAR FROM a.FECHA_DOCUMENTO), EXTRACT(WEEK FROM a.FECHA_DOCUMENTO) ) = 1
+          THEN COUNT(distinct a.MATERIAL) OVER (PARTITION BY a.MATERIAL,a.PLANTA, EXTRACT(YEAR FROM a.FECHA_DOCUMENTO), EXTRACT(WEEK FROM a.FECHA_DOCUMENTO) )
+          END as CONTEO_MATERIAL
+
           FROM `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_inventarios_ciclicos` a
           left join `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_ic_metas` b
-          on TRIM(a.PLANTA) = TRIM(b.PLANTA) and SUBSTRING(a.FECHA_DOCUMENTO,1 ,4) = b.ANIO_EJERCICIO and TRIM(a.MATERIAL) = TRIM(b.MATERIAL)
-          left join `@{GCP_PROJECT}.@{REPORTING_DATASET2}.CALENDAR` c
-          on a.FECHA_DOCUMENTO = c.CALDAY  ;;
+          on TRIM(a.PLANTA) = TRIM(b.PLANTA) and CAST(EXTRACT(YEAR FROM a.FECHA_DOCUMENTO) AS STRING) = b.ANIO_EJERCICIO
+          and TRIM(a.MATERIAL) = TRIM(b.MATERIAL)
+           ;;
   }
 
   measure: count {
@@ -56,13 +70,28 @@ view: inventarios_ciclicos {
   }
 
   dimension: fecha_documento {
-    type: string
+    type: date
     sql: ${TABLE}.FECHA_DOCUMENTO;;
+  }
+
+  dimension: num_semana_trans {
+    type: number
+    sql: ${TABLE}.NUM_SEMANA_TRANS;;
+  }
+
+  dimension: num_semana_anio {
+    type: number
+    sql: ${TABLE}.NUM_SEMANA_ANIO;;
   }
 
   dimension: fecha {
     type: date
     sql: ${fecha.fecha} ;;
+  }
+
+  dimension: semana {
+    type: string
+    sql: ${TABLE}.WEEK ;;
   }
 
   dimension: estatus_cantidad {
@@ -105,7 +134,6 @@ view: inventarios_ciclicos {
     sql: ${TABLE}.CONTEO_MATERIAL ;;
   }
 
-
   #medidas
   measure: Total_cantidad_teorica {
     type: sum
@@ -117,30 +145,51 @@ view: inventarios_ciclicos {
     #sql: ${TABLE}.CANTIDAD_TOTAL ;;
   #}
 
-  measure: Conteo_material_real {
+  measure: conteo_material_real {
     label: "Conteo Real MTD"
-    type: sum
-    sql: CASE WHEN ${fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
-      AND ${fecha} <= CAST({% date_start date_filter %} AS DATE) THEN ${TABLE}.CONTEO_MATERIAL END;;
+    type: count_distinct
+    sql: CASE
+           WHEN ${fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
+           AND ${fecha} <= CAST({% date_start date_filter %} AS DATE)
+           THEN ${material}
+         END;;
 
     value_format: "0"
   }
 
-  measure: Conteo_material_meta {
+  measure: conteo_material_meta {
     label: "Conteo Meta MTD"
     type: sum
-    sql: CASE WHEN ${fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
-      AND ${fecha} <= CAST({% date_start date_filter %} AS DATE) THEN ${TABLE}.CONTEO_MATERIAL * 2 END;;
+    sql: CASE
+          WHEN ${fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
+          AND ${fecha} <= CAST({% date_start date_filter %} AS DATE)
+          THEN ( ( ${conteo_material} * ${conteos} ) / ${num_semana_anio} ) * ${num_semana_trans}
+         END;;
 
     value_format: "0"
   }
 
-  measure: Porc_real_meta {
+  measure: porc_real_meta {
     label: "% Real / Meta"
     type: number
-    sql: (${Conteo_material_real} / ${Conteo_material_meta}) * 100 ;;
+    sql: (${conteo_material_real} / NULLIF(${conteo_material_meta},0) ) * 100 ;;
 
     value_format: "0.00\%"
+  }
+
+  measure: exactitud {
+    label: "Exactitud"
+    type: sum
+    sql:  ( ${cantidad_contada} - ${cantidad_teorica} ) / ${cantidad_teorica} ;;
+
+    value_format: "0"
+  }
+
+  measure: diferencia {
+    label: "Diferencia"
+    type: sum
+    sql: ${cantidad_contada} - ${cantidad_teorica}  ;;
+    value_format: "$#,##0.00"
   }
 
   set: detail {

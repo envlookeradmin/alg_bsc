@@ -328,8 +328,6 @@ view: inventario_fletes {
       sql: ((${ValorStockMesActual} + ${ValorStockMesActualAnioAnt}) / 2 )
         / (NULLIF(${gasto_acum_mes_act},0) / 360);;
 
-      #drill_fields: [ CentroBeneficio,DiasInventarioMes]
-
       value_format: "0.00"
     }
 
@@ -363,8 +361,6 @@ view: inventario_fletes {
           ((${valor_stock_trimestre} + ${valor_stock_aa_trimestre}) / 2 ) / (NULLIF(${gasto_acum_trimestre},0) / 360)
           -- END
           ;;
-
-      #drill_fields: [ CentroBeneficio, DiasInventarioTrimestre]
 
       value_format: "0.00"
     }
