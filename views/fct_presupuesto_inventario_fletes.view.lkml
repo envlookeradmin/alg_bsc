@@ -272,12 +272,6 @@ view: presupuesto_inventario_fletes {
                 THEN 'MF10'
                 ELSE ${TABLE}.Planta
                 END ;;
-
-    link: {
-      label: "Planta"
-      url: "https://envases.cloud.looker.com/dashboards/162?&Fecha={{ _filters['presupuesto_inventario_fletes.date_filter'] | url_encode }}&Centro={{ presupuesto_inventario_fletes.Centro._value | url_encode}}"
-    }
-
   }
 
   dimension: orden_planta_comercializadora {
@@ -337,12 +331,15 @@ view: presupuesto_inventario_fletes {
     order_by_field: orden_grupo_planta_inv
   }
 
-
-
   dimension: vacio {
     type: string
     label: "_"
     sql: '_' ;;
+  }
+
+  dimension: valor_stock {
+    type: number
+    sql: ${TABLE}.Valor_stock  ;;
   }
 
   dimension: valor_stock_aa {
@@ -365,65 +362,55 @@ view: presupuesto_inventario_fletes {
     sql:  ${TABLE}.Pre_GastoCuentas5 + ${TABLE}.Pre_GastoFabricacion + ${TABLE}.Pre_ReclasificacionIngresoCosto ;;
   }
 
-  dimension: anio_actual{
-    type: number
+  #Metricas Mensuales Reales Inventarios
+
+  measure: valor_stock_mes_act{
+    group_label: "Real Inventarios"
+    type: sum
     sql: CASE
-            WHEN DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
-            AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= CAST({% date_start date_filter %} AS DATE) THEN 1
-            ELSE 0
-           END
-                ;;
+           WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
+           AND ${Fecha} <= LAST_DAY(CAST({% date_start date_filter %} AS DATE) )
+           THEN ${valor_stock}
+           END ;;
+
+    value_format: "#,##0"
   }
 
-  dimension: mes_actual{
-    hidden: yes
-    type: yesno
-    sql: DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
-      AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= CAST({% date_start date_filter %} AS DATE)  ;;
+  measure: valor_stock_mes_act_aa{
+    group_label: "Real Inventarios"
+    type: sum
+    sql: CASE
+           WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
+           AND ${Fecha} <= LAST_DAY(CAST({% date_start date_filter %} AS DATE) )
+           THEN ${valor_stock_aa}
+           END ;;
+
+    value_format: "#,##0"
   }
 
-  dimension: mes_actual_anio_ant{
-    hidden: yes
-    type: yesno
-    sql: DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH), INTERVAL -1 YEAR)
-      AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL 0 YEAR)) ;;
+  measure: gasto_acum_mes_act{
+    group_label: "Real Inventarios"
+    type: sum
+    sql: CASE
+             WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
+             AND ${Fecha} <= LAST_DAY(CAST({% date_start date_filter %} AS DATE) )
+             THEN ${gasto_acumulado}
+             END ;;
+
+    value_format: "#,##0"
   }
 
-  dimension: mes_anterior{
-    hidden: yes
-    type: yesno
-    sql: DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH)
-      AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 MONTH));;
+  measure: dias_inventario_mes{
+    group_label: "Real Inventarios"
+    type: number
+    sql: ((${valor_stock_mes_act} + ${valor_stock_mes_act_aa}) / 2 )
+      / (NULLIF(${gasto_acum_mes_act},0) / 360);;
+
+    value_format: "0.00"
   }
 
-  dimension: ultimos_12_meses{
-    hidden: yes
-    type: yesno
-    sql: DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -12 MONTH)
-      AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= LAST_DAY(CAST({% date_start date_filter %} AS DATE));;
-  }
 
-  dimension: mes_inicio_11 {
-    type: string
-    sql:  DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -12 MONTH) ;;
-  }
-
-  dimension: mes_fin_11 {
-    type: string
-    sql:  LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 MONTH)) ;;
-  }
-
-  dimension: mes_inicio {
-    type: string
-    sql:  DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH) ;;
-  }
-
-  dimension: mes_fin {
-    type: string
-    sql:  LAST_DAY(CAST({% date_start date_filter %} AS DATE) );;
-  }
-
-  #Metricas Mensuales Inventarios
+  #Metricas Mensuales Presupuesto Inventarios
 
   measure: pre_valor_stock_ma{
     group_label: "Presupuesto Inventarios"
