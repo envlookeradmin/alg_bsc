@@ -379,26 +379,9 @@ view: inventario_fletes {
             ELSE 0
            END;;
 
-      drill_fields: [PlantaFletes, RealCostoFletesMTD]
+      #drill_fields: [PlantaFletes, RealCostoFletesMTD]
 
       value_format: "$#,##0.00"
-    }
-
-    measure: RealCostoFletes01{
-      group_label: "Fletes"
-      hidden: yes
-      label: "Real Costo de Fletes [MXN] V2"
-      type: sum
-      sql: ROUND( (${TABLE}.Real_costo_fletes/1000) )*1000 ;;
-
-      filters: {
-        field: mes_actual
-        value: "yes"
-      }
-
-      drill_fields: [CentroBeneficio, RealCostoFletes01]
-
-      value_format: "$#,##0"
     }
 
     measure: VentaTercerosFletesMTD{
@@ -420,7 +403,7 @@ view: inventario_fletes {
       type: number
       sql: ((${RealCostoFletesMTD})/NULLIF(${VentaTercerosFletesMTD},0))*100  ;;
 
-      drill_fields: [PlantaFletes, PorcRealFletesVentasMTD]
+      #drill_fields: [PlantaFletes, PorcRealFletesVentasMTD]
 
       value_format: "0.00\%"
     }
@@ -437,7 +420,7 @@ view: inventario_fletes {
             ELSE 0
            END  ;;
 
-      drill_fields: [PlantaFletes, RealCostoFletesYTD]
+      #drill_fields: [PlantaFletes, RealCostoFletesYTD]
 
       value_format: "$#,##0.00"
     }
@@ -461,7 +444,7 @@ view: inventario_fletes {
       type: number
       sql: ((${RealCostoFletesYTD})/NULLIF(${VentaTercerosFletesYTD},0))*100  ;;
 
-      drill_fields: [PlantaFletes, PorcRealFletesVentasYTD]
+      #drill_fields: [PlantaFletes, PorcRealFletesVentasYTD]
 
       value_format: "0.00\%"
     }
