@@ -11,6 +11,9 @@ view: presupuesto_inventario_fletes {
       inv_fle.GastoCuentas5,
       inv_fle.GastoFabricacion,
       inv_fle.ReclasificacionIngresoCosto,
+      inv_fle.GastoCuentas5_12,
+      inv_fle.GastoFabricacion_12,
+      inv_fle.ReclasificacionIngresoCosto_12,
       pre_inv_fle.Pre_Valor_Stock,
       pre_inv_fle.Pre_Fletes,
       pre_inv_fle.Pre_GastoCuentas5,
@@ -28,7 +31,10 @@ view: presupuesto_inventario_fletes {
       SUM(Real_costo_fletes) AS Real_costo_fletes,
       SUM(GastoCuentas5) AS GastoCuentas5,
       SUM(GastoFabricacion) AS GastoFabricacion,
-      SUM(ReclasificacionIngresoCosto) AS ReclasificacionIngresoCosto
+      SUM(ReclasificacionIngresoCosto) AS ReclasificacionIngresoCosto,
+      SUM(GastoCuentas5_12) AS GastoCuentas5_12,
+      SUM(GastoFabricacion_12) AS GastoFabricacion_12,
+      SUM(ReclasificacionIngresoCosto_12) AS ReclasificacionIngresoCosto_12
       FROM `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_reporte_inventario_fletes`
       where Planta in ('MF01','MF51','MF08','MF58','MF09','MF59','MF02','MF52', 'MF03','MF53','MF04','MF54','MF05','MF55','MF06','MF56','MF07','MF57', 'MF10','MF60', 'GF01')
       GROUP BY 1,2
@@ -357,6 +363,11 @@ view: presupuesto_inventario_fletes {
     sql:  ${TABLE}.GastoCuentas5 + ${TABLE}.GastoFabricacion + ${TABLE}.ReclasificacionIngresoCosto ;;
   }
 
+  dimension: gasto_acumulado_12 {
+    type: number
+    sql:  ${TABLE}.GastoCuentas5_12 + ${TABLE}.GastoFabricacion_12 + ${TABLE}.ReclasificacionIngresoCosto_12 ;;
+  }
+
   dimension: pre_gasto_acumulado {
     type: number
     sql:  ${TABLE}.Pre_GastoCuentas5 + ${TABLE}.Pre_GastoFabricacion + ${TABLE}.Pre_ReclasificacionIngresoCosto ;;
@@ -394,7 +405,7 @@ view: presupuesto_inventario_fletes {
     sql: CASE
              WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
              AND ${Fecha} <= LAST_DAY(CAST({% date_start date_filter %} AS DATE) )
-             THEN ${gasto_acumulado}
+             THEN ${gasto_acumulado_12}
              END ;;
 
     value_format: "#,##0"
@@ -402,6 +413,7 @@ view: presupuesto_inventario_fletes {
 
   measure: dias_inventario_mes{
     group_label: "Real Inventarios"
+    label: "Dias de Inventario"
     type: number
     sql: ((${valor_stock_mes_act} + ${valor_stock_mes_act_aa}) / 2 )
       / (NULLIF(${gasto_acum_mes_act},0) / 360);;
@@ -462,6 +474,7 @@ view: presupuesto_inventario_fletes {
 
   measure: pre_dias_inventario_mes{
     group_label: "Presupuesto Inventarios"
+    label: "Presupuesto Dias de Inventario"
     type: number
     sql: ((${valor_stock_ma_aa} + ${pre_valor_stock_ma}) / 2 )
       / (NULLIF(${gasto_acum_11_meses} + ${pre_gasto_acum_ma},0) / 360);;

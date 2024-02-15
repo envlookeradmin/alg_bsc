@@ -83,10 +83,10 @@ view: inventario_fletes {
                 ELSE ${TABLE}.Planta
                 END ;;
 
-      link: {
-        label: "Planta"
-        url: "https://envases.cloud.looker.com/dashboards/162?&Fecha={{ _filters['inventario_fletes.date_filter'] | url_encode }}&Centro={{ inventario_fletes.Centro._value | url_encode}}"
-      }
+      #link: {
+      #  label: "Planta"
+      #  url: "https://envases.cloud.looker.com/dashboards/162?&Fecha={{ _filters['inventario_fletes.date_filter'] | url_encode }}&Centro={{ inventario_fletes.Centro._value | url_encode}}"
+      #}
 
     }
 
