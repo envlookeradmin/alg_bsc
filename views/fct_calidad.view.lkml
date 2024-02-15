@@ -93,7 +93,7 @@ view: calidad {
       'Sin info.' as ESTATUS,
       CANTIDAD_RECHAZO_NOTIFICADA,
       CANTIDAD_ENTREGADA
-      from `@{GCP_PROJECT}.@{REPORTING_DATASET3}.vw_bsc_prod_cap_manufactura`
+      from `@{GCP_PROJECT}.@{REPORTING_DATASET3}.vw_fact_prod_cap_manufactura`
       where FECHA_FIN_REAL >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
       and FECHA_FIN_REAL <= CAST({% date_start date_filter %} AS DATE)
       ;;
