@@ -35,7 +35,7 @@ view: presupuesto_inventario_fletes {
       SUM(GastoCuentas5_12) AS GastoCuentas5_12,
       SUM(GastoFabricacion_12) AS GastoFabricacion_12,
       SUM(ReclasificacionIngresoCosto_12) AS ReclasificacionIngresoCosto_12
-      FROM `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_reporte_inventario_fletes`
+      FROM `@{GCP_PROJECT}.@{REPORTING_DATASET3}.tbl_fact_reporte_inventario_fletes`
       where Planta in ('MF01','MF51','MF08','MF58','MF09','MF59','MF02','MF52', 'MF03','MF53','MF04','MF54','MF05','MF55','MF06','MF56','MF07','MF57', 'MF10','MF60', 'GF01')
       GROUP BY 1,2
       ) inv_fle left join
