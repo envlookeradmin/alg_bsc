@@ -1,12 +1,19 @@
 
 view: fact_desperdicio_prod {
   derived_table: {
-    sql: SELECT * FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_desperdicio_prod`  ;;
+    sql: SELECT *,'Produccion' tipo FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_desperdicio_prod`
+         union all
+         SELECT *,'Desperdicio' tipo FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_desperdicio_prod`;;
   }
 
   measure: count {
     type: count
     drill_fields: [detail*]
+  }
+
+  dimension: tipo {
+    type: string
+    sql: ${TABLE}.tipo ;;
   }
 
   dimension: planta {
@@ -24,10 +31,63 @@ view: fact_desperdicio_prod {
     sql: ${TABLE}.CANTIDAD ;;
   }
 
+  measure: Total_cantidad_produccion {
+    label: "Total Kgs Produccion"
+    type: sum
+    sql: ${TABLE}.CANTIDAD  * (floor(rand()*10)+1);;
+    filters: [tipo: "Produccion"]
+  }
+
+  measure: Total_cantidad_desperdicio {
+    label: "Total Kgs Desperdicio"
+    type: sum
+    sql: ${TABLE}.CANTIDAD ;;
+    filters: [tipo: "Desperdicio"]
+  }
+
+  measure: Por_cantidad_desperdicio {
+    label: "% Kgs . Des."
+    type: number
+    sql:${Total_cantidad_desperdicio} / nullif(${Total_cantidad_produccion},0)*100;;
+
+    html:
+    {% if value <= 16 %}
+   <p><img src="https://findicons.com/files/icons/1036/function/48/circle_green.png"    height=10 width=10> <span>{{ rendered_value }}</span></p>
+
+    {% elsif  value > 16  %}
+    <img src="https://findicons.com/files/icons/1036/function/48/circle_red.png"    height=10 width=10><span>{{ rendered_value }}</span></p>
+
+    {% endif %} ;;
+
+    value_format: "0.00\%"
+
+  }
+
+
+
   dimension: importe {
     type: number
     sql: ${TABLE}.IMPORTE ;;
   }
+
+  measure: Total_importe_produccion {
+    label: "Total Importe"
+    type: sum
+    sql: ${TABLE}.IMPORTE ;;
+    filters: [tipo: "Produccion"]
+    value_format: "#,##0"
+  }
+
+
+  measure: Total_importe_desperdicio {
+    type: sum
+    sql: ${TABLE}.IMPORTE ;;
+    filters: [tipo: "Desperdicio"]
+    value_format: "#,##0"
+  }
+
+
+
 
   dimension: fecha_documento {
     type: date
