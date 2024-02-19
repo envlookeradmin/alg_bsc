@@ -369,3 +369,28 @@ explore: fct_materiales_stock {
   }
 
 }
+
+explore: fact_desperdicio_prod {
+
+  join: material {
+    type: left_outer
+    sql_on:${fact_desperdicio_prod.material}=${material.id_material};;
+    relationship: many_to_one
+  }
+
+  join: fecha {
+    type: left_outer
+    sql_on: ${fact_desperdicio_prod.fecha_documento} = ${fecha.fecha} ;;
+    relationship: many_to_one
+  }
+
+
+  join: planta {
+    type: left_outer
+    sql_on: ${fact_desperdicio_prod.planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+}
+explore: fact_desperdicio_costos {
+
+}
