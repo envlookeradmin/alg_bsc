@@ -1,10 +1,24 @@
 
 view: fact_desperdicio_prod {
   derived_table: {
-    sql: SELECT *,'Produccion' tipo FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_desperdicio_prod`
+    sql:
+
+    select * from (
+        SELECT *,'Produccion' tipo FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_desperdicio_prod`
          union all
-         SELECT *,'Desperdicio' tipo FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_desperdicio_prod`;;
+         SELECT *,'Desperdicio' tipo FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_desperdicio_prod` ) a
+         WHERE  DATE_TRUNC(CAST(fecha_documento AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) AND DATE_TRUNC(CAST(fecha_documento AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+        ;;
   }
+
+
+  filter: date_filter {
+    label: "Período"
+    description: "Use this date filter in combination with the timeframes dimension for dynamic date filtering"
+    type: date
+
+  }
+
 
   measure: count {
     type: count
