@@ -4,8 +4,9 @@ view: fct_desperdicio_prod {
     sql:
 
 
-        SELECT DP.*,M.TOTAL_KILOS_PRODUCCION FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_desperdicio_prod` dp
-        LEFT JOIN  fct_manufactura m on dp.planta = m.planta and dp.material = m.id_material and dpfecha_documento = m.fecha_fin_real
+        SELECT dp.*
+              ,M.TOTAL_KILOS_PRODUCCION FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_desperdicio_prod` dp
+        LEFT JOIN  `envases-analytics-qa.RPT_S4H_MX.vw_fact_prod_cap_manufactura` m on dp.planta = m.planta and dp.material = m.id_material and dp.fecha_documento = m.fecha_fin_real
         WHERE  DATE_TRUNC(CAST(fecha_documento AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) AND DATE_TRUNC(CAST(fecha_documento AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
         ;;
   }
@@ -44,7 +45,8 @@ view: fct_desperdicio_prod {
   measure: Total_cantidad_produccion {
     label: "Total Kgs Produccion"
     type: sum
-    sql: ${TABLE}.TOTAL_KILOS_PRODUCCION;;
+    sql: ${TABLE}.TOTAL_KILOS_PRODUCCION ;;
+    value_format: "#,##0"
 
   }
 
@@ -52,6 +54,7 @@ view: fct_desperdicio_prod {
     label: "Total Kgs Desperdicio"
     type: sum
     sql: ${TABLE}.CANTIDAD ;;
+    value_format: "#,##0"
 
   }
 
