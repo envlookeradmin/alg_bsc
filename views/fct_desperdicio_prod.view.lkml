@@ -1,13 +1,12 @@
 
-view: fact_desperdicio_prod {
+view: fct_desperdicio_prod {
   derived_table: {
     sql:
 
-    select * from (
-        SELECT *,'Produccion' tipo FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_desperdicio_prod`
-         union all
-         SELECT *,'Desperdicio' tipo FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_desperdicio_prod` ) a
-         WHERE  DATE_TRUNC(CAST(fecha_documento AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) AND DATE_TRUNC(CAST(fecha_documento AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+
+        SELECT DP.*,M.TOTAL_KILOS_PRODUCCION FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_desperdicio_prod` dp
+        LEFT JOIN  fct_manufactura m on dp.planta = m.planta and dp.material = m.id_material and dpfecha_documento = m.fecha_fin_real
+        WHERE  DATE_TRUNC(CAST(fecha_documento AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) AND DATE_TRUNC(CAST(fecha_documento AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
         ;;
   }
 
@@ -25,10 +24,7 @@ view: fact_desperdicio_prod {
     drill_fields: [detail*]
   }
 
-  dimension: tipo {
-    type: string
-    sql: ${TABLE}.tipo ;;
-  }
+
 
   dimension: planta {
     type: string
@@ -48,15 +44,15 @@ view: fact_desperdicio_prod {
   measure: Total_cantidad_produccion {
     label: "Total Kgs Produccion"
     type: sum
-    sql: ${TABLE}.CANTIDAD  * (floor(rand()*10)+1);;
-    filters: [tipo: "Produccion"]
+    sql: ${TABLE}.TOTAL_KILOS_PRODUCCION;;
+
   }
 
   measure: Total_cantidad_desperdicio {
     label: "Total Kgs Desperdicio"
     type: sum
     sql: ${TABLE}.CANTIDAD ;;
-    filters: [tipo: "Desperdicio"]
+
   }
 
   measure: Por_cantidad_desperdicio {
@@ -88,17 +84,10 @@ view: fact_desperdicio_prod {
     label: "Total Importe"
     type: sum
     sql: ${TABLE}.IMPORTE ;;
-    filters: [tipo: "Produccion"]
     value_format: "#,##0"
   }
 
 
-  measure: Total_importe_desperdicio {
-    type: sum
-    sql: ${TABLE}.IMPORTE ;;
-    filters: [tipo: "Desperdicio"]
-    value_format: "#,##0"
-  }
 
 
 
