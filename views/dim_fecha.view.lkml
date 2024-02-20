@@ -41,7 +41,7 @@ view: fecha {
   dimension: nombre_mes {
     type: string
     sql:  ${TABLE}.MONTH_NAME_SP;;
-    order_by_field: mes
+    order_by_field: date_month
   }
 
   dimension: trimestre {
