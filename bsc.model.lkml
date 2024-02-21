@@ -378,6 +378,12 @@ explore: fct_desperdicio_prod {
     relationship: many_to_one
   }
 
+  join: grupo_materiales  {
+    type: left_outer
+    sql_on: ${material.grupo_material} = ${grupo_materiales.id_grupo} ;;
+    relationship: many_to_one
+  }
+
   join: fecha {
     type: left_outer
     sql_on: ${fct_desperdicio_prod.fecha_documento} = ${fecha.fecha} ;;

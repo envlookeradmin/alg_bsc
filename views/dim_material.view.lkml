@@ -32,6 +32,15 @@ view: material {
     sql: ${TABLE}.JERARQUIA_PRODUCTO ;;
   }
 
+  dimension: descripcion_material{
+    type: string
+    sql: ${TABLE}.DESCRIPCION_MATERIAL ;;
+  }
+
+
+
+
+
   set: detail {
     fields: [
       id_material,
