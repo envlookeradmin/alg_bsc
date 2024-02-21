@@ -5,11 +5,18 @@ view: fct_desperdicio_prod {
 
 
         SELECT dp.*
-              ,M.TOTAL_KILOS_PRODUCCION FROM `envases-analytics-qa.RPT_S4H_MX.tbl_fact_desperdicios` dp
+              ,M.TOTAL_KILOS_PRODUCCION
+              ,nullif(o.peso_neto,0) PESO_NETO   FROM `envases-analytics-qa.RPT_S4H_MX.tbl_fact_desperdicios` dp
         LEFT JOIN  `envases-analytics-qa.RPT_S4H_MX.vw_fact_prod_cap_manufactura` m on
                 dp.planta = m.planta
             and dp.material = m.id_material
             and dp.fecha_documento = m.fecha_fin_real
+
+        LEFT JOIN  `envases-analytics-qa.RPT_S4H_MX.tbl_fact_ordenes_pedidos` o on
+                dp.planta = o.planta
+            and dp.material = o.id_material
+            and dp.fecha_documento = o.fecha_entrega_real and o.canal_distribucion in ("30","40")
+
 
 
 
@@ -59,7 +66,7 @@ view: fct_desperdicio_prod {
   measure: Total_cantidad_produccion {
     label: "Total Kgs Produccion"
     type: sum
-    sql: ${TABLE}.TOTAL_KILOS_PRODUCCION ;;
+    sql: ${TABLE}.TOTAL_KILOS_PRODUCCION   ;;
     value_format: "#,##0"
 
   }
