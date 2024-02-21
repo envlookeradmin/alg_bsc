@@ -11,8 +11,8 @@
     model: bsc
     explore: inventarios_ciclicos
     type: looker_grid
-    fields: [planta.planta_completo, inventarios_ciclicos.clasificacion, inventarios_ciclicos.conteo_material_real,
-      inventarios_ciclicos.conteo_material_meta, inventarios_ciclicos.porc_real_meta]
+    fields: [planta.planta_completo, inventarios_ciclicos.clasificacion, inventarios_ciclicos.conteo_material_real_ytd,
+      inventarios_ciclicos.conteo_material_meta_ytd, inventarios_ciclicos.porc_real_meta]
     pivots: [planta.planta_completo]
     filters:
       inventarios_ciclicos.clasificacion: "-NULL"

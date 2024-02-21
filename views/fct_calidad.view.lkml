@@ -189,7 +189,10 @@ view: calidad {
   measure: quejas {
     label: "Quejas"
     type: count_distinct
-    sql: ${id_caso} ;;
+    sql: CASE
+           WHEN ${id_caso} != 'Sin info.'
+           THEN ${id_caso}
+         END ;;
 
     drill_fields: [estatus_queja, quejas]
 
