@@ -157,21 +157,30 @@ view: inventarios_ciclicos {
     sql: ${TABLE}.CONTEO_MATERIAL_META ;;
   }
 
-  #medidas
   measure: Total_cantidad_teorica {
     type: sum
-    sql: ${TABLE}.CANTIDAD_TEORICA ;;
+    sql: CASE
+            WHEN ${fecha} >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
+            AND ${fecha} <= CAST({% date_start date_filter %} AS DATE)
+            THEN ${TABLE}.CANTIDAD_TEORICA
+            ELSE 0
+           END;;
   }
 
   #measure: Total_cantidad_total {
-    #type: sum
-    #sql: ${TABLE}.CANTIDAD_TOTAL ;;
+  #type: sum
+  #sql: ${TABLE}.CANTIDAD_TOTAL ;;
   #}
 
   measure: conteo_material_real_ytd {
     label: "Conteo Real YTD"
     type: sum
-    sql: ${conteo_material};;
+    sql: CASE
+            WHEN ${fecha} >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
+            AND ${fecha} <= CAST({% date_start date_filter %} AS DATE)
+            THEN ${conteo_material}
+            ELSE 0
+           END;;
 
     value_format: "0"
   }
@@ -179,7 +188,12 @@ view: inventarios_ciclicos {
   measure: conteo_material_meta_ytd {
     label: "Conteo Meta YTD"
     type: sum
-    sql: ${conteo_material_meta} ;;
+    sql: CASE
+            WHEN ${fecha} >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
+            AND ${fecha} <= CAST({% date_start date_filter %} AS DATE)
+            THEN ${conteo_material_meta}
+            ELSE 0
+           END ;;
 
     value_format: "0"
   }
@@ -195,7 +209,12 @@ view: inventarios_ciclicos {
   measure: exactitud {
     label: "Exactitud"
     type: sum
-    sql:  ( ${cantidad_contada} - ${cantidad_teorica} ) / ${cantidad_teorica} ;;
+    sql:  CASE
+            WHEN ${fecha} >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
+            AND ${fecha} <= CAST({% date_start date_filter %} AS DATE)
+            THEN ( ${cantidad_contada} - ${cantidad_teorica} ) / ${cantidad_teorica}
+            ELSE 0
+           END ;;
 
     value_format: "0"
   }
@@ -203,7 +222,12 @@ view: inventarios_ciclicos {
   measure: diferencia {
     label: "Diferencia"
     type: sum
-    sql: ${cantidad_contada} - ${cantidad_teorica}  ;;
+    sql: CASE
+            WHEN ${fecha} >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
+            AND ${fecha} <= CAST({% date_start date_filter %} AS DATE)
+            THEN ${cantidad_contada} - ${cantidad_teorica}
+            ELSE 0
+           END;;
     value_format: "$#,##0.00"
   }
 
