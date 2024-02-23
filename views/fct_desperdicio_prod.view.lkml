@@ -17,10 +17,10 @@ view: fct_desperdicio_prod {
             and dp.material = o.id_material
             and dp.fecha_documento = o.fecha_entrega_real and o.canal_distribucion in ("30","40")
 
+where CAST(dp.fecha_documento AS date) between CAST({% date_start date_filter %} AS DATE)  and  CAST({% date_end date_filter %} AS DATE)
 
 
-
-     WHERE  DATE_TRUNC(CAST(fecha_documento AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) AND DATE_TRUNC(CAST(fecha_documento AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+ --    WHERE  DATE_TRUNC(CAST(fecha_documento AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) AND DATE_TRUNC(CAST(fecha_documento AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
         ;;
   }
 
