@@ -28,7 +28,7 @@ view: calidad {
       0 as CANTIDAD_RECHAZO_NOTIFICADA,
       0 as CANTIDAD_ENTREGADA
       from `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_calidad_devoluciones`
-
+      where CENTRO IN ('MF51','MF58','MF59','MF52','MF53','MF56','MF54','MF55','MF57','MF60','GF01')
       UNION ALL
       select
       CAST(FECHA AS DATE) as FECHA,
@@ -63,7 +63,7 @@ view: calidad {
       0 as CANTIDAD_RECHAZO_NOTIFICADA,
       0 as CANTIDAD_ENTREGADA
       from `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_calidad_quejas`
-
+      where PLANTA IN ('MF51','MF58','MF59','MF52','MF53','MF56','MF54','MF55','MF57','MF60','GF01')
       UNION ALL
       select
       FECHA_FIN_REAL as FECHA,
@@ -91,8 +91,8 @@ view: calidad {
       'Sin info.' as ESTATUS,
       CANTIDAD_RECHAZO_NOTIFICADA,
       CANTIDAD_ENTREGADA
-      from `@{GCP_PROJECT}.@{REPORTING_DATASET3}.vw_fact_prod_cap_manufactura`
-
+      from `@{GCP_PROJECT}.@{REPORTING_DATASET3}.vw_bsc_prod_cap_manufactura`
+      where PLANTA IN ('MF51','MF58','MF59','MF52','MF53','MF56','MF54','MF55','MF57','MF60','GF01')
       ;;
   }
 
@@ -120,6 +120,35 @@ view: calidad {
     label: "Planta"
     type: string
     sql: ${planta.planta_comercializadora};;
+  }
+
+  dimension: orden_grupo_planta {
+    type: number
+    sql: CASE
+            WHEN ${TABLE}.Planta in ('MF51','MF58', 'MF59')
+            THEN 1
+            WHEN ${TABLE}.Planta in ('MF52')
+            THEN 2
+            WHEN ${TABLE}.Planta in ('MF53','MF56')
+            THEN 3
+            ELSE 4
+          END ;;
+  }
+
+  dimension: grupo_planta {
+    label: "Gpo."
+    type: string
+    sql: CASE
+            WHEN ${TABLE}.Planta in ('MF51','MF58', 'MF59')
+            THEN 'MF51'
+            WHEN ${TABLE}.Planta in ('MF52')
+            THEN 'MF52'
+            WHEN ${TABLE}.Planta in ('MF53','MF56')
+            THEN 'MF53'
+            ELSE ${TABLE}.Planta
+          END ;;
+
+    order_by_field: orden_grupo_planta
   }
 
   dimension: codigo_devolucion {
