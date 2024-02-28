@@ -23,7 +23,7 @@ select*
            when PLANTA='MF05' then 'MF55'
            when PLANTA='MF07' then 'MF57' end PLANTA_VENTA
 
-      from envases-analytics-eon-poc.RPT_S4H_MX.vw_fact_prod_cap_manufactura m
+      from `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_fact_prod_cap_manufactura` m
  WHERE CAST(FECHA_FIN_REAL AS date)   between CAST({% date_start date_filter_FECHA_FIN_REAL %}   AS DATE)  and  CAST({% date_end date_filter_FECHA_FIN_REAL %} AS DATE)
    and CAST(FECHA_LIBERACION AS date) between CAST({% date_start date_filter_FECHA_LIBERACION %} AS DATE)  and  CAST({% date_end date_filter_FECHA_LIBERACION %} AS DATE)
   and
@@ -35,7 +35,7 @@ select*
 left join (SELECT PLANTA
                  ,FECHA
                  ,ID_GRUPO_MATERIAL
-                 ,AVG(MONTO) MONTO  from envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_presupuesto_ventas
+                 ,AVG(MONTO) MONTO  from `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_presupuesto_ventas`
 GROUP BY PLANTA,FECHA,ID_GRUPO_MATERIAL) v on v.planta=m.PLANTA_VENTA and v.FECHA=m.FECHA_FIN_REAL and v.ID_GRUPO_MATERIAL=m.ID_GRUPO_MATERIAL and m.row=1 ;;
 
 
