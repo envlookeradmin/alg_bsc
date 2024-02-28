@@ -28,7 +28,7 @@ view: calidad {
       0 as CANTIDAD_RECHAZO_NOTIFICADA,
       0 as CANTIDAD_ENTREGADA
       from `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_calidad_devoluciones`
-      --where CENTRO IN ('MF51','MF58','MF59','MF52','MF53','MF56','MF54','MF55','MF57','MF60','GF01')
+
       UNION ALL
       select
       CAST(FECHA AS DATE) as FECHA,
@@ -63,7 +63,7 @@ view: calidad {
       0 as CANTIDAD_RECHAZO_NOTIFICADA,
       0 as CANTIDAD_ENTREGADA
       from `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_calidad_quejas`
-      --where PLANTA IN ('MF51','MF58','MF59','MF52','MF53','MF56','MF54','MF55','MF57','MF60','GF01')
+
       UNION ALL
       select
       FECHA_FIN_REAL as FECHA,
@@ -92,7 +92,7 @@ view: calidad {
       CANTIDAD_RECHAZO_NOTIFICADA,
       CANTIDAD_ENTREGADA
       from `@{GCP_PROJECT}.@{REPORTING_DATASET3}.vw_bsc_prod_cap_manufactura`
-      --where PLANTA IN ('MF51','MF58','MF59','MF52','MF53','MF56','MF54','MF55','MF57','MF60','GF01')
+
       ;;
   }
 
