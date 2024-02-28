@@ -153,7 +153,7 @@ view: fct_rpm {
   }
 
   measure: Total_porcentaje_efiiencia {
-    type: sum
+    type: average
     sql: ${TABLE}.PORCENTAJE_EFIIENCIA ;;
   }
 
