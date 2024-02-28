@@ -397,11 +397,24 @@ explore: fct_desperdicio_prod {
     relationship: many_to_one
   }
 
-
-
-
-
 }
+
+explore: fct_rpm {
+  join: fecha {
+    type: left_outer
+    sql_on: ${fct_rpm.fecha} = ${fecha.fecha} ;;
+    relationship: many_to_one
+  }
+
+
+  join: planta {
+    type: left_outer
+    sql_on: ${fct_rpm.planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+}
+
+
 explore: fact_desperdicio_costos {
 
 }
