@@ -28,7 +28,7 @@ view: calidad {
       0 as CANTIDAD_RECHAZO_NOTIFICADA,
       0 as CANTIDAD_ENTREGADA
       from `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_calidad_devoluciones`
-      where CENTRO IN ('MF51','MF58','MF59','MF52','MF53','MF56','MF54','MF55','MF57','MF60','GF01')
+
       UNION ALL
       select
       CAST(FECHA AS DATE) as FECHA,
@@ -63,7 +63,7 @@ view: calidad {
       0 as CANTIDAD_RECHAZO_NOTIFICADA,
       0 as CANTIDAD_ENTREGADA
       from `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_calidad_quejas`
-      where PLANTA IN ('MF51','MF58','MF59','MF52','MF53','MF56','MF54','MF55','MF57','MF60','GF01')
+
       UNION ALL
       select
       FECHA_FIN_REAL as FECHA,
@@ -92,7 +92,7 @@ view: calidad {
       CANTIDAD_RECHAZO_NOTIFICADA,
       CANTIDAD_ENTREGADA
       from `@{GCP_PROJECT}.@{REPORTING_DATASET3}.vw_bsc_prod_cap_manufactura`
-      where PLANTA IN ('MF51','MF58','MF59','MF52','MF53','MF56','MF54','MF55','MF57','MF60','GF01')
+
       ;;
   }
 
@@ -125,13 +125,21 @@ view: calidad {
   dimension: orden_grupo_planta {
     type: number
     sql: CASE
-            WHEN ${TABLE}.Planta in ('MF51','MF58', 'MF59')
+            WHEN ${TABLE}.Planta in ('MF01','MF51','MF08','MF58','MF09','MF59')
             THEN 1
-            WHEN ${TABLE}.Planta in ('MF52')
+            WHEN ${TABLE}.Planta in ('MF02','MF52')
             THEN 2
-            WHEN ${TABLE}.Planta in ('MF53','MF56')
+            WHEN ${TABLE}.Planta in ('MF03','MF53','MF06','MF56')
             THEN 3
-            ELSE 4
+            WHEN ${TABLE}.Planta in ('MF04','MF54')
+            THEN 4
+            WHEN ${TABLE}.Planta in ('MF05','MF55')
+            THEN 5
+            WHEN ${TABLE}.Planta in ('MF07','MF57')
+            THEN 6
+            WHEN ${TABLE}.Planta in ('MF10','MF60')
+            THEN 7
+            ELSE 8
           END ;;
   }
 
@@ -139,12 +147,20 @@ view: calidad {
     label: "Gpo."
     type: string
     sql: CASE
-            WHEN ${TABLE}.Planta in ('MF51','MF58', 'MF59')
+            WHEN ${TABLE}.Planta in ('MF01','MF51','MF08','MF58','MF09','MF59')
             THEN 'MF51'
-            WHEN ${TABLE}.Planta in ('MF52')
+            WHEN ${TABLE}.Planta in ('MF02','MF52')
             THEN 'MF52'
-            WHEN ${TABLE}.Planta in ('MF53','MF56')
+            WHEN ${TABLE}.Planta in ('MF03','MF53','MF06','MF56')
             THEN 'MF53'
+            WHEN ${TABLE}.Planta in ('MF04','MF54')
+            THEN 'MF54'
+            WHEN ${TABLE}.Planta in ('MF05','MF55')
+            THEN 'MF55'
+            WHEN ${TABLE}.Planta in ('MF07','MF57')
+            THEN 'MF57'
+            WHEN ${TABLE}.Planta in ('MF10','MF60')
+            THEN 'MF60'
             ELSE ${TABLE}.Planta
           END ;;
 
