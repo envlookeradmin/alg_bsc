@@ -154,7 +154,19 @@ view: fct_rpm {
 
   measure: Total_porcentaje_efiiencia {
     type: average
-    sql: ${TABLE}.PORCENTAJE_EFIIENCIA ;;
+    sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
+    value_format: "0.00\%"
+
+    html:
+    {% if value >= 92.0 %}
+    <span style="color: green;">{{ rendered_value }}</span></p>
+    {% elsif  value < 90.0 %}
+    <span style="color: red;">{{ rendered_value }}</span></p>
+    {% elsif  value >= 90.0 and value <= 91.9 %}
+    <span style="color: #FFA800;">{{ rendered_value }}</span></p>
+    {% else %}
+    {{rendered_value}}
+    {% endif %} ;;
   }
 
   measure: Total_disponibilidad {
