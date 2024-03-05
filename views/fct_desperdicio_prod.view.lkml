@@ -6,7 +6,35 @@ view: fct_desperdicio_prod {
 
         SELECT dp.*
               ,M.TOTAL_KILOS_PRODUCCION
-              ,nullif(o.peso_neto,0) PESO_NETO   FROM `envases-analytics-qa.RPT_S4H_MX.tbl_fact_desperdicios` dp
+              ,nullif(o.peso_neto,0) PESO_NETO   FROM
+              ( SELECT dp.* FROM `envases-analytics-qa.RPT_S4H_MX.tbl_fact_desperdicios` dp
+ LEFT JOIN `envases-analytics-qa.RPT_S4H_MX.vw_bsc_material` m on dp.material=m.id_material
+ where m.GRUPO_MATERIAL   not in ('BLI1018',
+'BPP1018',
+'CAN1024',
+'HND3003',
+'OPP1018',
+'DRM1026',
+'JRY1025',
+'BLI1018',
+'BPP1018',
+'CAN1024',
+'JRY1025',
+'OPP1018',
+'BLI1018',
+'BPP1018',
+'DRM1026',
+'JRY1025',
+'OPP1018',
+'BLI1018',
+'BPP1018',
+'JRY1025',
+'OLI1018',
+'OPP1018'))
+
+
+
+              dp
         LEFT JOIN  `envases-analytics-qa.RPT_S4H_MX.vw_fact_prod_cap_manufactura` m on
                 dp.planta = m.planta
             and dp.material = m.id_material

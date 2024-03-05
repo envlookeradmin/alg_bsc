@@ -196,6 +196,11 @@ view: fct_rpm {
     sql: ${TABLE}.CALIDAD ;;
   }
 
+  measure: Total_utilidad{
+    type: number
+    sql: (${Total_notificaciones_reales}-${Total_notificaciones_no_enviadas})/nullif(${Total_notificaciones_no_enviadas},0) ;;
+  }
+
   measure: Total_oee {
     type: sum
     sql: ${TABLE}.OEE ;;
