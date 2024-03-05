@@ -199,6 +199,18 @@ view: fct_rpm {
   measure: Total_utilidad{
     type: number
     sql: (${Total_notificaciones_reales}-${Total_notificaciones_no_enviadas})/nullif(${Total_notificaciones_no_enviadas},0) ;;
+    value_format: "0.00\%"
+    html:
+    {% if value >= 92.0 %}
+    <span style="color: green;">{{ rendered_value }}</span></p>
+    {% elsif  value < 90.0 %}
+    <span style="color: red;">{{ rendered_value }}</span></p>
+    {% elsif  value >= 90.0 and value <= 91.9 %}
+    <span style="color: #FFA800;">{{ rendered_value }}</span></p>
+    {% else %}
+    {{rendered_value}}
+    {% endif %} ;;
+
   }
 
   measure: Total_oee {
