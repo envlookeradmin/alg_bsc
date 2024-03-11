@@ -491,7 +491,7 @@ view: presupuesto_inventario_fletes {
     sql: CASE
             WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
             AND ${Fecha} <= LAST_DAY(CAST({% date_start date_filter %} AS DATE) )
-            THEN ${TABLE}.Pre_Fletes
+            THEN (${TABLE}.Pre_Fletes * -1)
             ELSE 0
            END;;
 
@@ -504,7 +504,7 @@ view: presupuesto_inventario_fletes {
     sql: CASE
             WHEN ${Fecha} >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
             AND ${Fecha} <= LAST_DAY(CAST({% date_start date_filter %} AS DATE) )
-            THEN (${TABLE}.Pre_Venta_terceros * -1)
+            THEN ${TABLE}.Pre_Venta_terceros
             ELSE 0
            END;;
 
@@ -528,7 +528,7 @@ view: presupuesto_inventario_fletes {
     sql: CASE
             WHEN ${Fecha} >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
             AND ${Fecha} <= LAST_DAY(CAST({% date_start date_filter %} AS DATE) )
-            THEN ${TABLE}.Pre_Fletes
+            THEN (${TABLE}.Pre_Fletes * -1)
             ELSE 0
            END  ;;
 
@@ -541,7 +541,7 @@ view: presupuesto_inventario_fletes {
     sql: CASE
             WHEN ${Fecha} >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) AS STRING),"-01-01")  AS DATE)
             AND ${Fecha} <= LAST_DAY(CAST({% date_start date_filter %} AS DATE) )
-            THEN (${TABLE}.Pre_Venta_terceros * -1)
+            THEN ${TABLE}.Pre_Venta_terceros
             ELSE 0
            END;;
 
