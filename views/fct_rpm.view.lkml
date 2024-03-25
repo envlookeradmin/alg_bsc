@@ -179,6 +179,8 @@ view: fct_rpm {
     {% else %}
     {{rendered_value}}
     {% endif %} ;;
+
+    drill_fields: [detail.*]
   }
 
   measure: Total_disponibilidad {
