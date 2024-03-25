@@ -201,10 +201,10 @@ view: ordenes_compra {
     type: average
     sql: ${TABLE}.DiasAtencion ;;
 
-    #filters: {
-    #  field: mes_actual_solicitud
-    #  value: "yes"
-    #}
+    filters: {
+      field: mes_actual_solicitud
+      value: "yes"
+    }
 
     #drill_fields: [comprador.gerencia,Prom_Dias_Atencion]
 
@@ -218,10 +218,10 @@ view: ordenes_compra {
         WHEN ${TABLE}.DiasAtencion <= ${TABLE}.Tiempo_Maximo THEN ${TABLE}.UID_PR
         END ;;
 
-    #filters: {
-    #  field: mes_actual_solicitud
-    #  value: "yes"
-    #}
+    filters: {
+      field: mes_actual_solicitud
+      value: "yes"
+    }
   }
 
   measure: Orden_En_Tiempo_Obj {
@@ -242,10 +242,10 @@ view: ordenes_compra {
     type: count_distinct
     sql: ${TABLE}.UID_PR ;;
 
-  #    filters: {
-  #      field: mes_actual_solicitud
-  #      value: "yes"
-  #    }
+      filters: {
+        field: mes_actual_solicitud
+        value: "yes"
+      }
   }
 
   measure: Porc_Productividad_Alcanzada {
