@@ -1,11 +1,17 @@
 
 view: fct_rpm {
   derived_table: {
-    sql: SELECT * FROM `envases-analytics-qa.RPT_S4H_MX.fact_utilidad_eficiencia_oee_rpm`
-     WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+    sql: select * from `envases-analytics-qa.RPT_S4H_MX.vw_fact_utilidad_eficiencia_oee_rpm`
 
 
-    ;;
+          --dejo funcionar
+          --`envases-analytics-qa.RPT_S4H_MX.fact_utilidad_eficiencia_oee_rpm`
+
+
+           WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+
+
+      ;;
   }
 
 
@@ -165,6 +171,7 @@ view: fct_rpm {
   }
 
   measure: Total_porcentaje_efiiencia {
+    label: "Eficiencia"
     type: average
     sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
     value_format: "0.00\%"
@@ -180,8 +187,50 @@ view: fct_rpm {
     {{rendered_value}}
     {% endif %} ;;
 
-    drill_fields: [detail.*]
+    drill_fields: [planta,Total_porcentaje_efiiencia2,Total_notificaciones_no_enviadas,Total_notificaciones_reales]
   }
+
+
+  measure: Total_porcentaje_efiiencia2 {
+    label: "Eficiencia"
+    type: average
+    sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
+    value_format: "0.00\%"
+
+    html:
+    {% if value >= 92.0 %}
+    <span style="color: green;">{{ rendered_value }}</span></p>
+    {% elsif  value < 90.0 %}
+    <span style="color: red;">{{ rendered_value }}</span></p>
+    {% elsif  value >= 90.0 and value <= 91.9 %}
+    <span style="color: #FFA800;">{{ rendered_value }}</span></p>
+    {% else %}
+    {{rendered_value}}
+    {% endif %} ;;
+
+    drill_fields: [planta,nombre_linea,Total_porcentaje_efiiencia3,Total_notificaciones_no_enviadas,Total_notificaciones_reales]
+  }
+
+
+  measure: Total_porcentaje_efiiencia3 {
+    label: "Eficiencia"
+    type: average
+    sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
+    value_format: "0.00\%"
+
+    html:
+    {% if value >= 92.0 %}
+    <span style="color: green;">{{ rendered_value }}</span></p>
+    {% elsif  value < 90.0 %}
+    <span style="color: red;">{{ rendered_value }}</span></p>
+    {% elsif  value >= 90.0 and value <= 91.9 %}
+    <span style="color: #FFA800;">{{ rendered_value }}</span></p>
+    {% else %}
+    {{rendered_value}}
+    {% endif %} ;;
+
+      drill_fields: [planta,nombre_linea,fecha,Total_porcentaje_efiiencia3,Total_notificaciones_no_enviadas,Total_notificaciones_reales]
+    }
 
   measure: Total_disponibilidad {
     type: sum
@@ -193,7 +242,7 @@ view: fct_rpm {
     sql: ${TABLE}.DESEMPENIO ;;
   }
 
- measure: Total_calidad {
+  measure: Total_calidad {
     type: sum
     sql: ${TABLE}.CALIDAD ;;
   }
@@ -213,6 +262,7 @@ view: fct_rpm {
     {{rendered_value}}
     {% endif %} ;;
 
+    drill_fields: [planta,Total_porcentaje_efiiencia,Total_notificaciones_no_enviadas,Total_utilidad]
   }
 
   measure: Total_oee {
@@ -222,30 +272,30 @@ view: fct_rpm {
 
   set: detail {
     fields: [
-        orden,
-  planta,
-  id_material,
-  registro_por_usuario,
-  contador,
-  anulado,
-  operacion,
-  creado_por,
-  inicio_ejecucion,
-  inicio_hora_real,
-  fin_ejecucion,
-  fin_real,
-  fecha,
-  puesto_trabajo,
-  id_linea_rp,
-  nombre_linea,
-  notificaciones_posibles,
-  notificaciones_reales,
-  notificaciones_no_enviadas,
-  porcentaje_efiiencia,
-  disponibilidad,
-  desempenio,
-  calidad,
-  oee
+      orden,
+      planta,
+      id_material,
+      registro_por_usuario,
+      contador,
+      anulado,
+      operacion,
+      creado_por,
+      inicio_ejecucion,
+      inicio_hora_real,
+      fin_ejecucion,
+      fin_real,
+      fecha,
+      puesto_trabajo,
+      id_linea_rp,
+      nombre_linea,
+      notificaciones_posibles,
+      notificaciones_reales,
+      notificaciones_no_enviadas,
+      porcentaje_efiiencia,
+      disponibilidad,
+      desempenio,
+      calidad,
+      oee
     ]
   }
 }
