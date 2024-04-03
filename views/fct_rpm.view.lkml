@@ -37,6 +37,7 @@ view: fct_rpm {
     sql: ${TABLE}.PLANTA ;;
   }
 
+
   dimension: id_material {
     type: string
     sql: ${TABLE}.ID_MATERIAL ;;
@@ -150,8 +151,20 @@ view: fct_rpm {
     sql: ${TABLE}.OEE ;;
   }
 
+  dimension: Nombre {
+    type: string
+    sql: ${planta.nombre_planta} ;;
+  }
 
 
+
+
+  measure: Total_notificaciones_anuladas {
+    label: "Anuladas"
+    type: sum
+    sql: case when  ${TABLE}.ANULADO='X' AND ${TABLE}.CREADO_POR = 'rpm_admin'  then 1 else 0 end ;;
+
+  }
 
 
 
@@ -168,7 +181,7 @@ view: fct_rpm {
   }
 
   measure: Total_notificaciones_no_enviadas {
-    label: "Anuladas"
+
     type: sum
     sql: ${TABLE}.NOTIFICACIONES_NO_ENVIADAS ;;
   }
@@ -176,8 +189,9 @@ view: fct_rpm {
 
   measure: Total_notificaciones_utiles {
     label: "Notificaciones Utiles "
-    type: sum
-    sql: ${TABLE}.NOTIFICACIONES_REALES-${TABLE}.NOTIFICACIONES_NO_ENVIADAS ;;
+    type: number
+    sql: ${Total_notificaciones_reales}-${Total_notificaciones_anuladas} ;;
+
   }
 
 
@@ -199,7 +213,7 @@ view: fct_rpm {
     {{rendered_value}}
     {% endif %} ;;
 
-    drill_fields: [planta,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia2,Total_notificaciones_no_enviadas,Total_notificaciones_utiles,Total_notificaciones_no_enviadas,Total_utilidad]
+    drill_fields: [planta,Nombre,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia2,Total_notificaciones_utiles,Total_notificaciones_utiles,Total_utilidad]
   }
 
 
