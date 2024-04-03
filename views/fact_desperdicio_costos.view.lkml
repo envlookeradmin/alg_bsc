@@ -1,7 +1,7 @@
 
 view: fact_desperdicio_costos {
   derived_table: {
-    sql: SELECT * FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_desperdicio_costos` LIMIT 10 ;;
+    sql: SELECT * FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_desperdicio_costos`  ;;
   }
 
   measure: count {
@@ -68,16 +68,16 @@ view: fact_desperdicio_costos {
   set: detail {
     fields: [
         anio,
-	periodo,
-	plnata,
-	centro_beneficio,
-	fecha_documento,
-	material,
-	cantidad,
-	descripcion_material,
-	peso,
-	unidad_peso,
-	importe
+  periodo,
+  plnata,
+  centro_beneficio,
+  fecha_documento,
+  material,
+  cantidad,
+  descripcion_material,
+  peso,
+  unidad_peso,
+  importe
     ]
   }
 }

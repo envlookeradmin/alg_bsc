@@ -27,7 +27,8 @@ view: calidad {
       'Sin info.' as ESTATUS_QUEJA,
       0 as CANTIDAD_RECHAZO_NOTIFICADA,
       0 as CANTIDAD_ENTREGADA
-      from `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_calidad_devoluciones`
+      from `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_calidad_devoluciones` v
+      LEFT JOIN (SELECT * FROM `envases-analytics-qa.RPT_ALU.Fact_Ventas` where  Id_Fuente = "S4H_MEX" AND Tipo_Transaccion = "Venta") v on v.fecha=d.fecha and d.id_cliente=v.cliente and d.material=v.material and d.documento_anterior=v.documento
 
       UNION ALL
       select
