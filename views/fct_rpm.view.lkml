@@ -156,19 +156,31 @@ view: fct_rpm {
 
 
   measure: Total_notificaciones_posibles {
+    label: "QT Total"
     type: sum
     sql: ${TABLE}.NOTIFICACIONES_POSIBLES ;;
   }
 
   measure: Total_notificaciones_reales {
+    label: "QT Succes"
     type: sum
     sql: ${TABLE}.NOTIFICACIONES_REALES ;;
   }
 
   measure: Total_notificaciones_no_enviadas {
+    label: "Anuladas"
     type: sum
     sql: ${TABLE}.NOTIFICACIONES_NO_ENVIADAS ;;
   }
+
+
+  measure: Total_notificaciones_utiles {
+    label: "Notificaciones Utiles "
+    type: sum
+    sql: ${TABLE}.NOTIFICACIONES_REALES-${TABLE}.NOTIFICACIONES_NO_ENVIADAS ;;
+  }
+
+
 
   measure: Total_porcentaje_efiiencia {
     label: "Eficiencia"
@@ -187,7 +199,7 @@ view: fct_rpm {
     {{rendered_value}}
     {% endif %} ;;
 
-    drill_fields: [planta,Total_porcentaje_efiiencia2,Total_notificaciones_no_enviadas,Total_notificaciones_reales]
+    drill_fields: [planta,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia2,Total_notificaciones_no_enviadas,Total_notificaciones_utiles,Total_notificaciones_no_enviadas,Total_utilidad]
   }
 
 
@@ -208,7 +220,7 @@ view: fct_rpm {
     {{rendered_value}}
     {% endif %} ;;
 
-    drill_fields: [planta,nombre_linea,Total_porcentaje_efiiencia3,Total_notificaciones_no_enviadas,Total_notificaciones_reales]
+    drill_fields: [planta,nombre_linea,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia3,Total_notificaciones_no_enviadas,Total_notificaciones_utiles,Total_notificaciones_no_enviadas,Total_utilidad]
   }
 
 
@@ -229,7 +241,7 @@ view: fct_rpm {
     {{rendered_value}}
     {% endif %} ;;
 
-      drill_fields: [planta,nombre_linea,fecha,Total_porcentaje_efiiencia3,Total_notificaciones_no_enviadas,Total_notificaciones_reales]
+      drill_fields: [planta,nombre_linea,fecha,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia3,Total_notificaciones_no_enviadas,Total_notificaciones_utiles,Total_notificaciones_no_enviadas,Total_utilidad]
     }
 
   measure: Total_disponibilidad {
