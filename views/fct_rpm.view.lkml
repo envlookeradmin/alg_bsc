@@ -188,7 +188,7 @@ view: fct_rpm {
 
 
   measure: Total_notificaciones_utiles {
-    label: "Notificaciones Utiles "
+    label: "Notificaciones Útiles "
     type: number
     sql: ${Total_notificaciones_reales}-${Total_notificaciones_anuladas} ;;
 
@@ -274,7 +274,7 @@ view: fct_rpm {
   }
 
   measure: Total_utilidad{
-    type: number
+    label: "% Utilidad"
     sql: (${Total_notificaciones_reales}-${Total_notificaciones_no_enviadas})/nullif(${Total_notificaciones_no_enviadas},0) ;;
     value_format: "0.00\%"
     html:
