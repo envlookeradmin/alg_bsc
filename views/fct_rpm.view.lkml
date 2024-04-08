@@ -160,7 +160,7 @@ view: fct_rpm {
 
 
   measure: Total_notificaciones_anuladas {
-    label: "Anuladas"
+    label: "Notificaciones Anuladas"
     type: sum
     sql: case when  ${TABLE}.ANULADO='X' AND ${TABLE}.CREADO_POR = 'rpm_admin'  then 1 else 0 end ;;
 
@@ -213,7 +213,7 @@ view: fct_rpm {
     {{rendered_value}}
     {% endif %} ;;
 
-    drill_fields: [planta,Nombre,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia2,Total_notificaciones_utiles,Total_notificaciones_utiles,Total_utilidad]
+    drill_fields: [planta,Nombre,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia2,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_notificaciones_utiles,Total_utilidad]
   }
 
 
@@ -234,7 +234,7 @@ view: fct_rpm {
     {{rendered_value}}
     {% endif %} ;;
 
-    drill_fields: [planta,nombre_linea,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia3,Total_notificaciones_no_enviadas,Total_notificaciones_utiles,Total_notificaciones_no_enviadas,Total_utilidad]
+    drill_fields: [planta,nombre_linea,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia3,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_notificaciones_no_enviadas,Total_utilidad]
   }
 
 
@@ -255,7 +255,7 @@ view: fct_rpm {
     {{rendered_value}}
     {% endif %} ;;
 
-      drill_fields: [planta,nombre_linea,fecha,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia3,Total_notificaciones_no_enviadas,Total_notificaciones_utiles,Total_notificaciones_no_enviadas,Total_utilidad]
+      drill_fields: [planta,nombre_linea,fecha,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia3,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_notificaciones_no_enviadas,Total_utilidad]
     }
 
   measure: Total_disponibilidad {
