@@ -279,7 +279,7 @@ view: fct_rpm {
 
 
   measure: Total_porcentaje_efiiencia3 {
-    label: "Eficiencia"
+    label: "% Eficiencia"
     type: average
     sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
     value_format: "0.00\%"
