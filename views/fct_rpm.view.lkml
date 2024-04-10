@@ -169,13 +169,13 @@ view: fct_rpm {
 
 
   measure: Total_notificaciones_posibles {
-    label: "QT Total"
+    label: "Notificaciones Posibles"
     type: sum
     sql: ${TABLE}.NOTIFICACIONES_POSIBLES ;;
   }
 
   measure: Total_notificaciones_reales {
-    label: "QT Succes"
+    label: "Notificaciones Reales"
     type: sum
     sql: ${TABLE}.NOTIFICACIONES_REALES ;;
   }
@@ -197,7 +197,7 @@ view: fct_rpm {
 
 
   measure: Total_porcentaje_efiiencia {
-    label: "Eficiencia"
+    label: "% Eficiencia"
     type: average
     sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
     value_format: "0.00\%"
@@ -236,7 +236,7 @@ view: fct_rpm {
 
 
   measure: Total_porcentaje_efiiencia2 {
-    label: "Eficiencia"
+    label: "% Eficiencia"
     type: average
     sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
     value_format: "0.00\%"
