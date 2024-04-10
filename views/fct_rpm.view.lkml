@@ -213,7 +213,25 @@ view: fct_rpm {
     {{rendered_value}}
     {% endif %} ;;
 
-    drill_fields: [planta,Nombre,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia2,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_notificaciones_utiles,Total_utilidad]
+    drill_fields: [planta,Nombre,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia2,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_notificaciones_utiles,Total_utilidad2]
+  }
+
+  measure: Total_utilidad{
+    label: "% Utilidad"
+    sql: (${Total_notificaciones_reales}-${Total_notificaciones_no_enviadas})/nullif(${Total_notificaciones_no_enviadas},0) ;;
+    value_format: "0.00\%"
+    html:
+    {% if value >= 92.0 %}
+    <span style="color: green;">{{ rendered_value }}</span></p>
+    {% elsif  value < 90.0 %}
+    <span style="color: red;">{{ rendered_value }}</span></p>
+    {% elsif  value >= 90.0 and value <= 91.9 %}
+    <span style="color: #FFA800;">{{ rendered_value }}</span></p>
+    {% else %}
+    {{rendered_value}}
+    {% endif %} ;;
+    drill_fields: [planta,Nombre,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia2,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_notificaciones_utiles,Total_utilidad2]
+
   }
 
 
@@ -234,8 +252,30 @@ view: fct_rpm {
     {{rendered_value}}
     {% endif %} ;;
 
-    drill_fields: [planta,nombre_linea,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia3,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_notificaciones_no_enviadas,Total_utilidad]
+    drill_fields: [planta,nombre_linea,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia3,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_utilidad3]
   }
+
+  measure: Total_utilidad2{
+    label: "% Utilidad"
+    sql: (${Total_notificaciones_reales}-${Total_notificaciones_no_enviadas})/nullif(${Total_notificaciones_no_enviadas},0) ;;
+    value_format: "0.00\%"
+    html:
+    {% if value >= 92.0 %}
+    <span style="color: green;">{{ rendered_value }}</span></p>
+    {% elsif  value < 90.0 %}
+    <span style="color: red;">{{ rendered_value }}</span></p>
+    {% elsif  value >= 90.0 and value <= 91.9 %}
+    <span style="color: #FFA800;">{{ rendered_value }}</span></p>
+    {% else %}
+    {{rendered_value}}
+    {% endif %} ;;
+    drill_fields: [planta,nombre_linea,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia3,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_utilidad3]
+
+  }
+
+
+
+
 
 
   measure: Total_porcentaje_efiiencia3 {
@@ -255,8 +295,28 @@ view: fct_rpm {
     {{rendered_value}}
     {% endif %} ;;
 
-      drill_fields: [planta,nombre_linea,fecha,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia3,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_notificaciones_no_enviadas,Total_utilidad]
+      drill_fields: [planta,nombre_linea,fecha,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia3,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_utilidad3]
     }
+
+  measure: Total_utilidad3{
+    label: "% Utilidad"
+    sql: (${Total_notificaciones_reales}-${Total_notificaciones_no_enviadas})/nullif(${Total_notificaciones_no_enviadas},0) ;;
+    value_format: "0.00\%"
+    html:
+    {% if value >= 92.0 %}
+    <span style="color: green;">{{ rendered_value }}</span></p>
+    {% elsif  value < 90.0 %}
+    <span style="color: red;">{{ rendered_value }}</span></p>
+    {% elsif  value >= 90.0 and value <= 91.9 %}
+    <span style="color: #FFA800;">{{ rendered_value }}</span></p>
+    {% else %}
+    {{rendered_value}}
+    {% endif %} ;;
+    drill_fields: [planta,nombre_linea,fecha,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia3,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_utilidad3]
+
+  }
+
+
 
   measure: Total_disponibilidad {
     type: sum
@@ -273,23 +333,7 @@ view: fct_rpm {
     sql: ${TABLE}.CALIDAD ;;
   }
 
-  measure: Total_utilidad{
-    label: "% Utilidad"
-    sql: (${Total_notificaciones_reales}-${Total_notificaciones_no_enviadas})/nullif(${Total_notificaciones_no_enviadas},0) ;;
-    value_format: "0.00\%"
-    html:
-    {% if value >= 92.0 %}
-    <span style="color: green;">{{ rendered_value }}</span></p>
-    {% elsif  value < 90.0 %}
-    <span style="color: red;">{{ rendered_value }}</span></p>
-    {% elsif  value >= 90.0 and value <= 91.9 %}
-    <span style="color: #FFA800;">{{ rendered_value }}</span></p>
-    {% else %}
-    {{rendered_value}}
-    {% endif %} ;;
 
-    drill_fields: [planta,Total_porcentaje_efiiencia,Total_notificaciones_no_enviadas,Total_utilidad]
-  }
 
   measure: Total_oee {
     type: sum
