@@ -1,5 +1,5 @@
-connection: "envases_analytics_qa"
-
+#connection: "envases_analytics_qa"
+connection: "@{CONNECTION_NAME}"
 
 include: "/views/*.view.lkml"                # include all views in the views/ folder in this project
 # include: "/**/*.view.lkml"                 # include all views in this project
