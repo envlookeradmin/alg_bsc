@@ -15,11 +15,11 @@ view: fct_seguridad {
       ESTADO,
       CENTRO,
       TIPO_EVENTO ,
-      1 valor FROM `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_reporte_seguridad` where  TITULO like '%ADP%'
+      1 valor FROM `envases-analytics-qa.RPT_S4H_MX.vw_bsc_reporte_seguridad` where  TITULO like '%ADP%'
 
-        union all
+      union all
 
-        SELECT '' ID_EVENTO,
+      SELECT '' ID_EVENTO,
       '' TITULO,
       ''  CIRCUSTANCIAS_INCENDIO,
       '' DESCRIPCION_EQUIPO,
@@ -29,14 +29,14 @@ view: fct_seguridad {
       '' ESTADO,
       CENTRO,
       '' TIPO_EVENTO,
-       0 valor
-      FROM `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_reporte_seguridad` s
-      CROSS JOIN  (select DATE from `@{GCP_PROJECT}.@{REPORTING_DATASET2}.CALENDAR`) c
+      0 valor
+      FROM `envases-analytics-qa.RPT_S4H_MX.vw_bsc_reporte_seguridad` s
+      CROSS JOIN  (select DATE from `envases-analytics-qa.ENVASES_REPORTING.CALENDAR`) c
       GROUP BY  s.CENTRO, c.date) A
       WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
 
 
-    ;;
+      ;;
   }
 
 
@@ -45,6 +45,24 @@ view: fct_seguridad {
     description: "Use this date filter in combination with the timeframes dimension for dynamic date filtering"
     type: date
 
+  }
+
+
+  dimension: fecha_ultimo {
+    type: string
+    sql:  CONCAT(CASE when EXTRACT(Month FROM CAST({% date_start date_filter %} AS DATE))  = 1 THEN  'Enero '
+                      WHEN EXTRACT(Month FROM CAST({% date_start date_filter %} AS DATE))  = 2 THEN  'Febrero '
+                      WHEN EXTRACT(Month FROM CAST({% date_start date_filter %} AS DATE))  = 3 THEN  'Marzo '
+                      WHEN EXTRACT(Month FROM CAST({% date_start date_filter %} AS DATE))  = 4 THEN  'Abril '
+                      WHEN EXTRACT(Month FROM CAST({% date_start date_filter %} AS DATE))  = 5 THEN  'Mayo '
+                      WHEN EXTRACT(Month FROM CAST({% date_start date_filter %} AS DATE))  = 6 THEN  'Junio '
+                      WHEN EXTRACT(Month FROM CAST({% date_start date_filter %} AS DATE))  = 7 THEN  'Julio '
+                      WHEN EXTRACT(Month FROM CAST({% date_start date_filter %} AS DATE))  = 8 THEN  'Agosto '
+                      WHEN EXTRACT(Month FROM CAST({% date_start date_filter %} AS DATE))  = 9 THEN  'Septiembre '
+                      WHEN EXTRACT(Month FROM CAST({% date_start date_filter %} AS DATE))  = 10 THEN 'Octubre '
+                      WHEN EXTRACT(Month FROM CAST({% date_start date_filter %} AS DATE))  = 11 THEN 'Noviembre '
+                      WHEN EXTRACT(Month FROM CAST({% date_start date_filter %} AS DATE))  = 12 THEN 'Diciembre '
+                      end,CAST(EXTRACT(year FROM  CAST({% date_start date_filter %} AS DATE)) as STRING))  ;;
   }
 
   dimension_group: created {
@@ -167,16 +185,16 @@ view: fct_seguridad {
 
   set: detail {
     fields: [
-        id_evento,
-  titulo,
-  circustancias_incendio,
-  descripcion_equipo,
-  fecha,
-  clasificacion_incidente,
-  clasificacion_herida,
-  estado,
-  centro,
-  tipo_evento
+      id_evento,
+      titulo,
+      circustancias_incendio,
+      descripcion_equipo,
+      fecha,
+      clasificacion_incidente,
+      clasificacion_herida,
+      estado,
+      centro,
+      tipo_evento
     ]
   }
 }

@@ -1,10 +1,10 @@
 
 view: fct_materiales_stock {
   derived_table: {
-    sql: SELECT  * FROM `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_materiales_stock` c
-         WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+    sql: SELECT  * FROM `envases-analytics-qa.RPT_S4H_MX.tbl_fact_materiales_stock` c
+         WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -4 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
          and GRUPO_MATERIAL = 'PAC9006'
-          and centro in ( select planta_id  from `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_planta`)
+          and centro in ( select planta_id  from `envases-analytics-qa.RPT_S4H_MX.vw_bsc_planta`)
 
       ;;
   }
@@ -36,6 +36,13 @@ view: fct_materiales_stock {
   }
 
 
+
+
+
+
+
+
+
   dimension: fecha_costo {
     type: date
     datatype: date
@@ -54,10 +61,6 @@ view: fct_materiales_stock {
   }
 
 
-  dimension: Familia {
-    type: string
-    sql: ${TABLE}.familia ;;
-  }
 
   dimension: centro {
     type: string
@@ -144,13 +147,34 @@ view: fct_materiales_stock {
     sql:  UPPER(${cliente.nombre})  ;;
   }
 
+  dimension: planta_nombre {
+    type: string
+    sql:  UPPER(${planta.planta_comercializadora})  ;;
+  }
+
+  dimension: planta_completo {
+    type: string
+    sql:  UPPER(${planta.planta_completo})  ;;
+    drill_fields: [Familia]
+  }
+
+
+  dimension: Familia {
+    type: string
+    sql: ${TABLE}.familia ;;
+    drill_fields: [Proveedor_nombre]
+  }
+
+
+
+
 
   dimension: Clasificacion_proveedor {
     label: "Proveedor"
     type: string
     sql: CASE WHEN  ${tipo_proveedor_cliente}='Cliente'   then ${Cliente_nombre}
               WHEN  ${tipo_proveedor_cliente}='Proveedor' then ${Proveedor_nombre}
-              WHEN  ${tipo_proveedor_cliente}='Planta'    then 'NA' ELSE ${id_provedor_cliente}  END ;;
+              WHEN  ${tipo_proveedor_cliente}='Planta'    then ${planta_nombre} ELSE ${id_provedor_cliente}  END ;;
   }
 
 
@@ -183,10 +207,10 @@ view: fct_materiales_stock {
     {% if value < Cantidad_stock_Mes_Anterior._value %}
    <p> <span style="color: green;">{{ rendered_value }}</span><img src="https://findicons.com/files/icons/1036/function/48/circle_green.png"    height=10 width=10></p>
 
-    {% else %}
-    <span style="color: red;">{{ rendered_value }}</span><img src="https://findicons.com/files/icons/1036/function/48/circle_red.png"    height=10 width=10></p>
+      {% else %}
+      <span style="color: red;">{{ rendered_value }}</span><img src="https://findicons.com/files/icons/1036/function/48/circle_red.png"    height=10 width=10></p>
 
-    {% endif %} ;;
+      {% endif %} ;;
 
 
 
@@ -246,16 +270,16 @@ view: fct_materiales_stock {
     label: "Valor (MXN)"
     type: sum
     sql: ${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION ;;
-    value_format: "#,##0"
+    value_format: "$#,##0"
 
     html:
     {% if value >= Cantidad_stock_Mes_Anterior._value %}
-    <p> <span style="color: green;">{{ rendered_value }}</span><img src="https://findicons.com/files/icons/1036/function/48/circle_green.png"    height=10 width=10></p>
+    <p> <span style="color: green;">{{ rendered_value }}</span></p>
 
-    {% else %}
-    <span style="color: red;">{{ rendered_value }}</span><img src="https://findicons.com/files/icons/1036/function/48/circle_red.png"    height=10 width=10></p>
+      {% else %}
+      <span style="color: red;">{{ rendered_value }}</span></p>
 
-    {% endif %} ;;
+      {% endif %} ;;
 
   }
 
@@ -276,18 +300,6 @@ view: fct_materiales_stock {
     type: string
     sql: extract(year from CAST({% date_start date_filter %} AS DATE))-0 ;;
   }
-
-
-  measure: last_year_sales{
-    type: sum
-    sql:
-      CASE
-         WHEN (EXTRACT(month FROM ${created_date})-1) = ${last_year}
-         THEN ${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION
-      END;;
-    value_format_name: decimal_0
-  }
-
 
 
 

@@ -13,11 +13,11 @@ view: fct_seguridad_anual {
       ESTADO,
       CENTRO,
       TIPO_EVENTO ,
-      1 valor FROM `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_reporte_seguridad` where  TITULO like '%ADP%'
+      1 valor FROM `envases-analytics-qa.RPT_S4H_MX.vw_bsc_reporte_seguridad` where  TITULO like '%ADP%'
 
-        union all
+      union all
 
-        SELECT '' ID_EVENTO,
+      SELECT '' ID_EVENTO,
       '' TITULO,
       ''  CIRCUSTANCIAS_INCENDIO,
       '' DESCRIPCION_EQUIPO,
@@ -27,9 +27,9 @@ view: fct_seguridad_anual {
       '' ESTADO,
       CENTRO,
       '' TIPO_EVENTO,
-       0 valor
-      FROM `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_reporte_seguridad` s
-      CROSS JOIN  (select DATE from `@{GCP_PROJECT}.@{REPORTING_DATASET2}.CALENDAR`) c
+      0 valor
+      FROM `envases-analytics-qa.RPT_S4H_MX.vw_bsc_reporte_seguridad` s
+      CROSS JOIN  (select DATE from `envases-analytics-qa.ENVASES_REPORTING.CALENDAR`) c
       GROUP BY  s.CENTRO, c.date) A
       WHERE DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_TRUNC(CAST({% date_start date_filter %} AS DATE), year) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
 

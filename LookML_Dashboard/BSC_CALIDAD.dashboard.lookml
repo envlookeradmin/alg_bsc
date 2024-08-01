@@ -11,11 +11,13 @@
     model: bsc
     explore: calidad
     type: looker_grid
-    fields: [calidad.quejas, calidad.devoluciones, calidad.porc_pnc, calidad.planta_completo,
-      fecha.trimestre_Letra]
+    fields: [calidad.grupo_planta, calidad.planta_completo, calidad.quejas, calidad.devoluciones,
+      calidad.porc_pnc, fecha.trimestre_Letra]
     pivots: [fecha.trimestre_Letra]
-    filters: {}
-    sorts: [fecha.trimestre_Letra, calidad.planta_completo]
+    filters:
+      calidad.anio_actual: '1'
+    sorts: [fecha.trimestre_Letra, calidad.grupo_planta, calidad.planta_completo]
+    subtotals: [calidad.grupo_planta]
     limit: 500
     column_limit: 50
     total: true
@@ -39,15 +41,18 @@
     show_totals: true
     show_row_totals: true
     truncate_header: false
-    minimum_column_width: 75
+    minimum_column_width: 100
     series_labels:
       calidad.fecha_filtro_quarter: Trimestre
       fecha.trimestre_Letra: Trimestre
     series_column_widths:
-      calidad.planta_completo: 180
+      calidad.planta_completo: 160
+      calidad.grupo_planta: 100
     series_cell_visualizations:
       calidad.Quejas:
         is_active: false
+    series_collapsed:
+      calidad.grupo_planta: true
     header_font_color: "#FFFFFF"
     header_background_color: "#5e2129"
     hidden_pivots: {}
@@ -63,12 +68,13 @@
     model: bsc
     explore: calidad
     type: looker_grid
-    fields: [calidad.quejas, calidad.devoluciones, calidad.porc_pnc, calidad.planta_completo,
-      fecha.nombre_mes]
+    fields: [calidad.grupo_planta, calidad.planta_completo, calidad.quejas, calidad.devoluciones,
+      calidad.porc_pnc, fecha.nombre_mes]
     pivots: [fecha.nombre_mes]
     filters:
       calidad.ultimos_3_meses: '1'
-    sorts: [fecha.nombre_mes, calidad.planta_completo]
+    sorts: [fecha.nombre_mes, calidad.grupo_planta, calidad.planta_completo]
+    subtotals: [calidad.grupo_planta]
     limit: 500
     column_limit: 50
     total: true
@@ -91,15 +97,18 @@
     show_totals: true
     show_row_totals: true
     truncate_header: false
-    minimum_column_width: 75
+    minimum_column_width: 100
     series_labels:
       calidad.fecha_filtro_quarter: Trimestre
       fecha.nombre_mes: Mes
     series_column_widths:
-      calidad.planta_completo: 180
+      calidad.planta_completo: 160
+      calidad.grupo_planta: 100
     series_cell_visualizations:
       calidad.Quejas:
         is_active: false
+    series_collapsed:
+      calidad.grupo_planta: true
     header_font_color: "#FFFFFF"
     header_background_color: "#5e2129"
     hidden_pivots: {}

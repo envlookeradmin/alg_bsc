@@ -1,5 +1,7 @@
 connection: "envases_analytics_qa"
 
+#connection: "@{CONNECTION_NAME}"
+
 
 include: "/views/*.view.lkml"                # include all views in the views/ folder in this project
 # include: "/**/*.view.lkml"                 # include all views in this project
@@ -127,7 +129,13 @@ explore: fct_ordenes_pedidos {
   }
   join: fecha {
     type: left_outer
-    sql_on: ${fct_ordenes_pedidos.fecha_entrega_planeada} = ${fecha.fecha} ;;
+    sql_on:${fct_ordenes_pedidos.fecha_entrega_planeada}  = ${fecha.fecha} ;;
+    relationship: many_to_one
+  }
+
+  join: dim_canal_distribucion {
+    type: left_outer
+    sql_on: ${fct_ordenes_pedidos.canal_distribucion} = ${dim_canal_distribucion.canal_distribucion} ;;
     relationship: many_to_one
   }
 
@@ -158,6 +166,15 @@ explore: fct_ordenes_pedidos_anual {
     relationship: many_to_one
   }
 
+
+  join: dim_canal_distribucion {
+    type: left_outer
+    sql_on: ${fct_ordenes_pedidos_anual.canal_distribucion} = ${dim_canal_distribucion.canal_distribucion} ;;
+    relationship: many_to_one
+  }
+
+
+
 }
 
 explore: inventarios_ciclicos {
@@ -166,11 +183,11 @@ explore: inventarios_ciclicos {
     sql_on: ${inventarios_ciclicos.planta} = ${planta.planta_id} ;;
     relationship: many_to_one
   }
-  join: fecha {
-    type: left_outer
-    sql_on: ${inventarios_ciclicos.fecha_documento} = ${fecha.fecha} ;;
-    relationship: many_to_one
-  }
+  #join: fecha {
+  #  type: left_outer
+  #  sql_on: ${inventarios_ciclicos.fecha_documento} = ${fecha.fecha} ;;
+  #  relationship: many_to_one
+  #}
 }
 
 
@@ -199,6 +216,7 @@ explore: presupuesto_inventario_fletes {
     relationship: many_to_one
   }
 }
+
 
 explore: calidad {
   join: planta {
@@ -254,7 +272,7 @@ explore: fct_ordenes_compra_otif {
     type: left_outer
     sql_on: ${fct_ordenes_compra_otif.grupo_compras} = ${comprador.grupo_compras} ;;
     relationship: many_to_one
-    }
+  }
   join: planta {
     type: left_outer
     sql_on: ${fct_ordenes_compra_otif.planta} = ${planta.planta_id} ;;
@@ -265,15 +283,11 @@ explore: fct_ordenes_compra_otif {
 
 explore: fct_manufactura {
 
-  join: material {
-    type: left_outer
-    sql_on:${fct_manufactura.id_material}=${material.id_material};;
-    relationship: many_to_one
-  }
+
 
   join: grupo_materiales  {
     type: left_outer
-    sql_on: ${material.grupo_material} = ${grupo_materiales.id_grupo} ;;
+    sql_on: ${fct_manufactura.id_grupo_material} = ${grupo_materiales.id_grupo} ;;
     relationship: many_to_one
   }
   join: planta {
@@ -281,6 +295,7 @@ explore: fct_manufactura {
     sql_on: ${fct_manufactura.planta} = ${planta.planta_id} ;;
     relationship: many_to_one
   }
+
   join: fecha {
     type: left_outer
     sql_on: ${fct_manufactura.fecha_fin_real} = ${fecha.fecha} ;;
@@ -288,11 +303,26 @@ explore: fct_manufactura {
     relationship: many_to_one
   }
 
- # join: fct_presupuesto_ventas{
+
+#  join: fct_presupuesto_ventas{
 #    type: left_outer
- #   sql_on: ${fct_manufactura.id_grupo_material} = ${fct_presupuesto_ventas.id_grupo_material}
+#    sql_on: ${fct_manufactura.id_grupo_material} = ${fct_presupuesto_ventas.id_grupo_material}
 #        and ${fct_manufactura.fecha_fin_real} = ${fct_presupuesto_ventas.fecha}
- #       and ${fct_manufactura.planta} = ${fct_presupuesto_ventas.planta}  ;;
+#     --   and ${fct_manufactura.planta} = ${fct_presupuesto_ventas.planta}
+#        and ${fct_manufactura.planta_venta} =${fct_presupuesto_ventas.planta};;
+#    relationship: many_to_one
+
+  # }
+
+
+
+
+  # join:fct_utilidad_eficiencia_oee_rpm{
+
+  #   type: left_outer
+  #   sql_on: ${fct_manufactura.id_grupo_material} = ${fct_presupuesto_ventas.id_grupo_material}
+  #      and ${fct_manufactura.fecha_fin_real} = ${fct_presupuesto_ventas.fecha}
+  #       and ${fct_manufactura.planta_venta} =${fct_presupuesto_ventas.planta};;
 
   #  relationship: many_to_one
 
@@ -364,7 +394,7 @@ explore: fct_materiales_stock {
   }
   join: cliente {
     type: left_outer
-    sql_on: ${fct_materiales_stock.tipo_proveedor_cliente} = ${cliente.id_cliente} ;;
+    sql_on: ${fct_materiales_stock.id_provedor_cliente} = ${cliente.id_cliente} ;;
     relationship: many_to_one
   }
 
@@ -374,13 +404,20 @@ explore: fct_desperdicio_prod {
 
   join: material {
     type: left_outer
-    sql_on:${fct_desperdicio_prod.material}=${material.id_material};;
+    sql_on:${fct_desperdicio_prod.material}=REGEXP_REPLACE( ${material.id_material}, '^0+','') ;;
     relationship: many_to_one
   }
 
   join: grupo_materiales  {
     type: left_outer
     sql_on: ${material.grupo_material} = ${grupo_materiales.id_grupo} ;;
+    relationship: many_to_one
+  }
+
+  join: grupos_articulos_desperdicios  {
+    type: left_outer
+    sql_on: ${fct_desperdicio_prod.planta} = ${grupos_articulos_desperdicios.centro}
+      and ${grupo_materiales.id_grupo} = ${grupos_articulos_desperdicios.grupo_articulo} ;;
     relationship: many_to_one
   }
 
@@ -399,6 +436,7 @@ explore: fct_desperdicio_prod {
 
 }
 
+explore: dim_canal_distribucion {}
 explore: fct_rpm {
   join: fecha {
     type: left_outer
@@ -415,6 +453,4 @@ explore: fct_rpm {
 }
 
 
-explore: fact_desperdicio_costos {
-
-}
+explore: grupo_materiales {}
