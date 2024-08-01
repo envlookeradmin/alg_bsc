@@ -77,6 +77,7 @@ view: fct_ordenes_compra_otif {
   }
 
 
+
   dimension: planta_po {
     group_label: "produccion"
     type: string
