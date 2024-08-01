@@ -1,5 +1,6 @@
 constant: CONNECTION_NAME {
   value: "envases_analytics_qa"
+  #value: "envases-alg-analytics-non-prod"
   export: override_required
 }
 
