@@ -60,7 +60,7 @@ view: inventarios_ciclicos {
       CLASIFICACION,
       count(DISTINCT MATERIAL) AS META
       FROM
-      envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_ic_metas as a
+      `envases-analytics-qa.RPT_S4H_MX.vw_bsc_ic_metas` as a
       WHERE
       CLASIFICACION is not null
       GROUP BY 1,2
