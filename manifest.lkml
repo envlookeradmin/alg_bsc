@@ -1,6 +1,5 @@
 constant: CONNECTION_NAME {
   value: "envases_analytics_qa"
-  #value: "envases-alg-analytics-non-prod"
   export: override_required
 }
 
@@ -15,7 +14,6 @@ constant: REPORTING_DATASET {
 }
 
 constant: REPORTING_DATASET2 {
-  #value: "ENVASES_REPORTING"
   value: "ENVASES_REPORTING_UPG"
   export: override_required
   #calendar
@@ -23,7 +21,6 @@ constant: REPORTING_DATASET2 {
 
 constant: REPORTING_DATASET3 {
   value: "RPT_S4H_MX_UPG"
-  #value: "RPT_S4H_MX"
   export: override_required
 }
 
