@@ -60,7 +60,10 @@ view: calidad {
       ,CANTIDAD_ENTREGADA
       ,CANTIDAD_RECHAZO_NOTIFICADA
       ,0 Monto_Conversion_MXN
-      ,0 as VALOR_NETO from `envases-analytics-qa.RPT_S4H_MX.vw_fact_prod_cap_manufactura`
+      ,0 as VALOR_NETO
+    --  from `envases-analytics-qa.RPT_S4H_MX.vw_fact_prod_cap_manufactura`
+      from `envases-analytics-qa.RPT_S4H_MX.vw_fact_calidad_pnc`
+
       -- WHERE EXTRACT(YEAR FROM FECHA_FIN_REAL) = 2024  AND EXTRACT(MONTH FROM FECHA_FIN_REAL) = 3
       )
 
