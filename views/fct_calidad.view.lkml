@@ -52,7 +52,7 @@ view: calidad {
 
       ),manufactura AS (
 
-      select CAST(FECHA_FIN_REAL AS DATE) as FECHA
+      select CAST(FECHA AS DATE) as FECHA
       ,PLANTA
       ,'Sin info.' as ID_CASO
       ,'Sin info.' as ESTATUS

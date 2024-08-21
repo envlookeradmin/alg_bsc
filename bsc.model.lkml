@@ -452,3 +452,4 @@ explore: fct_rpm {
 
 explore: fct_inventarios_ciclicos2 {}
 explore: grupo_materiales {}
+explore: fct_analisis_energeticos {}
