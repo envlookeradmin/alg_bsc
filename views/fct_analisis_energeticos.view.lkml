@@ -195,7 +195,7 @@ view: fct_analisis_energeticos {
   measure: kg_kw_mes_actual {
     type: number
     sql:
-    ${total_kilos_produccion_mes_anterior}/ nullif(${kw_consumidos_mes_anterior},0)
+    ${total_kilos_produccion_mes_actual}/ nullif(${kw_consumidos_mes_actual},0)
     ;;
   }
 
