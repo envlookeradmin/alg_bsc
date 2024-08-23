@@ -208,7 +208,7 @@ view: fct_analisis_energeticos {
 
   measure: gas_m3_actual {
     type: sum
-    sql: ${metroscubicos} ;;
+    sql: CASE WHEN ${metroscubicos} = 0 THEN NULL ELSE ${metroscubicos} END  ;;
     filters: [tiposervicio: "GAS"]
     filters: {
       field: mes_actual
@@ -218,7 +218,7 @@ view: fct_analisis_energeticos {
 
     measure: gas_m3_anterior {
       type: sum
-      sql: ${metroscubicos} ;;
+      sql: CASE WHEN ${metroscubicos} = 0 THEN NULL ELSE ${metroscubicos} END ;;
       filters: [tiposervicio: "GAS"]
       filters: {
         field: mes_anterior
