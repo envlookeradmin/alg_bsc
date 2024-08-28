@@ -5,13 +5,168 @@ view: tbl_inventario_lento_movimiento {
   parameter: rango_lento_movimiento {
     allowed_value: {
       label:"3 meses"
-      value: "3 meses"
+      value: "3meses"
     }
     allowed_value: {
       label: "6 meses"
       value: "6meses"
     }
   }
+
+
+  filter: date_filter {
+    label: "Fecha"
+    description: "Use this date filter in combination with the timeframes dimension for dynamic date filtering"
+    type: date
+  }
+
+
+  dimension: ultimos_3_meses{
+    hidden: yes
+    type: yesno
+    sql: DATE_TRUNC(CAST(${fecha_produccion_date} AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH)
+     AND DATE_TRUNC(CAST(${fecha_produccion_date} AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)  ;;
+
+  }
+
+
+  dimension: ultimos_6_meses{
+    hidden: yes
+    type: yesno
+    sql: DATE_TRUNC(CAST(${fecha_produccion_date} AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -6 MONTH)
+      AND DATE_TRUNC(CAST(${fecha_produccion_date} AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)  ;;
+
+  }
+
+
+  dimension: mes_actual{
+    hidden: yes
+    type: yesno
+    sql: DATE_TRUNC(CAST(${fecha_produccion_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
+      AND DATE_TRUNC(CAST(${fecha_produccion_date} AS DATE),DAY) <= CAST({% date_start date_filter %} AS DATE)  ;;
+  }
+
+
+  dimension: mes_inicial{
+    hidden: yes
+    type: yesno
+    sql:
+
+      CASE
+          WHEN {% parameter rango_lento_movimiento %} = "3meses"
+            THEN
+
+             DATE_TRUNC(CAST(${fecha_produccion_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH)
+         AND DATE_TRUNC(CAST(${fecha_produccion_date} AS DATE),DAY) <= LAST_DAY( DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH))
+
+          WHEN {% parameter rango_lento_movimiento %} = "6meses"
+            THEN
+             DATE_TRUNC(CAST(${fecha_produccion_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -6 MONTH)
+         AND DATE_TRUNC(CAST(${fecha_produccion_date} AS DATE),DAY) <= LAST_DAY( DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -6 MONTH))
+
+          END  ;;
+  }
+
+  dimension: FF {
+    type: date
+    sql:LAST_DAY( DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH))  ;;
+  }
+
+
+
+  measure: TotalStock_actual {
+    label: "Actual"
+    type: sum
+    sql: ${TABLE}.Stock ;;
+
+    filters: {
+      field: mes_actual
+      value: "yes"
+    }
+
+  }
+
+
+  measure: TotalStock_inicial {
+    label: "inicial"
+    type: sum
+    sql: ${TABLE}.Stock ;;
+
+    filters: {
+      field: mes_inicial
+      value: "yes"
+    }
+
+  }
+
+
+  measure: incremento {
+    label: "Incremento"
+    type: number
+    sql: ${TotalStock_actual}-${TotalStock_inicial} ;;
+  }
+
+  measure: porincremento {
+    label: "% Incremento"
+    type: number
+    sql: ${incremento}/nullif(${TotalStock_inicial},0) ;;
+
+    value_format: "0.00\%"
+  }
+
+
+
+
+  measure: TotalStock_3_meses {
+    label: "3_meses"
+    type: sum
+   sql: ${TABLE}.Stock ;;
+
+    filters: {
+      field: ultimos_3_meses
+      value: "yes"
+    }
+
+  }
+
+  measure: TotalStock_6_meses {
+    label: "6_meses"
+    type: sum
+    sql: ${TABLE}.Stock ;;
+
+    filters: {
+      field:  ultimos_6_meses
+      value: "yes"
+    }
+
+  }
+
+
+
+  measure: Total_segmentado {
+    type: number
+    sql: CASE
+          WHEN {% parameter rango_lento_movimiento %} = "3meses"
+            THEN ${TotalStock_3_meses}
+          WHEN {% parameter rango_lento_movimiento %} = "6meses"
+            THEN ${TotalStock_6_meses}
+
+          END ;;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   dimension: centro {
     type: string
     sql: ${TABLE}.Centro ;;
