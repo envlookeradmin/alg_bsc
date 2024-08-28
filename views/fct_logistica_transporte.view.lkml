@@ -1,7 +1,7 @@
 
 view: fct_logistica_transporte {
   derived_table: {
-    sql: SELECT * FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_logistica_transporte` LIMIT 10 ;;
+    sql: SELECT * FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_logistica_transporte`  ;;
   }
 
   measure: count {
@@ -21,7 +21,12 @@ view: fct_logistica_transporte {
 
   dimension: importe_neto_facturacion {
     type: number
-    sql: ${TABLE}.IMPORTE_NETO_FACTURACION ;;
+    sql: ${TABLE}.IMPORTE_NETO_FACTURACION   ;;
+  }
+
+  measure: Total_importe_neto_facturacion {
+    type: sum
+    sql: CAST(${TABLE}.IMPORTE_NETO_FACTURACION AS FLOAT64) ;;
   }
 
   dimension: variantes {
@@ -67,6 +72,11 @@ view: fct_logistica_transporte {
 
   dimension: importe_fo {
     type: number
+    sql: ${TABLE}.IMPORTE_FO ;;
+  }
+
+  measure: Total_importe_fo {
+    type: sum
     sql: ${TABLE}.IMPORTE_FO ;;
   }
 
