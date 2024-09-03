@@ -1,5 +1,7 @@
 view: tbl_inventario_lento_movimiento {
-  sql_table_name: `envases-analytics-qa.DATASET_RAW.tbl_inventario_lento_movimiento` ;;
+ # sql_table_name: `envases-analytics-qa.DATASET_RAW.tbl_inventario_lento_movimiento` ;;
+  sql_table_name: `envases-analytics-qa.RPT_S4H_MX.vw_fact_lento_movimiento` ;;
+
 
 
   parameter: rango_lento_movimiento {
@@ -44,6 +46,17 @@ view: tbl_inventario_lento_movimiento {
     type: yesno
     sql: DATE_TRUNC(CAST(${fecha_produccion_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
       AND DATE_TRUNC(CAST(${fecha_produccion_date} AS DATE),DAY) <= CAST({% date_start date_filter %} AS DATE)  ;;
+  }
+
+  dimension: fecha_actual {
+    type: date
+    sql: CURRENT_DATE() ;;
+  }
+
+  dimension: Dif_actual {
+    type: number
+    sql:  date_diff(current_date(),  ${TABLE}.Fecha_Produccion, month) ;;
+
   }
 
 
