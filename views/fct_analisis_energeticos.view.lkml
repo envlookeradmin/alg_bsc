@@ -130,6 +130,32 @@ view: fct_analisis_energeticos {
     sql: ${TABLE}.total_kilos_produccion ;;
   }
 
+  measure: importe_luz {
+    label: "Importe Actual"
+    group_label: "Luz"
+    type: sum
+    sql: ${importe} ;;
+    filters: [tiposervicio: "LUZ"]
+    value_format: "$#,##0.00"
+    filters: {
+      field: mes_actual
+      value: "yes"
+    }
+  }
+
+  measure: importe_gas {
+    label: "Importe Actual"
+    group_label: "Gas"
+    type: sum
+    sql: ${importe} ;;
+    filters: [tiposervicio: "GAS"]
+    value_format: "$#,##0.00"
+    filters: {
+      field: mes_actual
+      value: "yes"
+    }
+  }
+
   measure: factor_potencia_mes_anterior {
     type: max
     sql: ${factordepotencia} / 100 ;;
@@ -147,8 +173,9 @@ view: fct_analisis_energeticos {
   }
 
   measure: kw_consumidos_mes_actual {
+    group_label: "Luz"
     type: sum
-    sql: ${consumokwh};;
+    sql: ${consumokwh} * ( ${porcentaje} / 100 ) ;;
     filters: [tiposervicio: "LUZ"]
     value_format: "0.00"
     filters: {
@@ -158,8 +185,9 @@ view: fct_analisis_energeticos {
   }
 
   measure: kw_consumidos_mes_anterior {
+    group_label: "Luz"
     type: sum
-    sql: ${consumokwh};;
+    sql: ${consumokwh} * ( ${porcentaje} / 100 ) ;;
     filters: [tiposervicio: "LUZ"]
     value_format: "0.00"
     filters: {
@@ -169,6 +197,7 @@ view: fct_analisis_energeticos {
   }
 
   measure: total_kilos_produccion_mes_actual {
+    group_label: "Luz"
     type: sum
     sql: ${total_kilos_produccion} ;;
     filters: [tiposervicio: "LUZ"]
@@ -180,6 +209,7 @@ view: fct_analisis_energeticos {
   }
 
   measure: total_kilos_produccion_mes_anterior {
+    group_label: "Luz"
     type: sum
     sql: ${total_kilos_produccion} ;;
     filters: [tiposervicio: "LUZ"]
@@ -206,6 +236,7 @@ view: fct_analisis_energeticos {
   }
 
   measure: gas_m3_actual {
+    group_label: "Gas"
     type: sum
     sql: CASE WHEN ${metroscubicos} = 0 THEN NULL ELSE ${metroscubicos} END  ;;
     filters: [tiposervicio: "GAS"]
@@ -216,6 +247,7 @@ view: fct_analisis_energeticos {
      }
 
     measure: gas_m3_anterior {
+      group_label: "Gas"
       type: sum
       sql: CASE WHEN ${metroscubicos} = 0 THEN NULL ELSE ${metroscubicos} END ;;
       filters: [tiposervicio: "GAS"]
