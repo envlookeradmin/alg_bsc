@@ -111,8 +111,8 @@ view: fct_analisis_energeticos {
   }
 
   dimension: porcentaje {
-    type: string
-    sql: ${TABLE}.porcentaje ;;
+    type: number
+    sql: CAST(CASE WHEN ${TABLE}.porcentaje = '' THEN '100' ELSE ${TABLE}.porcentaje END AS NUMERIC) ;;
   }
 
   dimension: tiposervicio {
