@@ -130,7 +130,6 @@ view: fct_analisis_energeticos {
     sql: ${TABLE}.total_kilos_produccion ;;
   }
 
-
   measure: factor_potencia_mes_anterior {
     type: max
     sql: ${factordepotencia} / 100 ;;
@@ -149,7 +148,7 @@ view: fct_analisis_energeticos {
 
   measure: kw_consumidos_mes_actual {
     type: sum
-    sql: ${consumokwh} ;;
+    sql: ${consumokwh};;
     filters: [tiposervicio: "LUZ"]
     value_format: "0.00"
     filters: {
@@ -160,7 +159,7 @@ view: fct_analisis_energeticos {
 
   measure: kw_consumidos_mes_anterior {
     type: sum
-    sql: ${consumokwh} ;;
+    sql: ${consumokwh};;
     filters: [tiposervicio: "LUZ"]
     value_format: "0.00"
     filters: {
