@@ -1,23 +1,47 @@
 
 view: fact_lento_movimiento {
   derived_table: {
-    sql: with A as (
-      SELECT
-        *,
-
-        CURRENT_DATE() Actual
-        ,date_add(CURRENT_DATE(), INTERVAL 1 month) Mes1
-        ,date_add(CURRENT_DATE(), INTERVAL 2 month) Mes2
-        ,date_add(CURRENT_DATE(), INTERVAL 3 month) Mes3
-        ,date_add(CURRENT_DATE(), INTERVAL 4 month) Mes4
-        ,date_add(CURRENT_DATE(), INTERVAL 5 month) Mes5
-        ,date_add(CURRENT_DATE(), INTERVAL 6 month) Mes6
-      FROM
-        `envases-analytics-qa.RPT_S4H_MX.vw_fact_lento_movimiento`)
-
-      select * from A
-      unpivot(FechaMes for Mes in (Actual, Mes1, Mes2, Mes3, Mes4, Mes5, Mes6)) ;;
+    sql: WITH FECHAS AS (
+  SELECT
+    CENTRO, MATERIAL, ALMACEN, LOTE, ESPECIAL, SITIO, MONEDA, GRUPO_REAL, TIPO,
+    NIVEL_1, NIVEL_2, NIVEL_3, NIVEL_4, MESES_ROTACION_REGULAR, MESES_ROTACION_REGULAR * 30 DIAS_ROTACION,
+    --FECHAS
+    FECHA_PRODUCCION,
+    current_date() DIA_ACTUAL,
+    LAST_DAY(CURRENT_DATE()) ACTUAL,
+    LAST_DAY(DATE_ADD(current_date(), INTERVAL 1 MONTH)) MES_1,
+    LAST_DAY(DATE_ADD(current_date(), INTERVAL 2 MONTH)) MES_2,
+    LAST_DAY(DATE_ADD(current_date(), INTERVAL 3 MONTH)) MES_3,
+    LAST_DAY(DATE_ADD(current_date(), INTERVAL 4 MONTH)) MES_4,
+    LAST_DAY(DATE_ADD(current_date(), INTERVAL 5 MONTH)) MES_5,
+    LAST_DAY(DATE_ADD(current_date(), INTERVAL 6 MONTH)) MES_6,
+    --VALORES PARA METRICAS,
+    STOCK, VALOR
+  FROM
+    `envases-analytics-qa.RPT_S4H_MX.vw_fact_lento_movimiento` lmov
+),
+PIVOTE AS (
+  SELECT *
+  FROM FECHAS
+  UNPIVOT(FECHA_REFERENCIA FOR MES IN (DIA_ACTUAL, ACTUAL, MES_1, MES_2, MES_3, MES_4, MES_5, MES_6))
+)
+SELECT
+  *,
+  DATE_DIFF(FECHA_REFERENCIA, FECHA_PRODUCCION, DAY) DIAS_DIFF,
+  CASE
+    WHEN DATE_DIFF(FECHA_REFERENCIA, FECHA_PRODUCCION, DAY) > PIVOTE.DIAS_ROTACION THEN 'LENTO MOVIMIENTO'
+    ELSE 'ROTACION REGULAR'
+  END CLASIFICACION
+FROM PIVOTE ;;
   }
+
+
+  dimension: CLASIFICACION {
+    type: string
+    sql: ${TABLE}.CLASIFICACION ;;
+  }
+
+
 
 
 
@@ -36,75 +60,22 @@ view: fact_lento_movimiento {
     }
   }
 
+  dimension: 1_Meses {
+    type: yesno
+    sql: ${mes} ='ACTUAL' ;;
+  }
 
+  dimension: 3_Meses {
+    type: yesno
+    sql: ${mes} ='ACTUAL' or ${mes} = 'MES_1' or  ${mes} = 'MES_2' or  ${mes} = 'MES_3' ;;
+  }
 
-
-
-
-
-
-
-
-
-
-  dimension: Dif_actual {
-    type: number
-    sql:  date_diff(current_date(),  ${TABLE}.Fecha_Produccion, month) ;;
+  dimension: 6_Meses {
+    type: yesno
+    sql: ${mes} ='ACTUAL' or ${mes} = 'MES_1'  or  ${mes} = 'MES_2' or  ${mes} = 'MES_3'  or  ${mes} = 'MES_4' or  ${mes} = 'MES_5' or  ${mes} = 'MES_6';;
 
   }
 
-  dimension: clasificacion {
-    type: string
-    sql: case
-              when ${grupo}='ACEITES Y LUBRICANTES' and ${Dif_actual} <=24 then 'Rotacion regular'
-              when ${grupo}='ACERO'  and ${Dif_actual} <=24 then 'Rotacion regular'
-              when ${grupo}='BARNIZ'  and ${Dif_actual} <=6 then 'Rotacion regular'
-              when ${grupo}='DESPERDICIO'  and ${Dif_actual} <=24 then 'Rotacion regular'
-              when ${grupo}='MASTER BACH Y PIGMENTOS'  and ${Dif_actual} <=12 then 'Rotacion regular'
-              when ${grupo}='MATERIAL DE EMPAQUE'  and ${Dif_actual} <=24 then 'Rotacion regular'
-              when ${grupo}='OTRAS MP'  and ${Dif_actual} <=12 then 'Rotacion regular'
-              when ${grupo}='OTROS'  and ${Dif_actual} <=12 then 'Rotacion regular'
-              when ${grupo}='OTROS COMPONENTES'  and ${Dif_actual} <=12 then 'Rotacion regular'
-              when ${grupo}='POLIETILENO'  and ${Dif_actual} <=12 then 'Rotacion regular'
-              when ${grupo}='PRODUCTO SEMITERMINADO'  and ${Dif_actual} <=24 then 'Rotacion regular'
-              when ${grupo}='PRODUCTO TERMINADO' and ${tipo}='ACERO'       and ${Dif_actual} <=24 then 'Rotacion regular'
-              when ${grupo}='PRODUCTO TERMINADO' and ${tipo}='POLIETILENO' and ${Dif_actual} <=12 then 'Rotacion regular'
-              when ${grupo}='REFACCIONES'  and ${Dif_actual} <=24 then 'Rotacion regular'
-              when ${grupo}='SOLVENTES'  and ${Dif_actual} <=12 then 'Rotacion regular'
-              when ${grupo}='TINTAS'  and ${Dif_actual} <=12 then 'Rotacion regular'
- else 'Lento movimiento' end
-    ;;
-}
-
-
-  dimension: Dif_actual_proy {
-    type: number
-    sql:  date_diff(FechaMes,  ${TABLE}.Fecha_Produccion, month) ;;
-
-  }
-
-  dimension: clasificacion_proy {
-    type: string
-    sql: case
-              when ${grupo}='ACEITES Y LUBRICANTES' and ${Dif_actual_proy} <=24 then 'Rotacion regular'
-              when ${grupo}='ACERO'  and ${Dif_actual_proy} <=24 then 'Rotacion regular'
-              when ${grupo}='BARNIZ'  and ${Dif_actual_proy} <=4 then 'Rotacion regular'
-              when ${grupo}='DESPERDICIO'  and ${Dif_actual_proy} <=24 then 'Rotacion regular'
-              when ${grupo}='MASTER BACH Y PIGMENTOS'  and ${Dif_actual_proy} <=12 then 'Rotacion regular'
-              when ${grupo}='MATERIAL DE EMPAQUE'  and ${Dif_actual_proy} <=24 then 'Rotacion regular'
-              when ${grupo}='OTRAS MP'  and ${Dif_actual_proy} <=12 then 'Rotacion regular'
-              when ${grupo}='OTROS'  and ${Dif_actual_proy} <=12 then 'Rotacion regular'
-              when ${grupo}='OTROS COMPONENTES'  and ${Dif_actual_proy} <=12 then 'Rotacion regular'
-              when ${grupo}='POLIETILENO'  and ${Dif_actual_proy} <=12 then 'Rotacion regular'
-              when ${grupo}='PRODUCTO SEMITERMINADO'  and ${Dif_actual_proy} <=24 then 'Rotacion regular'
-              when ${grupo}='PRODUCTO TERMINADO' and ${tipo}='ACERO'       and ${Dif_actual_proy} <=24 then 'Rotacion regular'
-              when ${grupo}='PRODUCTO TERMINADO' and ${tipo}='POLIETILENO' and ${Dif_actual_proy} <=12 then 'Rotacion regular'
-              when ${grupo}='REFACCIONES'  and ${Dif_actual_proy} <=24 then 'Rotacion regular'
-              when ${grupo}='SOLVENTES'  and ${Dif_actual_proy} <=12 then 'Rotacion regular'
-              when ${grupo}='TINTAS'  and ${Dif_actual_proy} <=12 then 'Rotacion regular'
- else 'Lento movimiento' end
-    ;;
-  }
 
   dimension_group: fecha_produccion {
     type: time
@@ -114,37 +85,16 @@ view: fact_lento_movimiento {
     sql: ${TABLE}.FECHA_PRODUCCION ;;
   }
 
-  dimension_group: fecha_mes {
-     type: time
+
+  dimension_group: fecha_referencia {
+    type: time
     timeframes: [raw, date, week, month, quarter, year]
     convert_tz: no
     datatype: date
-    sql: ${TABLE}.FechaMes ;;
+    sql: ${TABLE}.FECHA_REFERENCIA ;;
   }
 
 
-
-  measure: TotalStock_actual {
-    label: "Stock"
-    type: sum
-    sql: ${TABLE}.Stock ;;
-  }
-
-  dimension: 1_Meses {
-    type: yesno
-    sql: ${mes} ='Actual' ;;
-  }
-
-  dimension: 3_Meses {
-    type: yesno
-    sql: ${mes} ='Actual' or ${mes} = 'Mes1' or  ${mes} = 'Mes2' or  ${mes} = 'Mes3' ;;
-  }
-
-  dimension: 6_Meses {
-    type: yesno
-    sql: ${mes} ='Actual' or ${mes} = 'Mes1'  or  ${mes} = 'Mes2' or  ${mes} = 'Mes3'  or  ${mes} = 'Mes4' or  ${mes} = 'Mes5' or  ${mes} = 'Mes6';;
-
-  }
 
   measure: TotalStock_Actual {
     label: "Actual"
@@ -159,28 +109,11 @@ view: fact_lento_movimiento {
   }
 
 
-  measure: TotalStock {
-
-    type: sum
-    sql: ${TABLE}.Stock ;;
-
-
-
-  }
-
-  measure: Acumulado {
-    type: sum
-    sql: ${TABLE}.Stock ;;
-
-    filters: [clasificacion_proy: "Lento movimiento"]
-  }
-
-
   measure: TotalStock_3_meses {
     label: "3_meses"
     type: sum
     #sql: SUM(${TABLE}.Stock) OVER (PARTITION BY ${grupo} ORDER BY ${mes}) ;;
-   sql:  ${TABLE}.Stock ;;
+    sql:  ${TABLE}.Stock ;;
 
     filters: {
       field: 3_Meses
@@ -188,10 +121,6 @@ view: fact_lento_movimiento {
     }
 
   }
-
-
-
-
 
   measure: TotalStock_6_meses {
     label: "6_meses"
@@ -207,7 +136,7 @@ view: fact_lento_movimiento {
 
 
   measure: Total_segmentado {
-    label_from_parameter: rango_lento_movimiento
+    label: "Mes"
     type: number
     sql: CASE
           WHEN {% parameter rango_lento_movimiento %} = "mes"
@@ -219,6 +148,19 @@ view: fact_lento_movimiento {
 
       END ;;
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   measure: count {
