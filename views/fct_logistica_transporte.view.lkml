@@ -9,6 +9,24 @@ view: fct_logistica_transporte {
     drill_fields: [detail*]
   }
 
+
+  dimension: planta_Comercializadora {
+    type: string
+    sql: case when ${TABLE}.CENTRO="MF01" THEN 'MF51'
+              when ${TABLE}.CENTRO="MF02" THEN 'MF52'
+              when ${TABLE}.CENTRO="MF03" THEN 'MF53'
+              when ${TABLE}.CENTRO="MF04" THEN 'MF54'
+              when ${TABLE}.CENTRO="MF05" THEN 'MF55'
+              when ${TABLE}.CENTRO="MF06" THEN 'MF56'
+              when ${TABLE}.CENTRO="MF07" THEN 'MF57'
+              when ${TABLE}.CENTRO="MF08" THEN 'MF58'
+              when ${TABLE}.CENTRO="MF09" THEN 'MF59'
+              when ${TABLE}.CENTRO="MF10" THEN 'MF60' end  ;;
+  }
+
+
+
+
   dimension: centro {
     type: string
     sql: ${TABLE}.CENTRO ;;
