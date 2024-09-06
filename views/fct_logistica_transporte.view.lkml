@@ -1,7 +1,7 @@
 
 view: fct_logistica_transporte {
   derived_table: {
-    sql: SELECT * FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_logistica_transporte`  ;;
+    sql: SELECT * FROM `envases-analytics-qa.RPT_S4H_MX.tbl_fact_logistica_transporte`  ;;
   }
 
   measure: count {
