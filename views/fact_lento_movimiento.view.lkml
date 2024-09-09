@@ -18,20 +18,28 @@ view: fact_lento_movimiento {
     --VALORES PARA METRICAS,
     STOCK, VALOR
   FROM
-    `envases-analytics-qa.RPT_S4H_MX.vw_fact_lento_movimiento` lmov
+    envases-analytics-qa.RPT_S4H_MX.vw_fact_lento_movimiento lmov
 ),
 PIVOTE AS (
-  SELECT *
+  SELECT *, LAST_DAY(CURRENT_DATE(), YEAR) FECHA_FIN_ANIO,
   FROM FECHAS
   UNPIVOT(FECHA_REFERENCIA FOR MES IN (DIA_ACTUAL, ACTUAL, MES_1, MES_2, MES_3, MES_4, MES_5, MES_6))
 )
 SELECT
   *,
   DATE_DIFF(FECHA_REFERENCIA, FECHA_PRODUCCION, DAY) DIAS_DIFF,
+  DATE_DIFF(FECHA_FIN_ANIO, FECHA_PRODUCCION, DAY) DIAS_DIFF_FIN,
   CASE
     WHEN DATE_DIFF(FECHA_REFERENCIA, FECHA_PRODUCCION, DAY) > PIVOTE.DIAS_ROTACION THEN 'LENTO MOVIMIENTO'
     ELSE 'ROTACION REGULAR'
-  END CLASIFICACION
+  END CLASIFICACION,
+  CASE
+    WHEN
+      DATE_DIFF(FECHA_REFERENCIA, FECHA_PRODUCCION, DAY) > PIVOTE.DIAS_ROTACION THEN 'LENTO MOVIMIENTO'
+    WHEN
+      DATE_DIFF(FECHA_FIN_ANIO, FECHA_PRODUCCION, DAY) > PIVOTE.DIAS_ROTACION THEN 'RIESGO LENTO MOVIMIENTO'
+    ELSE 'ROTACION REGULAR'
+  END CLASIFICACION_FILTRO
 FROM PIVOTE ;;
   }
 
@@ -95,6 +103,23 @@ FROM PIVOTE ;;
   }
 
 
+  measure: TotalStock {
+
+    type: sum
+    sql: ${TABLE}.Stock ;;
+
+
+
+  }
+
+  measure: Totalvalor {
+
+    type: sum
+    sql: ${TABLE}.valor ;;
+
+
+
+  }
 
   measure: TotalStock_Actual {
     label: "Actual"
@@ -147,10 +172,72 @@ FROM PIVOTE ;;
             THEN ${TotalStock_6_meses}
 
       END ;;
+
+    value_format: "*00#.00"
+  }
+
+
+  measure: Totalvalor_Actual {
+    label: "Actual Valor"
+    type: sum
+    sql: ${TABLE}.valor ;;
+
+    filters: {
+      field: 1_Meses
+      value: "yes"
+    }
+
+  }
+
+
+  measure: Totalvalor_3_meses {
+    label: "3_meses Valor"
+    type: sum
+    #sql: SUM(${TABLE}.Stock) OVER (PARTITION BY ${grupo} ORDER BY ${mes}) ;;
+    sql:  ${TABLE}.valor ;;
+
+    filters: {
+      field: 3_Meses
+      value: "yes"
+    }
+
+  }
+
+  measure: Totalvalor_6_meses {
+    label: "6_meses Valor"
+    type: sum
+    sql: ${TABLE}.valor ;;
+
+    filters: {
+      field: 6_Meses
+      value: "yes"
+    }
+
+  }
+
+
+  measure: Total_segmentado_valor {
+    label: "Mes Valor"
+    type: number
+    sql: CASE
+          WHEN {% parameter rango_lento_movimiento %} = "mes"
+            THEN ${Totalvalor_Actual}
+          WHEN {% parameter rango_lento_movimiento %} = "3meses"
+            THEN ${Totalvalor_3_meses}
+          WHEN {% parameter rango_lento_movimiento %} = "6meses"
+            THEN ${Totalvalor_6_meses}
+
+      END ;;
+
+    value_format: "*00#.00"
   }
 
 
 
+  dimension: CLASIFICACION_FILTRO {
+    type: string
+    sql: ${TABLE}.CLASIFICACION_FILTRO ;;
+  }
 
 
 
