@@ -174,10 +174,19 @@ view: fct_logistica_transporte {
     sql: ${TABLE}.CLASE_ORDEN_FLETE ;;
   }
 
-  dimension: fecha_creacion_fo {
-    type: number
+ # dimension: fecha_creacion_fo {
+#    type: number
+#    sql: ${TABLE}.FECHA_CREACION_FO ;;
+#  }
+
+  dimension_group: fecha_creacion_fo {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    convert_tz: no
+    datatype: date
     sql: ${TABLE}.FECHA_CREACION_FO ;;
   }
+
 
   dimension: entrega {
     type: string
@@ -245,7 +254,7 @@ view: fct_logistica_transporte {
   transportationorderuuid,
   orden_flete,
   clase_orden_flete,
-  fecha_creacion_fo,
+
   entrega,
 
   documento_liquidacion,
