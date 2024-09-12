@@ -18,7 +18,7 @@ view: fact_lento_movimiento {
           --VALORES PARA METRICAS,
           STOCK, VALOR
         FROM
-          `envases-analytics-eon-poc.RPT_S4H_MX.vw_fact_lento_movimiento` lmov
+          `envases-analytics-qa.RPT_S4H_MX.vw_fact_lento_movimiento` lmov
       ),
       PIVOTE AS (
         SELECT *, LAST_DAY(CURRENT_DATE(), YEAR) FECHA_FIN_ANIO,
@@ -42,22 +42,43 @@ view: fact_lento_movimiento {
         END CLASIFICACION_FILTRO
       FROM PIVOTE ;;
   }
-
-
-  dimension: CLASIFICACION {
+  #DIMENSIONES DE CLASIFICACION
+  dimension: clasificacion { #SE OCUPA PARA LAS GRAFICAS A 3 Y SEIS MESES
+    description: "Clasificación de tipo Movimiento (Rotación Regular / Lento Movimiento"
+    label: "Clasificación"
     type: string
     sql: ${TABLE}.CLASIFICACION ;;
   }
+  dimension: clasificacion_filtro {#CONTIENE LA CLASIFICACION DE RIESGO DE LENTO MOVIMIENTO
+    description: "Filtro que contiene los materiales en Riesgo de Lento Movimiento"
+    label: "Clasificación Filtro"
+    type: string
+    sql: ${TABLE}.CLASIFICACION_FILTRO ;;
+  }
 
+  #DIMENSIONES DE FECHAS
+  dimension_group: fecha_produccion {
+    type: time
+    description: "Fecha de Producción de Material"
+    label: "Fecha Producción"
+    timeframes: [raw, date, week, month, quarter, year]
+    convert_tz: no
+    datatype: date
+    sql: ${TABLE}.FECHA_PRODUCCION ;;
+  }
+  dimension_group: fecha_referencia {
+    description: "Fecha de Referencia para los comparativos: Día Actual, Cierres de Mes, Cierre de Año"
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    convert_tz: no
+    datatype: date
+    sql: ${TABLE}.FECHA_REFERENCIA ;;
+  }
 
-
-
-
+  #PARAMETRO PARA PROYECCION A 1, 3 Y 6 MESES
   parameter: rango_lento_movimiento {
-    allowed_value: {
-      label:"Mes Actual"
-      value: "mes"
-    }
+    description: "Parámetro que define a cuantos meses se hará la proyección"
+    label: "Meses proyección"
     allowed_value: {
       label:"3 meses"
       value: "3meses"
@@ -68,308 +89,233 @@ view: fact_lento_movimiento {
     }
   }
 
-  dimension: 1_Meses {
-    type: yesno
-    sql: ${mes} ='ACTUAL' ;;
-  }
-
+  #DIMENSIONES TIPO YESNO PARA EL PARÁMETRO
   dimension: 3_Meses {
+    hidden: yes
     type: yesno
     sql: ${mes} ='ACTUAL' or ${mes} = 'MES_1' or  ${mes} = 'MES_2' or  ${mes} = 'MES_3' ;;
   }
-
   dimension: 6_Meses {
+    hidden: yes
     type: yesno
     sql: ${mes} ='ACTUAL' or ${mes} = 'MES_1'  or  ${mes} = 'MES_2' or  ${mes} = 'MES_3'  or  ${mes} = 'MES_4' or  ${mes} = 'MES_5' or  ${mes} = 'MES_6';;
 
   }
 
-
-  dimension_group: fecha_produccion {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    convert_tz: no
-    datatype: date
-    sql: ${TABLE}.FECHA_PRODUCCION ;;
-  }
-
-
-  dimension_group: fecha_referencia {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    convert_tz: no
-    datatype: date
-    sql: ${TABLE}.FECHA_REFERENCIA ;;
-  }
-
-
-  measure: TotalStock {
-
-    type: sum
-    sql: ${TABLE}.Stock ;;
-
-    value_format: "#,##0.00"
-
-  }
-
-  measure: Totalvalor {
-
-    type: sum
-    sql: ${TABLE}.valor ;;
-
-    value_format: "#,##0.00"
-
-  }
-
-  measure: TotalStock_Actual {
-    label: "Actual"
-    type: sum
-    sql: ${TABLE}.Stock ;;
-
-    filters: {
-      field: 1_Meses
-      value: "yes"
-    }
-    value_format: "#,##0.00"
-  }
-
-
-  measure: TotalStock_3_meses {
-    label: "3_meses"
-    type: sum
-    #sql: SUM(${TABLE}.Stock) OVER (PARTITION BY ${grupo} ORDER BY ${mes}) ;;
-    sql:  ${TABLE}.Stock ;;
-
-    filters: {
-      field: 3_Meses
-      value: "yes"
-    }
-    value_format: "#,##0.00"
-  }
-
-  measure: TotalStock_6_meses {
-    label: "6_meses"
-    type: sum
-    sql: ${TABLE}.Stock ;;
-
-    filters: {
-      field: 6_Meses
-      value: "yes"
-    }
-    value_format: "#,##0.00"
-  }
-
-
-  measure: Total_segmentado {
-    label: "Mes"
-    type: number
-    sql: CASE
-          WHEN {% parameter rango_lento_movimiento %} = "mes"
-            THEN ${TotalStock_Actual}
-          WHEN {% parameter rango_lento_movimiento %} = "3meses"
-            THEN ${TotalStock_3_meses}
-          WHEN {% parameter rango_lento_movimiento %} = "6meses"
-            THEN ${TotalStock_6_meses}
-
-      END ;;
-
-    value_format: "#,##0.00"
-  }
-
-
-  measure: Totalvalor_Actual {
-    label: "Actual Valor"
-    type: sum
-    sql: ${TABLE}.valor ;;
-
-    filters: {
-      field: 1_Meses
-      value: "yes"
-    }
-    value_format: "#,##0.00"
-  }
-
-
-  measure: Totalvalor_3_meses {
-    label: "3_meses Valor"
-    type: sum
-    #sql: SUM(${TABLE}.Stock) OVER (PARTITION BY ${grupo} ORDER BY ${mes}) ;;
-    sql:  ${TABLE}.valor ;;
-
-    filters: {
-      field: 3_Meses
-      value: "yes"
-    }
-    value_format: "#,##0.00"
-  }
-
-  measure: Totalvalor_6_meses {
-    label: "6_meses Valor"
-    type: sum
-    sql: ${TABLE}.valor ;;
-
-    filters: {
-      field: 6_Meses
-      value: "yes"
-    }
-    value_format: "#,##0.00"
-  }
-
-
-  measure: Total_segmentado_valor {
-    label: "Mes Valor"
-    type: number
-    sql: CASE
-          WHEN {% parameter rango_lento_movimiento %} = "mes"
-            THEN ${Totalvalor_Actual}
-          WHEN {% parameter rango_lento_movimiento %} = "3meses"
-            THEN ${Totalvalor_3_meses}
-          WHEN {% parameter rango_lento_movimiento %} = "6meses"
-            THEN ${Totalvalor_6_meses}
-
-      END ;;
-
-    value_format: "#,##0.00"
-  }
-
-
-
-  dimension: CLASIFICACION_FILTRO {
-    type: string
-    sql: ${TABLE}.CLASIFICACION_FILTRO ;;
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-  measure: count {
-    type: count
-    drill_fields: [detail*]
-  }
-
+  #DIMENSIONES
   dimension: centro {
+    label: "Centro"
     type: string
     sql: ${TABLE}.CENTRO ;;
   }
-
-  dimension: material {
-    type: string
-    sql: ${TABLE}.MATERIAL ;;
-  }
-
-  dimension: almacen {
-    type: string
-    sql: ${TABLE}.ALMACEN ;;
-  }
-
-  dimension: lote {
-    type: string
-    sql: ${TABLE}.LOTE ;;
-  }
-
-  dimension: especial {
-    type: string
-    sql: ${TABLE}.ESPECIAL ;;
-  }
-
-  dimension: nivel_2 {
-    type: string
-    sql: ${TABLE}.NIVEL_2 ;;
-  }
-
-  dimension: stock {
-    type: number
-    sql: ${TABLE}.STOCK ;;
-  }
-
-  dimension: nivel_3 {
-    type: string
-    sql: ${TABLE}.NIVEL_3 ;;
-  }
-
-
-
   dimension: sitio {
+    label: "Sitio"
     type: string
     sql: ${TABLE}.SITIO ;;
   }
-
-  dimension: nivel_1 {
+  dimension: material {
+    label: "Material"
     type: string
-    sql: ${TABLE}.NIVEL_1 ;;
+    sql: ${TABLE}.MATERIAL ;;
   }
-
+  dimension: almacen {
+    label: "Almacén"
+    type: string
+    sql: ${TABLE}.ALMACEN ;;
+  }
+  dimension: lote {
+    label: "Lote"
+    type: string
+    sql: ${TABLE}.LOTE ;;
+  }
+  dimension: especial {
+    label: "Especial"
+    type: string
+    sql: ${TABLE}.ESPECIAL ;;
+  }
+  dimension: subcontratacion {
+    label: "Subcontratacion"
+    type: string
+    sql: ${TABLE}.SUBCONTRATACION ;;
+  }
+  dimension: grupo {
+    label: "Grupo"
+    type: string
+    sql: ${TABLE}.GRUPO_REAL ;;
+  }
   dimension: tipo {
+    label: "Tipo"
     type: string
     sql: ${TABLE}.TIPO ;;
   }
 
-  dimension: grupo {
+  dimension: nivel_1 {
+    label: "Nivel 1"
     type: string
-    sql: ${TABLE}.GRUPO_REAL ;;
+    sql: ${TABLE}.NIVEL_1 ;;
   }
-
-  dimension: subcontratacion {
+  dimension: nivel_2 {
+    label: "Nivel 2"
     type: string
-    sql: ${TABLE}.SUBCONTRATACION ;;
+    sql: ${TABLE}.NIVEL_2 ;;
   }
-
+  dimension: nivel_3 {
+    label: "Nivel 3"
+    type: string
+    sql: ${TABLE}.NIVEL_3 ;;
+  }
+  dimension: nivel_4 {
+    label: "Nivel 4"
+    type: string
+    sql: ${TABLE}.NIVEL_4 ;;
+  }
   dimension: moneda {
+    label: "Moneda"
     type: string
     sql: ${TABLE}.MONEDA ;;
   }
-
+  dimension: meses_rotacion_regular {
+    label: "Meses Rotación"
+    type: number
+    sql: ${TABLE}.MESES_ROTACION_REGULAR ;;
+  }
+  dimension: mes {
+    description: "Parámetro de Mes para proyección"
+    hidden: yes
+    label: "Mes Proyección"
+    type: string
+    sql: ${TABLE}.Mes ;;
+  }
+  #DIMENSIONES NUMÉRICAS PARA LAS MÉTRICAS
+  dimension: stock {
+    hidden: yes
+    type: number
+    sql: ${TABLE}.STOCK ;;
+  }
   dimension: valor {
+    hidden: yes
     type: number
     sql: ${TABLE}.VALOR ;;
   }
 
-  dimension: meses_rotacion_regular {
+  #MÉTRICAS DE STOCK
+  measure: total_stock {
+    label: "Suma Stock"
+    type: sum
+    sql: ${stock} ;;
+    value_format: "#,##0.00"
+  }
+  measure: total_stock_3 {
+    hidden: yes
+    label: "Stock a 3 meses"
+    type: sum
+    sql:  ${stock} ;;
+    filters: {
+      field: 3_Meses
+      value: "yes"
+    }
+    value_format: "#,##0.00"
+  }
+  measure: total_stock_6 {
+    hidden: yes
+    label: "Stock a 6 meses"
+    type: sum
+    sql: ${stock} ;;
+    filters: {
+      field: 6_Meses
+      value: "yes"
+    }
+    value_format: "#,##0.00"
+  }
+  measure: total_stock_proyeccion {
+    label: "Proyección Stock"
     type: number
-    sql: ${TABLE}.MESES_ROTACION_REGULAR ;;
+    sql: CASE
+          WHEN {% parameter rango_lento_movimiento %} = "3meses"
+            THEN ${total_stock_3}
+          WHEN {% parameter rango_lento_movimiento %} = "6meses"
+            THEN ${total_stock_6}
+      END ;;
+    value_format: "#,##0.00"
+  }
+  #METRICAS DE VALOR
+  measure: total_valor {
+    label: "Suma Valor"
+    type: sum
+    sql: ${valor} ;;
+    value_format: "#,##0.00"
+  }
+  measure: total_valor_3 {
+    hidden: yes
+    label: "Valor a 3 meses"
+    type: sum
+    sql:  ${valor} ;;
+    filters: {
+      field: 3_Meses
+      value: "yes"
+    }
+    value_format: "#,##0.00"
+  }
+  measure: total_valor_6 {
+    hidden: yes
+    label: "Valor a 6 meses"
+    type: sum
+    sql: ${valor} ;;
+    filters: {
+      field: 6_Meses
+      value: "yes"
+    }
+    value_format: "#,##0.00"
+  }
+  measure: total_valor_proyeccion {
+    label: "Proyección Valor"
+    type: number
+    sql: CASE
+          WHEN {% parameter rango_lento_movimiento %} = "3meses"
+            THEN ${total_valor_3}
+          WHEN {% parameter rango_lento_movimiento %} = "6meses"
+            THEN ${total_valor_6}
+      END ;;
+    value_format: "#,##0.00"
   }
 
-  dimension: nivel_4 {
-    type: string
-    sql: ${TABLE}.NIVEL_4 ;;
-  }
-
-
-
-  dimension: mes {
-    type: string
-    sql: ${TABLE}.Mes ;;
-  }
-
-  set: detail {
-    fields: [
-      centro,
-      material,
-      almacen,
-      lote,
-      especial,
-      nivel_2,
-      stock,
-      nivel_3,
-
-      nivel_1,
-      tipo,
-      grupo,
-      subcontratacion,
-      moneda,
-      valor,
-      meses_rotacion_regular,
-      nivel_4,
-
-      mes
+  #MÉTRICAS PARA INCREMENTO
+  measure: inc_valor_1 {
+    description: "Valor al cierre de mes actual"
+    hidden: yes
+    type: sum
+    sql: ${valor} ;;
+    filters: [
+      mes: "ACTUAL"
     ]
+  }
+  measure: inc_valor_3 {
+    description: "Valor al cierre de mes 3"
+    hidden: yes
+    type: sum
+    sql: ${valor} ;;
+    filters: [
+      mes: "MES_3"
+    ]
+  }
+  measure: inc_valor_6 {
+    description: "Valor al cierre de mes 6"
+    hidden: yes
+    type: sum
+    sql: ${valor} ;;
+    filters: [
+      mes: "MES_6"
+    ]
+  }
+  measure: incremento {
+    description: "Compara el último mes seleccionado con el mes actual"
+    label: "Incremento"
+    type: number
+    sql:
+      (CASE
+        WHEN {% parameter rango_lento_movimiento %} = "3meses" THEN ${inc_valor_3}
+        WHEN {% parameter rango_lento_movimiento %} = "6meses" THEN ${inc_valor_6}
+      END) - ${inc_valor_1};;
+    value_format: "#,##0.00"
   }
 }

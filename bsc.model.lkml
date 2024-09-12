@@ -457,5 +457,4 @@ explore: fct_analisis_energeticos {}
 explore: fct_logistica_transporte {}
 explore: fct_gastos_adicionales {}
 
-explore: tbl_inventario_lento_movimiento {}
 explore: fact_lento_movimiento {}
