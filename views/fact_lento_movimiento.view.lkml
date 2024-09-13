@@ -3,7 +3,7 @@ view: fact_lento_movimiento {
   derived_table: {
     sql: WITH FECHAS AS (
         SELECT
-          CENTRO, MATERIAL, ALMACEN, LOTE, ESPECIAL, SITIO, MONEDA, GRUPO_REAL, TIPO,
+          CENTRO, MATERIAL, ALMACEN, LOTE, ESPECIAL, SITIO, MONEDA, GRUPO_REAL, TIPO, GRUPO,
           NIVEL_1, NIVEL_2, NIVEL_3, NIVEL_4, MESES_ROTACION_REGULAR, MESES_ROTACION_REGULAR * 30 DIAS_ROTACION,
           --FECHAS
           FECHA_PRODUCCION,
@@ -139,9 +139,26 @@ view: fact_lento_movimiento {
     sql: ${TABLE}.SUBCONTRATACION ;;
   }
   dimension: grupo {
+    description: "Agrupación personalizada para Lento movimiento, incluye drill a Códigos de Grupo de Artículo SAP"
     label: "Grupo"
+    drill_fields: [descripcion_gm] #Se obtiene la descripción del Grupo de la Dimensión Grupo de Materiales
     type: string
     sql: ${TABLE}.GRUPO_REAL ;;
+  }
+  dimension: grupo_sap {
+    description: "Código de grupo de materiales usado en SAP"
+    label: "Grupo Artículos"
+    hidden: yes
+    type: string
+    sql: ${TABLE}.GRUPO ;;
+  }
+  dimension: descripcion_gm {
+    description: "Descripción del Grupo de Artículos de SAP"
+    label: "Descripción Grupo Artículos"
+    drill_fields: [material]
+    type: string
+    sql: ${grupo_materiales.descripcion} ;;
+
   }
   dimension: tipo {
     label: "Tipo"
