@@ -1,12 +1,48 @@
 
 view: fct_materiales_stock {
   derived_table: {
-    sql: SELECT  * FROM `envases-analytics-qa.RPT_S4H_MX.tbl_fact_materiales_stock` c
-         WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -4 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
-         and GRUPO_MATERIAL = 'PAC9006'
-          and centro in ( select planta_id  from `envases-analytics-qa.RPT_S4H_MX.vw_bsc_planta`)
 
+
+    sql: SELECT  LAST_DAY(c.fecha,MONTH) FECHA
+                ,c.id_material
+                ,c.centro
+                ,c.id_provedor_cliente
+                ,c.tipo_stock
+                ,c.familia
+                ,c.TIPO_PROVEEDOR_CLIENTE
+                ,sum(c.STOCK_LIBRE_UTILIZACION) STOCK_LIBRE_UTILIZACION
+                ,sum(c.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION ) VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION
+                ,(SELECT SUM(VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION) FROM `envases-analytics-eon-poc.RPT_S4H_MX.tbl_fact_materiales_stock`
+                   WHERE LAST_DAY(fecha,MONTH) = LAST_DAY(DATE_ADD(c.fecha, INTERVAL -1 MONTH),MONTH)
+                     AND id_material = c.id_material
+                     AND centro=c.centro
+                     AND id_provedor_cliente=c.id_provedor_cliente
+                     AND tipo_stock=c.tipo_stock
+                     AND familia =c.familia
+                     AND TIPO_PROVEEDOR_CLIENTE =c.TIPO_PROVEEDOR_CLIENTE ) AS VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION_previous_month
+         FROM `envases-analytics-eon-poc.RPT_S4H_MX.tbl_fact_materiales_stock` c
+         WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -4 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+           and GRUPO_MATERIAL = 'PAC9006'
+           and centro in ( select planta_id  from `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_planta`)
+
+      GROUP BY  c.fecha
+      ,c.id_material
+      ,c.centro
+      ,c.id_provedor_cliente
+      ,c.tipo_stock
+      ,c.familia
+      ,c.TIPO_PROVEEDOR_CLIENTE
       ;;
+
+
+
+
+    #sql: SELECT  * FROM `envases-analytics-eon-poc.RPT_S4H_MX.tbl_fact_materiales_stock` c
+    #    WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -4 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+    #   and GRUPO_MATERIAL = 'PAC9006'
+    #   and centro in ( select planta_id  from `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_planta`)
+
+
   }
 
 
@@ -193,6 +229,16 @@ view: fct_materiales_stock {
 
   }
 
+  measure: Cantidad_stock_Mes_Anterior {
+    label: "Cantidad Mes Anterior"
+    type: sum
+    sql: ${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION_previous_month ;;
+    value_format: "#,##0"
+
+  }
+
+
+
   measure: Cantidad_stock_Mes_Actual {
     type: sum
     sql: ${TABLE}.STOCK_LIBRE_UTILIZACION ;;
@@ -215,21 +261,6 @@ view: fct_materiales_stock {
 
 
   }
-
-
-  measure: Cantidad_stock_Mes_Anterior {
-    label: "Cantidad Mes Anterior"
-    type: sum
-    sql: ${TABLE}.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION ;;
-
-    filters: {
-      field: Filtro_Mes_Anterior
-      value: "yes"
-    }
-
-  }
-
-
 
 
 
