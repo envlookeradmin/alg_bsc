@@ -457,7 +457,8 @@ explore: fct_analisis_energeticos {}
 explore: fct_logistica_transporte {}
 explore: fct_gastos_adicionales {}
 
-explore: fact_lento_movimiento {}
+
+
 
 
 explore: fct_retorno_material_empaque {
@@ -480,5 +481,14 @@ explore: fct_retorno_material_empaque {
     relationship: many_to_one
   }
 
+}
+
+explore: fact_lento_movimiento {
+  join: grupo_materiales {
+    type: left_outer
+    sql_on: ${fact_lento_movimiento.grupo_sap} = ${grupo_materiales.id_grupo} ;;
+    relationship: many_to_one
+    view_label: ""
+  }
 
 }
