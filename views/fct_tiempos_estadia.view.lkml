@@ -18,6 +18,8 @@ view: tiempos_estadia {
       Peso_de_Entrada,
       Peso_de_Salida
       FROM `envases-analytics-qa.RPT_S4H_MX.vw_bsc_tiempo_estadia`
+
+
       ;;
   }
 
@@ -171,20 +173,31 @@ view: tiempos_estadia {
     type: yesno
     sql: ${fecha_filtro_date} >= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) -1 AS STRING),"-12-01")  AS DATE)
       and  ${fecha_filtro_date} <= CAST(CONCAT(CAST(EXTRACT(YEAR FROM DATE ({% date_start date_filter %})) -1 AS STRING),"-12-31")  AS DATE) ;;
+
+
+
+
   }
 
   dimension: mes_actual{
     hidden: yes
     type: yesno
-    sql: DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
-      AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= CAST({% date_start date_filter %} AS DATE)  ;;
+    sql: DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_end date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH)
+      AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= CAST({% date_end date_filter %} AS DATE)  ;;
+  }
+
+  dimension: periodo {
+    hidden: yes
+    type: yesno
+    sql: CAST(${fecha_filtro_date}  AS date) >= (case when CAST({% date_start date_filter %} AS DATE)= DATE_ADD(CAST({% date_end date_filter %} AS DATE), INTERVAL -1 DAY) then DATE_TRUNC(CAST({% date_start date_filter %} AS DATE), MONTH) else CAST({% date_start date_filter %} AS DATE) end )
+      and CAST(${fecha_filtro_date}  AS date) <= (case when CAST({% date_start date_filter %} AS DATE)= DATE_ADD(CAST({% date_end date_filter %} AS DATE), INTERVAL -1 DAY) then LAST_DAY(CAST({% date_start date_filter %} AS DATE)) else CAST({% date_end date_filter %} AS DATE) end ) ;;
   }
 
   dimension: mes_anterior{
     hidden: yes
     type: yesno
-    sql: DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH)
-      AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= LAST_DAY(DATE_ADD(CAST({% date_start date_filter %} AS DATE), INTERVAL -1 MONTH));;
+    sql: DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) >= DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_end date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH)
+      AND DATE_TRUNC(CAST(${fecha_filtro_date} AS DATE),DAY) <= LAST_DAY(DATE_ADD(CAST({% date_end date_filter %} AS DATE), INTERVAL -1 MONTH));;
   }
 
   dimension: ultimos_2_meses{
@@ -202,6 +215,11 @@ view: tiempos_estadia {
     label: "Tiempo Prom. de Estadia"
     type: average
     sql: ${TiempoDeEstadia} ;;
+
+    filters: {
+      field: periodo
+      value: "yes"
+    }
 
     html:
       {% if value > 4.0 %}

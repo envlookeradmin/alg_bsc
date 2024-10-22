@@ -1,6 +1,6 @@
 ---
-- dashboard: bsc_tiempo_estadia
-  title: BSC_TIEMPO_ESTADIA
+- dashboard: tiempo_estadia
+  title: TIEMPO ESTADIA
   layout: newspaper
   preferred_viewer: dashboards-next
   description: ''
@@ -59,7 +59,7 @@
     row: 0
     col: 0
     width: 7
-    height: 4
+    height: 5
   - title: Por mes
     name: Por mes
     model: bsc
@@ -69,7 +69,7 @@
       fecha.nombre_mes]
     pivots: [fecha.nombre_mes]
     filters:
-      tiempos_estadia.ultimos_2_meses: '1'
+      tiempos_estadia.Prom_Estadia: NOT NULL
     sorts: [fecha.nombre_mes, tiempos_estadia.Orden_locacion]
     limit: 500
     column_limit: 50
@@ -117,8 +117,8 @@
       Actividad: actividad.descripcion
     row: 0
     col: 7
-    width: 10
-    height: 4
+    width: 17
+    height: 5
   - title: Mes seleccionado vs mes anterior
     name: Mes seleccionado vs mes anterior
     model: bsc
@@ -169,19 +169,19 @@
     listen:
       Fecha: tiempos_estadia.date_filter
       Actividad: actividad.descripcion
-    row: 0
-    col: 17
-    width: 7
+    row: 5
+    col: 0
+    width: 24
     height: 4
   filters:
   - name: Fecha
     title: Fecha
     type: field_filter
-    default_value: 2023/08/31
+    default_value: 2024/07/01 to 2024/08/01
     allow_multiple_values: true
     required: false
     ui_config:
-      type: day_picker
+      type: day_range_picker
       display: inline
       options: []
     model: bsc

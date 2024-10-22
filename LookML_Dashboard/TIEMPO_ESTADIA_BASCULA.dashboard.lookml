@@ -1,6 +1,6 @@
 ---
-- dashboard: bsc_tiempo_estadia_bascula
-  title: BSC_TIEMPO_ESTADIA_BASCULA
+- dashboard: tiempo_estadia_bascula
+  title: TIEMPO ESTADIA BASCULA
   layout: newspaper
   preferred_viewer: dashboards-next
   description: ''

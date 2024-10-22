@@ -12,7 +12,7 @@ view: fct_materiales_stock {
                 ,c.TIPO_PROVEEDOR_CLIENTE
                 ,sum(c.STOCK_LIBRE_UTILIZACION) STOCK_LIBRE_UTILIZACION
                 ,sum(c.VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION ) VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION
-                ,(SELECT SUM(VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION) FROM `envases-analytics-eon-poc.RPT_S4H_MX.tbl_fact_materiales_stock`
+                ,(SELECT SUM(VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION) FROM `envases-analytics-qa.RPT_S4H_MX.tbl_fact_materiales_stock`
                    WHERE LAST_DAY(fecha,MONTH) = LAST_DAY(DATE_ADD(c.fecha, INTERVAL -1 MONTH),MONTH)
                      AND id_material = c.id_material
                      AND centro=c.centro
@@ -20,10 +20,10 @@ view: fct_materiales_stock {
                      AND tipo_stock=c.tipo_stock
                      AND familia =c.familia
                      AND TIPO_PROVEEDOR_CLIENTE =c.TIPO_PROVEEDOR_CLIENTE ) AS VALOR_ACTUAL_STOCK_LIBRE_UTILIZACION_previous_month
-         FROM `envases-analytics-eon-poc.RPT_S4H_MX.tbl_fact_materiales_stock` c
+         FROM `envases-analytics-qa.RPT_S4H_MX.tbl_fact_materiales_stock` c
          WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -4 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
            and GRUPO_MATERIAL = 'PAC9006'
-           and centro in ( select planta_id  from `envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_planta`)
+           and centro in ( select planta_id  from `envases-analytics-qa.RPT_S4H_MX.vw_bsc_planta`)
 
       GROUP BY  c.fecha
       ,c.id_material
@@ -305,10 +305,10 @@ view: fct_materiales_stock {
 
     html:
     {% if value >= Cantidad_stock_Mes_Anterior._value %}
-    <p> <span style="color: green;">{{ rendered_value }}</span></p>
+    <p> <span style="color: red;">{{ rendered_value }}</span></p>
 
       {% else %}
-      <span style="color: red;">{{ rendered_value }}</span></p>
+      <span style="color: green;">{{ rendered_value }}</span></p>
 
       {% endif %} ;;
 
