@@ -134,10 +134,10 @@ view: fct_retorno_material_empaque {
     type: sum
     sql: ${TABLE}.LIBRE_UTILIZACION ;;
 
-    #filters: {
-    #  field: is_previous_year
-    #  value: "yes"
-    #}
+    filters: {
+      field: is_previous_year
+      value: "yes"
+    }
 
     value_format: "#,##0.00"
   }
@@ -146,10 +146,10 @@ view: fct_retorno_material_empaque {
     type:sum
     sql:${TABLE}.VALOR_LIBRE_UTILIZACION ;;
 
-    #filters: {
-    #  field: is_previous_year
-    #  value: "yes"
-    #}
+    filters: {
+      field: is_previous_year
+      value: "yes"
+  }
 
 
     value_format: "#,##0.00"
@@ -205,10 +205,10 @@ view: fct_retorno_material_empaque {
     type: number
     sql:
     {% if Tipo._parameter_value == 'Stock' %}
-      ${total_stock}
+      ${total_stock_ly}
 
       {% elsif Tipo._parameter_value == 'Valor' %}
-      ${total_valor}
+      ${total_valor_ly}
       {% endif %};;
 
 
