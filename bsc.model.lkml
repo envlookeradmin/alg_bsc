@@ -458,3 +458,27 @@ explore: fct_logistica_transporte {}
 explore: fct_gastos_adicionales {}
 
 explore: fact_lento_movimiento {}
+
+
+explore: fct_retorno_material_empaque {
+
+  join: planta {
+    type: left_outer
+    sql_on: ${fct_retorno_material_empaque.planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+
+   join: cliente {
+    type: left_outer
+    sql_on: ${fct_retorno_material_empaque.ID_CLIENTE} = ${cliente.id_cliente} ;;
+    relationship: many_to_one
+  }
+
+  join: fecha {
+    type: left_outer
+    sql_on:${fct_retorno_material_empaque.fecha_date}  = ${fecha.fecha} ;;
+    relationship: many_to_one
+  }
+
+
+}
