@@ -190,7 +190,7 @@ view: tiempos_estadia {
     hidden: yes
     type: yesno
     sql: CAST(${fecha_filtro_date}  AS date) >= (case when CAST({% date_start date_filter %} AS DATE)= DATE_ADD(CAST({% date_end date_filter %} AS DATE), INTERVAL -1 DAY) then DATE_TRUNC(CAST({% date_start date_filter %} AS DATE), MONTH) else CAST({% date_start date_filter %} AS DATE) end )
-      and CAST(${fecha_filtro_date}  AS date) <= (case when CAST({% date_start date_filter %} AS DATE)= DATE_ADD(CAST({% date_end date_filter %} AS DATE), INTERVAL -1 DAY) then LAST_DAY(CAST({% date_start date_filter %} AS DATE)) else CAST({% date_end date_filter %} AS DATE) end ) ;;
+      and CAST(${fecha_filtro_date}  AS date) <= (case when CAST({% date_start date_filter %} AS DATE)= DATE_ADD(CAST({% date_end date_filter %} AS DATE), INTERVAL -1 DAY) then LAST_DAY(CAST({% date_start date_filter %} AS DATE)) else DATE_ADD(CAST({% date_end date_filter %} AS DATE), INTERVAL -1 DAY) end ) ;;
   }
 
   dimension: mes_anterior{
