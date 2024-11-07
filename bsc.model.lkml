@@ -452,36 +452,8 @@ explore: fct_rpm {
 
 explore: fct_inventarios_ciclicos2 {}
 explore: grupo_materiales {}
+
 explore: fct_analisis_energeticos {}
-
-explore: fct_logistica_transporte {}
-explore: fct_gastos_adicionales {}
-
-
-
-
-
-explore: fct_retorno_material_empaque {
-
-  join: planta {
-    type: left_outer
-    sql_on: ${fct_retorno_material_empaque.planta} = ${planta.planta_id} ;;
-    relationship: many_to_one
-  }
-
-   join: cliente {
-    type: left_outer
-    sql_on: ${fct_retorno_material_empaque.ID_CLIENTE} = ${cliente.id_cliente} ;;
-    relationship: many_to_one
-  }
-
-  join: fecha {
-    type: left_outer
-    sql_on:${fct_retorno_material_empaque.fecha_date}  = ${fecha.fecha} ;;
-    relationship: many_to_one
-  }
-
-}
 
 explore: fact_lento_movimiento {
   join: grupo_materiales {
@@ -490,5 +462,21 @@ explore: fact_lento_movimiento {
     relationship: many_to_one
     view_label: ""
   }
+}
 
+explore: fct_logistica_transporte {}
+explore: fct_gastos_adicionales {}
+
+
+explore: fct_retorno_material_empaque {
+  join: planta {
+    type: left_outer
+    sql_on: ${fct_retorno_material_empaque.planta} = ${planta.planta_id} ;;
+    relationship: many_to_one
+  }
+  join: cliente {
+    type: left_outer
+    sql_on: ${fct_retorno_material_empaque.ID_CLIENTE} = ${cliente.id_cliente} ;;
+    relationship: many_to_one
+  }
 }
