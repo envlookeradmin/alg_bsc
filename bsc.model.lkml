@@ -492,3 +492,5 @@ explore: fact_lento_movimiento {
   }
 
 }
+
+explore: fct_produccion_pet {}
