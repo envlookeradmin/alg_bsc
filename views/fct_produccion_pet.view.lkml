@@ -1,10 +1,14 @@
 
 view: fct_produccion_pet {
-  derived_table: {
-    sql: SELECT * FROM `envases-analytics-qa.RPT_PET.fact_produccion_pet` ;;
-  }
+ # derived_table: {
+ #  sql: SELECT * FROM `envases-analytics-qa.RPT_PET.fact_produccion_pet`;;
+ # }
+
+
+  sql_table_name: `envases-analytics-qa.RPT_PET.fact_produccion_pet` ;;
 
   measure: count {
+    label: "Conteo Registros"
     type: count
     drill_fields: [detail*]
   }
@@ -230,13 +234,117 @@ view: fct_produccion_pet {
     sql: ${TABLE}.UTILIZACION_DEMANDA ;;
   }
 
+  measure: Total_prod_plan {
+    type: sum
+    sql: ${TABLE}.Prod_Plan ;;
+  }
 
 
   measure: Total_salida_real {
     type: sum
     sql: ${TABLE}.CICLO_REAL ;;
-    value_format: "#,##0"
+    #value_format: "#,##0"
   }
+
+  measure: Total_delta {
+    type: number
+    sql:  ${Total_salida_real} -${Total_prod_plan}  ;;
+  }
+
+  measure: Delta_mas {
+    type: number
+    sql: case when ${Total_salida_real} -${Total_prod_plan} > 0 then ${Total_salida_real} -${Total_prod_plan} else 0  end ;;
+  }
+
+  measure: Delta_menos {
+    type: number
+    sql: case when ${Total_salida_real} -${Total_prod_plan} < 0 then ${Total_salida_real} -${Total_prod_plan} else 0  end ;;
+  }
+
+
+  measure: delta_millones {
+    type: number
+    sql:  ${Total_delta} / 1000000  ;;
+    value_format: "0.00"
+  }
+
+
+  measure: por_delta {
+    type: number
+    sql:  ${Total_delta} / ${Total_prod_plan} *100 ;;
+    value_format: "0\%"
+  }
+
+
+  measure: por_Cumplimiento{
+    type: number
+    sql:  ${Total_salida_real} / ${Total_prod_plan} *100 ;;
+    value_format: "0\%"
+  }
+
+  measure: pro_OEE_Acumulado {
+    type: average
+    sql: ${TABLE}.OEE_Acumulado *100 ;;
+    value_format: "0\%"
+  }
+
+  measure: pro_oee_diario {
+    type: average
+    sql: ${TABLE}.OEE_Diario *100 ;;
+    value_format: "0\%"
+  }
+
+
+  measure: Total_canceladas {
+    type: sum
+    sql: ${TABLE}.Canceladas ;;
+  #  drill_fields: [planta,concepto_cav_cancelada,Total_canceladas]
+
+
+  }
+
+
+  measure: pro_estandar_proveedor {
+    type: average
+    sql: ${TABLE}.Estandar_proveedor ;;
+  }
+
+  measure: pro_real2 {
+    type: average
+    sql: ${TABLE}.Real2 ;;
+  }
+
+
+  measure: total_cambio__color {
+    type: sum
+    sql: ${TABLE}.`Cambio_ color` ;;
+  }
+
+  measure: total_cambio_molde {
+    type: sum
+    sql: ${TABLE}.Cambio_molde ;;
+  }
+
+  measure: total_cambio_resina {
+    type: sum
+    sql: ${TABLE}.Cambio_resina ;;
+  }
+
+  measure: total_preventivo {
+    type: sum
+    sql: ${TABLE}.Preventivo ;;
+  }
+
+  measure: total_otros {
+    type: sum
+    sql: ${TABLE}.Otros ;;
+  }
+
+  measure: total_falta_resina {
+    type: sum
+    sql: ${TABLE}.Falta_resina ;;
+  }
+
 
 
 
