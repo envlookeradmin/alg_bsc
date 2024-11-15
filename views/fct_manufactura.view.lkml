@@ -1,7 +1,7 @@
 
 view: fct_manufactura {
   derived_table: {
-    #sql: select * from envases-analytics-eon-poc.RPT_S4H_MX.vw_bsc_prod_cap_manufactura WHERE CAST(FECHA_FIN_REAL AS date) between DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) and  DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)    ;;
+    #sql: select * from envases-analytics-qa.RPT_S4H_MX.vw_bsc_prod_cap_manufactura WHERE CAST(FECHA_FIN_REAL AS date) between DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) and  DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)    ;;
 
     sql:/*select m.*
                ,case when PLANTA='MF01' then 'MF51'
@@ -12,7 +12,7 @@ view: fct_manufactura {
                     when PLANTA='MF07' then 'MF57' end planta_venta
                 --,b.cantidad Cantidad_ventas
               --  ,b.MONTO Monto_ventas
-                from envases-analytics-eon-poc.RPT_S4H_MX.vw_fact_prod_cap_manufactura m
+                from envases-analytics-qa.RPT_S4H_MX.vw_fact_prod_cap_manufactura m
 
       WHERE CAST(FECHA_FIN_REAL AS date) between CAST({% date_start date_filter %} AS DATE)  and  CAST({% date_end date_filter %} AS DATE)  */
 
@@ -30,7 +30,7 @@ view: fct_manufactura {
       when PLANTA='MF10' then 'MF10'
       when PLANTA='GF01' then 'GF01' else PLANTA end PLANTA_VENTA
 
-      /*  from envases-analytics-eon-poc.RPT_S4H_MX.vw_fact_prod_cap_manufactura m*/
+      /*  from envases-analytics-qa.RPT_S4H_MX.vw_fact_prod_cap_manufactura m*/
       from (SELECT DISTINCT
       PLANTA
       ,date_trunc(FECHA_FIN_REAL,month) FECHA_FIN_REAL
@@ -39,10 +39,45 @@ view: fct_manufactura {
       ,avg(CANTIDAD_BASE) CANTIDAD_BASE
       ,sum(CANTIDAD_ENTREGADA) CANTIDAD_ENTREGADA
       ,sum(CANTIDAD_BUENA_CONFIRMADA) CANTIDAD_BUENA_CONFIRMADA,
-      FROM `envases-analytics-qa.RPT_S4H_MX.vw_fact_prod_cap_manufactura`
+      FROM envases-analytics-qa.RPT_S4H_MX.vw_fact_prod_cap_manufactura
 
-      WHERE CAST(FECHA_FIN_REAL AS date)   between CAST({% date_start date_filter_FECHA_FIN_REAL %}   AS DATE)  and  DATE_ADD(CAST({% date_end date_filter_FECHA_FIN_REAL %} AS DATE), INTERVAL -1 DAY)
-      and CAST(FECHA_LIBERACION AS date) between CAST({% date_start date_filter_FECHA_LIBERACION %} AS DATE)  and  DATE_ADD(CAST({% date_end date_filter_FECHA_LIBERACION %} AS DATE), INTERVAL -1 DAY)
+
+      -- WHERE FECHA_FIN_REAL  between '2024-08-01' AND '2024-09-01'
+      --   AND FECHA_LIBERACION  between '2024-08-01' AND '2024-08-31'
+      --     AND PLANTA = 'MF10'
+      --  AND DENOMINACION_GRUPO_ARTICULO LIKE  '%Cubeta de Plástico n%'
+
+      WHERE CAST(FECHA_FIN_REAL AS date)
+      between
+      DATE_ADD( DATE_ADD(LAST_DAY(CAST({% date_start date_filter_FECHA_FIN_REAL %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH )
+
+      --CAST({% date_start date_filter_FECHA_FIN_REAL %}   AS DATE)
+
+      and   CASE
+      WHEN {% date_start date_filter_FECHA_LIBERACION %} IS NOT NULL
+      THEN DATE_ADD( CAST( {% date_end date_filter_FECHA_FIN_REAL %} AS DATE) , INTERVAL -1 DAY )
+      ELSE DATE_ADD( LAST_DAY( CAST( {% date_start date_filter_FECHA_FIN_REAL %} AS DATE) ) , INTERVAL 1 DAY)
+      END
+
+      --DATE_ADD(CAST({% date_end date_filter_FECHA_FIN_REAL %} AS DATE), INTERVAL -1 DAY)
+
+      and CAST(FECHA_LIBERACION AS date)
+      between
+      CASE
+      WHEN {% date_start date_filter_FECHA_LIBERACION %} IS NOT NULL
+      THEN CAST( {% date_start date_filter_FECHA_LIBERACION %} AS DATE)
+      ELSE DATE_ADD( DATE_ADD(LAST_DAY(CAST({% date_start date_filter_FECHA_FIN_REAL %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH )
+      END
+
+      --CAST({% date_start date_filter_FECHA_LIBERACION %} AS DATE)
+
+      and  CASE
+      WHEN {% date_start date_filter_FECHA_LIBERACION %} IS NOT NULL
+      THEN DATE_ADD( CAST( {% date_end date_filter_FECHA_LIBERACION %} AS DATE) , INTERVAL -1 DAY)
+      ELSE LAST_DAY( CAST( {% date_start date_filter_FECHA_FIN_REAL %} AS DATE) )
+      END
+
+      --DATE_ADD(CAST( {% date_end date_filter_FECHA_LIBERACION %} AS DATE), INTERVAL -1 DAY)
 
       group by PLANTA
       ,date_trunc(FECHA_FIN_REAL,month)
@@ -72,7 +107,7 @@ view: fct_manufactura {
       when PLANTA='GF01' then 'GF01' else PLANTA end PLANTA
       ,date_trunc(CAST(FECHA AS date),month) FECHA
       ,ID_GRUPO_MATERIAL
-      ,SUM(CANTIDAD) MONTO  from `envases-analytics-qa.RPT_S4H_MX.vw_bsc_presupuesto_ventas`
+      ,SUM(CANTIDAD) MONTO  from envases-analytics-qa.RPT_S4H_MX.vw_bsc_presupuesto_ventas
       GROUP BY PLANTA,date_trunc(CAST(FECHA AS date),month),ID_GRUPO_MATERIAL) v on v.planta=m.PLANTA and v.ID_GRUPO_MATERIAL=m.ID_GRUPO_MATERIAL and v.FECHA=m.FECHA_FIN_REAL  and m.row_v=1
 
       left join (
@@ -80,8 +115,8 @@ view: fct_manufactura {
       ,date_trunc(FECHA,month) FECHA
       ,GRUPO_MATERIAL ID_GRUPO_MATERIAL
       ,PUESTO_TRABAJO
-      ,avg(OEE) OEE   from `envases-analytics-qa.RPT_S4H_MX.vw_fact_utilidad_eficiencia_oee_rpm` r
-      LEFT JOIN `envases-analytics-qa.RPT_S4H_MX.vw_bsc_material` m on m.id_material=r.id_material
+      ,avg(OEE) OEE   from envases-analytics-qa.RPT_S4H_MX.vw_fact_utilidad_eficiencia_oee_rpm r
+      LEFT JOIN envases-analytics-qa.RPT_S4H_MX.vw_bsc_material m on m.id_material=r.id_material
       GROUP BY PLANTA,date_trunc(FECHA,month),GRUPO_MATERIAL ,PUESTO_TRABAJO ) o on o.planta=m.PLANTA and cast(o.FECHA as DATE)=date_trunc(m.FECHA_FIN_REAL,month) and o.ID_GRUPO_MATERIAL=m.ID_GRUPO_MATERIAL and  o.PUESTO_TRABAJO=m.PUESTO_TRABAJO_PRODUCCION
 
 
@@ -91,7 +126,7 @@ view: fct_manufactura {
       ,ID_MATERIAL
       ,FECHA
       ,sum(OEE) OEE
-      from envases-analytics-eon-poc.RPT_S4H_MX.vw_fact_utilidad_eficiencia_oee_rpm
+      from envases-analytics-qa.RPT_S4H_MX.vw_fact_utilidad_eficiencia_oee_rpm
       group by  ORDEN
       ,PLANTA
       ,ID_MATERIAL
