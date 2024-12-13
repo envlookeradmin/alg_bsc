@@ -360,12 +360,28 @@ view: fct_devoluciones {
     value_format: "0.00\%"
   }
 
+  measure: Total_facturacion_meta {
+    hidden: yes
+    type: average
+    sql: case when ${TABLE}.string_field_34 like '%-%' then 0 else cast( ( REPLACE(REPLACE(${TABLE}.string_field_34,'$',''),',','')  ) as float64) * 650 end;;
+    value_format:"$#.00;($#.00)"
+
+  }
+
+  measure: Total_devolucion_meta {
+    hidden: yes
+    type: average
+    sql: case when ${TABLE}.string_field_34 like '%-%' then 0 else cast( ( REPLACE(REPLACE(${TABLE}.string_field_34,'$',''),',','')  ) as float64) end;;
+    value_format:"$#.00;($#.00)"
+
+  }
+
   measure: porc_devolucion_meta {
     label: "% Meta"
     type:  number
     sql: ( case
-           when ${Total_facturacion} != 0
-           then ( ${Total_devolucion} * 0.7) / ( ${Total_facturacion} * 0.8)
+           when ${Total_facturacion_meta} != 0
+           then ( ${Total_devolucion_meta} * 0.7) / ( ${Total_facturacion_meta} * 0.8)
            else 0
            end )*100 ;;
 
