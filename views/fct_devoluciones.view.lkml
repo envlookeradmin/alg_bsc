@@ -363,7 +363,7 @@ view: fct_devoluciones {
   measure: Total_facturacion_meta {
     hidden: yes
     type: average
-    sql: case when ${TABLE}.string_field_34 like '%-%' then 0 else cast( ( REPLACE(REPLACE(${TABLE}.string_field_34,'$',''),',','')  ) as float64) * 650 end;;
+    sql: case when ${TABLE}.string_field_34 like '%-%' then 0 else cast( ( REPLACE(REPLACE(${TABLE}.string_field_34,'$',''),',','')  ) as float64) * 620 end;;
     value_format:"$#.00;($#.00)"
 
   }
