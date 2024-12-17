@@ -40,6 +40,21 @@ view: fct_devoluciones {
 
   }
 
+  parameter: Tipo_periodo {
+    description: "Parámetro que define mes o trimestre"
+    label: "Tipo periodo"
+
+    allowed_value: {
+      label:"Mes"
+      value: "Mes"
+    }
+    allowed_value: {
+      label: "Trimestre"
+      value: "Trimestre"
+    }
+
+  }
+
 
   measure: count {
     type: count
@@ -79,8 +94,37 @@ view: fct_devoluciones {
     sql: PARSE_TIMESTAMP('%d/%m/%Y', ${TABLE}.fecha_ingreso) ;;
   }
 
+  dimension: mes {
+    type: date_month_name
+    #sql:  ${fecha_ingreso_month_name} ;;
+    sql: PARSE_TIMESTAMP('%d/%m/%Y', ${TABLE}.fecha_ingreso) ;;
 
+    #order_by_field: fecha_ingreso_month
+  }
 
+  dimension: trimestre {
+    type: date_quarter_of_year
+    #sql:  CONCAT(${fecha_ingreso_year}, ' - Q', CAST(format_date('%Q', ${fecha_ingreso_date} ) AS STRING) ) ;;
+
+    sql: PARSE_TIMESTAMP('%d/%m/%Y', ${TABLE}.fecha_ingreso) ;;
+
+    #order_by_field: fecha_ingreso_quarter
+  }
+
+  dimension: periodo {
+    label: "Periodo"
+    type: string
+
+    sql: CASE
+    WHEN {% parameter Tipo_periodo  %} = "Mes"
+    THEN ${mes}
+    WHEN {% parameter Tipo_periodo  %} = "Trimestre"
+    THEN ${trimestre}
+    END ;;
+
+    value_format: "0 \" String\""
+
+  }
 
   dimension: autorizado {
     type: string
@@ -352,7 +396,7 @@ view: fct_devoluciones {
     label: "Porcentaje"
     type:  number
     sql: ( case
-           when ${Total_facturacion} != 0
+           when ${Total_facturacion} != 0 and ${Total_devolucion} != 0
            then ${Total_devolucion} / ${Total_facturacion}
            else 0
            end )*100 ;;
@@ -380,7 +424,7 @@ view: fct_devoluciones {
     label: "% Meta"
     type:  number
     sql: ( case
-           when ${Total_facturacion_meta} != 0
+           when ${Total_facturacion_meta} != 0 and ${Total_devolucion_meta} != 0
            then ( ${Total_devolucion_meta} * 0.7) / ( ${Total_facturacion_meta} * 0.8)
            else 0
            end )*100 ;;
