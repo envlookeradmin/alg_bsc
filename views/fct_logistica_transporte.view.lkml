@@ -1,12 +1,95 @@
 
 view: fct_logistica_transporte {
   derived_table: {
-    sql: SELECT * FROM `envases-analytics-qa.RPT_S4H_MX.tbl_fact_logistica_transporte`  ;;
+    sql: WITH FLETES AS (
+  SELECT
+    CAST(ID_FLETE AS STRING) AS ID_FLETE,
+    ARRAY_AGG(
+      STRUCT (
+        ORDEN_FLETE,
+        CLASE_ORDEN_FLETE,
+        FECHA_CREACION_FO,
+        FECHA_CONTABILIZACION_DLF,
+        DOCUMENTO_LIQUIDACION,
+        IMPORTE_FO,
+        MONEDA_FO,
+        ORGANIZACION_COMPRA,
+        CLIENTE_DESTINATARIO,
+        NUMERO_TRANSPORTISTA,
+        ID_TRANSPORTISTA,
+        ESTADO_FACTURACION,
+        ID_FLETE,
+        LIFECYCLE,
+        BUSINESSPARTNERROLE,
+        NET_AMOUNT,
+        TRANSPORTATIONORDERUUID
+      )
+
+    ) AS FLETES_DETAILS -- Nesting Fletes
+  FROM `envases-analytics-qa.RPT_S4H_MX.tbl_fact_logistica_fletes`
+  WHERE LIFECYCLE IN ('04', '07')
+    AND BUSINESSPARTNERROLE = 'U3'
+    AND NET_AMOUNT > 0
+    AND ORGANIZACION_COMPRA IN ('MX01', 'MX06')
+  GROUP BY ID_FLETE
+),
+FACTURAS AS (
+  SELECT
+    CAST(ID_FLETE AS STRING) AS ID_FLETE,
+    NUMERO_FACTURA,
+    COUNT(NUMERO_FACTURA) OVER (PARTITION BY ID_FLETE) AS CONTEO,
+    FECHA_FACTURACION,
+    PLANTA,
+    REGLA,
+    VARIANTES,
+    ID_CLIENTE_DESTINATARIO,
+    CANAL_DISTRIBUCION,
+    IMPORTE_NETO_FACTURACION,
+    TOTAL_NETO_FACTURACION,
+    TOTAL_PORCENTAJE
+  FROM `envases-analytics-qa.RPT_S4H_MX.tbl_fact_logistica_facturacion`
+  --WHERE DATE_TRUNC(FECHA_FACTURACION, YEAR) = '2024-01-01'
+)
+SELECT
+  FACTURAS.ID_FLETE,
+  FACTURAS.NUMERO_FACTURA,
+  FACTURAS.CONTEO,
+  FECHA_FACTURACION,
+  PLANTA CENTRO ,
+  REGLA,
+  VARIANTES,
+  ID_CLIENTE_DESTINATARIO,
+  CANAL_DISTRIBUCION,
+  FACTURAS.IMPORTE_NETO_FACTURACION,
+  FACTURAS.TOTAL_NETO_FACTURACION,
+  FACTURAS.TOTAL_PORCENTAJE,
+  IFNULL(FLETES.FLETES_DETAILS, []) AS FLETES_NESTED,
+    FLETES.FLETES_DETAILS[0].ORDEN_FLETE,
+  FLETES.FLETES_DETAILS[0].NUMERO_TRANSPORTISTA,
+  FLETES.FLETES_DETAILS[0].CLIENTE_DESTINATARIO,
+  FLETES.FLETES_DETAILS[0].IMPORTE_FO as IMPORTE_FO,
+  FLETES.FLETES_DETAILS[0].FECHA_CONTABILIZACION_DLF as FECHA_CONTABILIZACION_DLF,
+FROM FACTURAS
+LEFT JOIN FLETES
+  ON FACTURAS.ID_FLETE = FLETES.ID_FLETE
+--where FACTURAS.ID_FLETE like "%81063846%"
+ORDER BY ARRAY_LENGTH(FLETES.FLETES_DETAILS) DESC;;
   }
 
   measure: count {
     type: count
     drill_fields: [detail*]
+  }
+
+  dimension: numero_transportista {
+    type: string
+    sql: ${TABLE}.NUMERO_TRANSPORTISTA ;;
+  }
+
+
+  dimension: cliente_destinatario {
+    type: string
+    sql: ${TABLE}.CLIENTE_DESTINATARIO ;;
   }
 
   dimension: planta_manufacturera {
@@ -40,19 +123,36 @@ view: fct_logistica_transporte {
   }
 
 
+
   dimension_group: fecha_contabilizacion_dlf {
-   type: time
+    type: time
     timeframes: [raw, date, week, month, quarter, year]
     convert_tz: no
     datatype: date
     sql: ${TABLE}.FECHA_CONTABILIZACION_DLF ;;
   }
 
+  dimension_group: fecha_facturacion {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    convert_tz: no
+    datatype: date
+    sql: ${TABLE}.FECHA_FACTURACION ;;
+  }
+
+  dimension: centro {
+    type: string
+    sql: ${TABLE}.CENTRO ;;
+  }
+
+
+
+
   measure: Total_importe_neto_facturacion {
     label: "Importe de Facturación"
     type: sum
     sql: CAST(${TABLE}.IMPORTE_NETO_FACTURACION AS FLOAT64) ;;
-    value_format: "#,##0.00"
+    value_format: "$#,##0.00"
   }
 
   measure: Total_planta_manufacturera {
@@ -68,6 +168,8 @@ view: fct_logistica_transporte {
               when ${centro}="MF08" THEN ${TABLE}.IMPORTE_FO
               when ${centro}="MF09" THEN ${TABLE}.IMPORTE_FO
               when ${centro}="MF10" THEN ${TABLE}.IMPORTE_FO else 0 end  ;;
+
+    value_format: "$#,##0.00"
   }
 
   measure: Total_planta_Comercializadora {
@@ -83,6 +185,8 @@ view: fct_logistica_transporte {
               when ${centro}="MF58" THEN ${TABLE}.IMPORTE_FO
               when ${centro}="MF59" THEN ${TABLE}.IMPORTE_FO
               when ${centro}="MF60" THEN ${TABLE}.IMPORTE_FO else 0 end  ;;
+
+    value_format: "$#,##0.00"
   }
 
 
@@ -90,6 +194,8 @@ view: fct_logistica_transporte {
     label: "Importe Flete"
     type: number
     sql: ${Total_planta_Comercializadora}+${Total_planta_manufacturera} ;;
+
+    value_format: "$#,##0.00"
   }
 
   measure: por_comercializadora {
@@ -113,7 +219,7 @@ view: fct_logistica_transporte {
   measure: por_Total {
     label: "% Total"
     type: number
-   sql: ${Total_flete}/nullif(${Total_importe_neto_facturacion},0) *100 ;;
+    sql: ${Total_flete}/nullif(${Total_importe_neto_facturacion},0) *100 ;;
 
     value_format: "0.00\%"
     html:
@@ -133,13 +239,29 @@ view: fct_logistica_transporte {
   }
 
 
-
-
-
-
-  dimension: centro {
+  dimension: orden_flete {
     type: string
-    sql: ${TABLE}.CENTRO ;;
+    sql: ${TABLE}.ORDEN_FLETE ;;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  dimension: id_flete {
+    type: string
+    sql: ${TABLE}.ID_FLETE ;;
   }
 
   dimension: numero_factura {
@@ -147,92 +269,30 @@ view: fct_logistica_transporte {
     sql: ${TABLE}.NUMERO_FACTURA ;;
   }
 
-  dimension: importe_neto_facturacion {
+  dimension: conteo {
     type: number
-    sql: ${TABLE}.IMPORTE_NETO_FACTURACION   ;;
+    sql: ${TABLE}.CONTEO ;;
   }
 
+  dimension: fecha_facturacion {
+    type: date
+    datatype: date
+    sql: ${TABLE}.FECHA_FACTURACION ;;
+  }
 
+  dimension: planta {
+    type: string
+    sql: ${TABLE}.PLANTA ;;
+  }
+
+  dimension: regla {
+    type: string
+    sql: ${TABLE}.REGLA ;;
+  }
 
   dimension: variantes {
     type: string
     sql: ${TABLE}.VARIANTES ;;
-  }
-
-  dimension: transportationorderuuid {
-    type: string
-    sql: ${TABLE}.TRANSPORTATIONORDERUUID ;;
-  }
-
-  dimension: orden_flete {
-    type: string
-    sql: ${TABLE}.ORDEN_FLETE ;;
-  }
-
-  dimension: clase_orden_flete {
-    type: string
-    sql: ${TABLE}.CLASE_ORDEN_FLETE ;;
-  }
-
- # dimension: fecha_creacion_fo {
-#    type: number
-#    sql: ${TABLE}.FECHA_CREACION_FO ;;
-#  }
-
-  dimension_group: fecha_creacion_fo {
-    type: time
-    timeframes: [raw, date, week, month, quarter, year]
-    convert_tz: no
-    datatype: date
-    sql: ${TABLE}.FECHA_CREACION_FO ;;
-  }
-
-
-  dimension: entrega {
-    type: string
-    sql: ${TABLE}.ENTREGA ;;
-  }
-
-
-
-  dimension: documento_liquidacion {
-    type: string
-    sql: ${TABLE}.DOCUMENTO_LIQUIDACION ;;
-  }
-
-  dimension: importe_fo {
-    type: number
-    sql: ${TABLE}.IMPORTE_FO ;;
-  }
-
-  measure: Total_importe_fo {
-    type: sum
-    sql: ${TABLE}.IMPORTE_FO ;;
-  }
-
-  dimension: moneda_fo {
-    type: string
-    sql: ${TABLE}.MONEDA_FO ;;
-  }
-
-  dimension: organizacion_compra {
-    type: string
-    sql: ${TABLE}.ORGANIZACION_COMPRA ;;
-  }
-
-  dimension: cliente_destinatario {
-    type: string
-    sql: ${TABLE}.CLIENTE_DESTINATARIO ;;
-  }
-
-  dimension: numero_transportista {
-    type: string
-    sql: ${TABLE}.NUMERO_TRANSPORTISTA ;;
-  }
-
-  dimension: id_transoportista {
-    type: string
-    sql: ${TABLE}.ID_TRANSOPORTISTA ;;
   }
 
   dimension: id_cliente_destinatario {
@@ -240,32 +300,46 @@ view: fct_logistica_transporte {
     sql: ${TABLE}.ID_CLIENTE_DESTINATARIO ;;
   }
 
-  dimension: estado_facturacion {
+  dimension: canal_distribucion {
     type: string
-    sql: ${TABLE}.ESTADO_FACTURACION ;;
+    sql: ${TABLE}.CANAL_DISTRIBUCION ;;
+  }
+
+  dimension: importe_neto_facturacion {
+    type: number
+    sql: ${TABLE}.IMPORTE_NETO_FACTURACION ;;
+  }
+
+  dimension: total_neto_facturacion {
+    type: number
+    sql: ${TABLE}.TOTAL_NETO_FACTURACION ;;
+  }
+
+  dimension: total_porcentaje {
+    type: number
+    sql: ${TABLE}.TOTAL_PORCENTAJE ;;
+  }
+
+  dimension: fletes_nested {
+    type: string
+    sql: ${TABLE}.FLETES_NESTED ;;
   }
 
   set: detail {
     fields: [
-        centro,
-  numero_factura,
-  importe_neto_facturacion,
-  variantes,
-  transportationorderuuid,
-  orden_flete,
-  clase_orden_flete,
-
-  entrega,
-
-  documento_liquidacion,
-  importe_fo,
-  moneda_fo,
-  organizacion_compra,
-  cliente_destinatario,
-  numero_transportista,
-  id_transoportista,
-  id_cliente_destinatario,
-  estado_facturacion
+      id_flete,
+      numero_factura,
+      conteo,
+      fecha_facturacion,
+      planta,
+      regla,
+      variantes,
+      id_cliente_destinatario,
+      canal_distribucion,
+      importe_neto_facturacion,
+      total_neto_facturacion,
+      total_porcentaje,
+      fletes_nested
     ]
   }
 }
