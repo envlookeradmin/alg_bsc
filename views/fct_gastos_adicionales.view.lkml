@@ -38,7 +38,7 @@ dimension: VARIANTES {
 
   dimension: centro {
     type: string
-    sql: ${TABLE}.CENTRO ;;
+    sql: ${TABLE}.PLANTA ;;
   }
 
   measure: Total_planta_manufacturera {
