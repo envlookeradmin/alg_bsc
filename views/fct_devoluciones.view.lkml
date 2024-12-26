@@ -177,9 +177,9 @@ view: fct_devoluciones {
     label: "Facturación"
     type: sum
     sql: CASE
-    WHEN {% parameter Tipo  %} = "Piezas"
+    WHEN {% parameter tipo  %} = "Piezas"
     THEN ${TABLE}.Cantidad_venta
-    WHEN {% parameter Tipo  %} = "Dinero"
+    WHEN {% parameter tipo  %} = "Dinero"
     THEN ${TABLE}.Monto_venta END ;;
 
     value_format:"$#.00;($#.00)"
@@ -189,9 +189,9 @@ view: fct_devoluciones {
     label: "Devolución"
     type: sum
     sql: CASE
-    WHEN {% parameter Tipo  %} = "Piezas"
+    WHEN {% parameter tipo  %} = "Piezas"
     THEN ${TABLE}.Cantidad_devolucion
-    WHEN {% parameter Tipo  %} = "Dinero"
+    WHEN {% parameter tipo  %} = "Dinero"
     THEN   ${TABLE}.Monto_devolucion END ;;
 
     value_format:"$#.00;($#.00)"
