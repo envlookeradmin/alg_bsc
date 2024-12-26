@@ -66,22 +66,18 @@ view: fct_devoluciones {
             group by 1,2,3,4,5,6,7,8,9,10,11 ;;
   }
 
-  parameter: medidas_dinamicas {
+  parameter: tipo {
     description: "Parámetro que define unidad a medir"
-    label: "Concepto"
+    label: "Tipo"
     allowed_value: {
-      label:"Evento"
-      value: "Evento"
+      label:"Piezas"
+      value: "Piezas"
     }
     allowed_value: {
-      label: "Sanitario"
-      value: "Sanitario"
+      label: "Dinero"
+      value: "Dinero"
     }
 
-    allowed_value: {
-      label: "Lineas Generales"
-      value: "Linea"
-    }
   }
 
   parameter: tipo_periodo {
