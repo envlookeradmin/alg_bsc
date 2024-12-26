@@ -108,7 +108,7 @@ view: fct_devoluciones {
       month_name,
       year
     ]
-    sql: ${TABLE}.Fecha ;;
+    sql: CAST(${TABLE}.Fecha AS TIMESTAMP) ;;
   }
 
   dimension: mes {
