@@ -26,7 +26,7 @@ view: fct_devoluciones {
                                                 WHERE FUENTE = "S4H_MEX"
                                                 AND REGLA="Devoluciones"
                                                 AND CAMPO="TipoDocumento"
-                                                AND SE_EXCLUYE IS NULL) THEN vtas.Cantidad ELSE 0 END) AS Cantidad_devolucion,
+                                                AND SE_EXCLUYE IS NULL) THEN vtas.Cantidad*-1 ELSE 0 END) AS Cantidad_devolucion,
           SUM(CASE WHEN vtas.Tipo_Documento IN (SELECT
                                                 VALOR
                                                 FROM RPT_ALG.REGLAS_ALG
@@ -95,6 +95,12 @@ view: fct_devoluciones {
 
   }
 
+  dimension: fecha_orden_mes {
+    type: date
+    sql:  ${TABLE}.Fecha ;;
+
+  }
+
   dimension_group: fecha {
     label: "Fecha"
     type: time
@@ -116,7 +122,7 @@ view: fct_devoluciones {
 
     sql: ${TABLE}.Nombre_mes ;;
 
-    #order_by_field: fecha_ingreso_month
+    order_by_field: fecha_orden_mes
   }
 
   dimension: trimestre {
@@ -169,7 +175,19 @@ view: fct_devoluciones {
   measure: total_eventos {
     label: "Eventos"
     type: sum
-    sql: ${TABLE}.Evento;;
+    sql: ${TABLE}.Evento ;;
+
+  }
+
+  measure: facturacion {
+    type: sum
+    sql: ${TABLE}.Monto_venta ;;
+
+  }
+
+  measure: devolucion {
+    type: sum
+    sql: ${TABLE}.Monto_devolucion ;;
 
   }
 
@@ -182,7 +200,7 @@ view: fct_devoluciones {
     WHEN {% parameter tipo  %} = "Dinero"
     THEN ${TABLE}.Monto_venta END ;;
 
-    value_format:"$#.00;($#.00)"
+    value_format:"$#.00;(#.00)"
   }
 
   measure: total_devolucion {
@@ -192,9 +210,9 @@ view: fct_devoluciones {
     WHEN {% parameter tipo  %} = "Piezas"
     THEN ${TABLE}.Cantidad_devolucion
     WHEN {% parameter tipo  %} = "Dinero"
-    THEN   ${TABLE}.Monto_devolucion END ;;
+    THEN  ${TABLE}.Monto_devolucion END ;;
 
-    value_format:"$#.00;($#.00)"
+    value_format:"$#.00;(#.00)"
 
   }
 
@@ -202,8 +220,35 @@ view: fct_devoluciones {
     label: "Porcentaje"
     type:  number
     sql: ( case
-           when ${total_facturacion} != 0 and ${total_devolucion} != 0
-           then ${total_devolucion} / ${total_facturacion}
+           when ${facturacion} != 0 and ${devolucion} != 0
+           then ${devolucion} / ${facturacion}
+           else 0
+           end ) * 100 ;;
+
+    value_format: "0.00\%"
+  }
+
+  measure: total_facturacion_meta {
+    type: sum
+    sql: ${TABLE}.Monto_venta * 620 ;;
+
+    value_format:"$#.00"
+  }
+
+  measure: total_devolucion_meta {
+    type: sum
+    sql: ${TABLE}.Monto_devolucion ;;
+
+    value_format:"$#.00"
+
+  }
+
+  measure: porc_devolucion_meta {
+    label: "Porcentaje meta"
+    type:  number
+    sql: ( case
+           when ${total_facturacion_meta} != 0 and ${total_devolucion_meta} != 0
+           then ( ${total_devolucion_meta} * 0.7 ) / ( ${total_facturacion_meta} * 0.8)
            else 0
            end ) * 100 ;;
 
