@@ -240,7 +240,7 @@ view: fct_devoluciones {
   measure: total_facturacion_meta {
     group_label: "Totales"
     type: sum
-    sql: ${TABLE}.Monto_venta * 620 ;;
+    sql: ${TABLE}.Monto_venta * 1.2 ;;
 
     value_format:"$#.00"
   }
@@ -255,6 +255,7 @@ view: fct_devoluciones {
   }
 
   measure: porc_devolucion_meta {
+    group_label: "Totales"
     label: "Porcentaje meta"
     type:  number
     sql: ( case
