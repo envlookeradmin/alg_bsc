@@ -156,6 +156,11 @@ view: fct_devoluciones {
 
   }
 
+  dimension: organizacion_ventas {
+    label: "Organizacion ventas"
+    sql: ${TABLE}.Organizacion_Ventas ;;
+  }
+
   dimension: categoria {
     label: "Categoria"
     type: string
