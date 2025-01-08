@@ -180,6 +180,7 @@ view: fct_devoluciones {
   }
 
   measure: facturacion {
+
     type: sum
     sql: ${TABLE}.Monto_venta ;;
 
@@ -192,6 +193,7 @@ view: fct_devoluciones {
   }
 
   measure: total_facturacion {
+    group_label: "Totales"
     label: "Facturación"
     type: sum
     sql: CASE
@@ -204,6 +206,7 @@ view: fct_devoluciones {
   }
 
   measure: total_devolucion {
+    group_label: "Totales"
     label: "Devolución"
     type: sum
     sql: CASE
@@ -217,6 +220,7 @@ view: fct_devoluciones {
   }
 
   measure: porc_devolucion {
+    group_label: "Totales"
     label: "Porcentaje"
     type:  number
     sql: ( case
@@ -229,6 +233,7 @@ view: fct_devoluciones {
   }
 
   measure: total_facturacion_meta {
+    group_label: "Totales"
     type: sum
     sql: ${TABLE}.Monto_venta * 620 ;;
 
@@ -236,6 +241,7 @@ view: fct_devoluciones {
   }
 
   measure: total_devolucion_meta {
+    group_label: "Totales"
     type: sum
     sql: ${TABLE}.Monto_devolucion ;;
 
