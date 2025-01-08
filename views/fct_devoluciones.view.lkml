@@ -184,43 +184,56 @@ view: fct_devoluciones {
 
   }
 
-  measure: facturacion {
+  measure: monto_facturacion {
 
     type: sum
-    sql: ${TABLE}.Monto_venta ;;
+    sql: ${TABLE}.Monto_venta/1000 ;;
 
   }
 
-  measure: devolucion {
+  measure: monto_devolucion {
     type: sum
-    sql: ${TABLE}.Monto_devolucion ;;
+    sql: ${TABLE}.Monto_devolucion/1000 ;;
+
+  }
+
+  measure: cantidad_facturacion {
+
+    type: sum
+    sql: ${TABLE}.Cantidad_venta/1000 ;;
+
+  }
+
+  measure: cantidad_devolucion {
+    type: sum
+    sql: ${TABLE}.Cantidad_devolucion/1000 ;;
 
   }
 
   measure: total_facturacion {
     group_label: "Totales"
     label: "Facturación"
-    type: sum
+    type: number
     sql: CASE
     WHEN {% parameter tipo  %} = "Piezas"
-    THEN ${TABLE}.Cantidad_venta
+    THEN ${cantidad_facturacion}
     WHEN {% parameter tipo  %} = "Dinero"
-    THEN ${TABLE}.Monto_venta END ;;
+    THEN ${monto_facturacion} END ;;
 
-    value_format:"$#.00;(#.00)"
+    value_format:"$#,##0.00;(#.00)"
   }
 
   measure: total_devolucion {
     group_label: "Totales"
     label: "Devolución"
-    type: sum
+    type: number
     sql: CASE
     WHEN {% parameter tipo  %} = "Piezas"
-    THEN ${TABLE}.Cantidad_devolucion
+    THEN ${cantidad_devolucion}
     WHEN {% parameter tipo  %} = "Dinero"
-    THEN  ${TABLE}.Monto_devolucion END ;;
+    THEN ${monto_devolucion} END ;;
 
-    value_format:"$#.00;(#.00)"
+    value_format:"$#,##0.00;(#.00)"
 
   }
 
@@ -229,8 +242,8 @@ view: fct_devoluciones {
     label: "Porcentaje"
     type:  number
     sql: ( case
-           when ${facturacion} != 0 and ${devolucion} != 0
-           then ${devolucion} / ${facturacion}
+           when ${monto_facturacion} != 0 and ${monto_devolucion} != 0
+           then ${monto_devolucion} / ${monto_facturacion}
            else 0
            end ) * 100 ;;
 
@@ -242,7 +255,7 @@ view: fct_devoluciones {
     type: sum
     sql: ${TABLE}.Monto_venta * 1.2 ;;
 
-    value_format:"$#.00"
+    value_format:"$#,##0.00"
   }
 
   measure: total_devolucion_meta {
@@ -250,7 +263,7 @@ view: fct_devoluciones {
     type: sum
     sql: ${TABLE}.Monto_devolucion ;;
 
-    value_format:"$#.00"
+    value_format:"$#,##0.00"
 
   }
 
