@@ -33,9 +33,9 @@ view: fct_devoluciones {
                                                 WHERE FUENTE = "S4H_MEX"
                                                 AND REGLA="Devoluciones"
                                                 AND CAMPO="TipoDocumento"
-                                                AND SE_EXCLUYE IS NULL) THEN vtas.Monto*-1 ELSE 0 END) AS Monto_devolucion,
+                                                AND SE_EXCLUYE IS NULL) THEN vtas.Monto_Conversion_MXN*-1 ELSE 0 END) AS Monto_devolucion,
           SUM(vtas.Cantidad) AS Cantidad_venta,
-          SUM(vtas.Monto) AS Monto_venta,
+          SUM(vtas.Monto_Conversion_MXN) AS Monto_venta,
           COUNT(DISTINCT CASE WHEN vtas.Tipo_Documento IN (SELECT
                                                   VALOR
                                                   FROM RPT_ALG.REGLAS_ALG
