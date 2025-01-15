@@ -61,7 +61,7 @@ view: fct_devoluciones {
                     AND vtas.Canal_Distribucion = cte.Canal_Distribucion
                     AND vtas.Division = cte.Division
           WHERE
-            vtas.Organizacion_Ventas in ('MXFC','MXF1','GTF1')
+            vtas.Organizacion_Ventas in ('MXFC','GTF1')
             AND vtas.Tipo_Transaccion='Venta'
             group by 1,2,3,4,5,6,7,8,9,10,11 ;;
   }
