@@ -189,11 +189,15 @@ view: fct_devoluciones {
     type: sum
     sql: ${TABLE}.Monto_venta/1000 ;;
 
+    value_format:"$#,##0.00"
+
   }
 
   measure: monto_devolucion {
     type: sum
     sql: ${TABLE}.Monto_devolucion/1000 ;;
+
+    value_format:"$#,##0.00"
 
   }
 
@@ -202,11 +206,15 @@ view: fct_devoluciones {
     type: sum
     sql: ${TABLE}.Cantidad_venta/1000 ;;
 
+    value_format:"#,##0.00"
+
   }
 
   measure: cantidad_devolucion {
     type: sum
     sql: ${TABLE}.Cantidad_devolucion/1000 ;;
+
+    value_format:"#,##0.00"
 
   }
 
@@ -214,26 +222,36 @@ view: fct_devoluciones {
     group_label: "Totales"
     label: "Facturación"
     type: number
+
     sql: CASE
     WHEN {% parameter tipo  %} = "Piezas"
     THEN ${cantidad_facturacion}
     WHEN {% parameter tipo  %} = "Dinero"
-    THEN ${monto_facturacion} END ;;
+    THEN ${monto_facturacion}
+    END ;;
 
-    value_format:"$#,##0.00;(#.00)"
+    #html:
+    #{% if tipo._parameter_value == "Dinero" %} <p> {{ monto_facturacion._rendered_value }}</p>
+    #{% elsif tipo._parameter_value == "Piezas" %} <p> {{ cantidad_facturacion._rendered_value }}</p>
+    #{% endif %} ;;
+
+    value_format:"#,##0.00"
+
   }
 
   measure: total_devolucion {
     group_label: "Totales"
     label: "Devolución"
     type: number
+
     sql: CASE
     WHEN {% parameter tipo  %} = "Piezas"
     THEN ${cantidad_devolucion}
     WHEN {% parameter tipo  %} = "Dinero"
-    THEN ${monto_devolucion} END ;;
+    THEN ${monto_devolucion}
+    END ;;
 
-    value_format:"$#,##0.00;(#.00)"
+    value_format:"#,##0.00"
 
   }
 
