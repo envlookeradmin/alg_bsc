@@ -16,8 +16,8 @@ view: fct_devoluciones {
                       when ID_Planta='GF01' then 'GF01' else ID_Planta end ,' ', REPLACE( REPLACE( REPLACE(Nombre_Planta,'ALG-COM-',''),', México',''), ',México','' ) ) AS Planta,
           vtas.Categoria,
           vtas.Material,
-          mat.Descripcion AS Descripcion_Material,
-          mat.Grupo_Mat,
+          --mat.Descripcion AS Descripcion_Material,
+          --mat.Grupo_Mat,
           vtas.Cliente,
           cte.Nombre AS Nombre_Cliente,
           SUM(CASE WHEN vtas.Tipo_Documento IN (SELECT
@@ -45,10 +45,10 @@ view: fct_devoluciones {
                                                   AND SE_EXCLUYE IS NULL) THEN vtas.Documento ELSE NULL END ) AS Evento
                 FROM
                   `RPT_ALG.Fact_Ventas` vtas
-                LEFT JOIN
+                /*LEFT JOIN
                   `RPT_ALG.Dim_Material` mat ON
                   vtas.ID_Fuente = mat.ID_Fuente
-                  AND vtas.Material = mat.Material
+                  AND vtas.Material = mat.Material*/
                 LEFT JOIN
                   `RPT_ALG.Dim_Planta` plnt ON
                   vtas.ID_Fuente = plnt.ID_Fuente
@@ -63,7 +63,7 @@ view: fct_devoluciones {
           WHERE
             vtas.Organizacion_Ventas in ('MXFC','GTF1')
             AND vtas.Tipo_Transaccion='Venta'
-            group by 1,2,3,4,5,6,7,8,9,10,11 ;;
+            group by 1,2,3,4,5,6,7,8,9 ;;
   }
 
   parameter: tipo {
