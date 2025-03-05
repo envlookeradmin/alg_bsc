@@ -177,6 +177,14 @@ view: fct_devoluciones {
 
   }
 
+  dimension: nombre_cliente {
+    label: "Nombre Cliente"
+    type: string
+
+    sql: ${TABLE}.Nombre_Cliente ;;
+
+  }
+
   measure: total_eventos {
     label: "Eventos"
     type: sum
@@ -235,6 +243,8 @@ view: fct_devoluciones {
     #{% elsif tipo._parameter_value == "Piezas" %} <p> {{ cantidad_facturacion._rendered_value }}</p>
     #{% endif %} ;;
 
+    drill_fields: [categoria, total_facturacion ]
+
     value_format:"#,##0.00"
 
   }
@@ -250,6 +260,8 @@ view: fct_devoluciones {
     WHEN {% parameter tipo  %} = "Dinero"
     THEN ${monto_devolucion}
     END ;;
+
+    drill_fields: [categoria, cliente, nombre_cliente, total_devolucion ]
 
     value_format:"#,##0.00"
 
