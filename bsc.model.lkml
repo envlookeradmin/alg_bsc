@@ -484,3 +484,18 @@ explore: fct_retorno_material_empaque {
 explore: fct_produccion_pet {}
 explore: fct_devoluciones {}
 explore: fct_devoluciones_1 {}
+
+explore: desperdicios_acdoca {
+  join: fecha {
+    type: inner
+    relationship: many_to_one
+    sql_on: ${desperdicios_acdoca.fecha_documento_date} = ${fecha.fecha} ;;
+  }
+}
+explore: desperdicios_mseg {
+  join: fecha {
+    type: inner
+    relationship: many_to_one
+    sql_on: ${desperdicios_mseg.fecha_documento_date} = ${fecha.fecha} ;;
+  }
+}
