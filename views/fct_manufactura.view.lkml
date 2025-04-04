@@ -1,65 +1,33 @@
 
 view: fct_manufactura {
   derived_table: {
-    #sql: select * from envases-analytics-qa.RPT_S4H_MX.vw_bsc_prod_cap_manufactura WHERE CAST(FECHA_FIN_REAL AS date) between DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -2 MONTH) and  DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)    ;;
 
-    sql:/*select m.*
-               ,case when PLANTA='MF01' then 'MF51'
-                    when PLANTA='MF02' then 'MF52'
-                    when PLANTA='MF03' then 'MF53'
-                    when PLANTA='MF04' then 'MF54'
-                    when PLANTA='MF05' then 'MF55'
-                    when PLANTA='MF07' then 'MF57' end planta_venta
-                --,b.cantidad Cantidad_ventas
-              --  ,b.MONTO Monto_ventas
-                from envases-analytics-qa.RPT_S4H_MX.vw_fact_prod_cap_manufactura m
 
-      WHERE CAST(FECHA_FIN_REAL AS date) between CAST({% date_start date_filter %} AS DATE)  and  CAST({% date_end date_filter %} AS DATE)  */
+    sql:
 
-      select m.*,v.monto Monto_ventas,o.OEE
-      from (
-      select*
-      ,row_number() over(PARTITION BY planta,ID_GRUPO_MATERIAL,date_trunc(m.FECHA_FIN_REAL,month) order by FECHA_FIN_REAL) row_v
-      ,row_number() over(PARTITION BY planta,ID_GRUPO_MATERIAL,m.FECHA_FIN_REAL,PUESTO_TRABAJO_PRODUCCION order by FECHA_FIN_REAL) row_o
-      ,case when PLANTA='MF51' then 'MF01'
-      when PLANTA='MF52' then 'MF02'
-      when PLANTA='MF53' then 'MF03'
-      when PLANTA='MF54' then 'MF04'
-      when PLANTA='MF55' then 'MF05'
-      when PLANTA='MF57' then 'MF07'
-      when PLANTA='MF10' then 'MF10'
-      when PLANTA='GF01' then 'GF01' else PLANTA end PLANTA_VENTA
+    WITH produccion AS (
+    SELECT DISTINCT
+                     PLANTA
+                    ,date_trunc(FECHA_FIN_REAL,month) FECHA_FIN_REAL
+                    ,ID_GRUPO_MATERIAL
+                    ,PUESTO_TRABAJO PUESTO_TRABAJO_PRODUCCION
 
-      /*  from envases-analytics-qa.RPT_S4H_MX.vw_fact_prod_cap_manufactura m*/
-      from (SELECT DISTINCT
-      PLANTA
-      ,date_trunc(FECHA_FIN_REAL,month) FECHA_FIN_REAL
-      ,ID_GRUPO_MATERIAL
-      ,PUESTO_TRABAJO PUESTO_TRABAJO_PRODUCCION
       ,avg(CANTIDAD_BASE) CANTIDAD_BASE
       ,sum(CANTIDAD_ENTREGADA) CANTIDAD_ENTREGADA
       ,sum(CANTIDAD_BUENA_CONFIRMADA) CANTIDAD_BUENA_CONFIRMADA,
-      FROM envases-analytics-qa.RPT_S4H_MX.vw_fact_prod_cap_manufactura
-
-
-      -- WHERE FECHA_FIN_REAL  between '2024-08-01' AND '2024-09-01'
-      --   AND FECHA_LIBERACION  between '2024-08-01' AND '2024-08-31'
-      --     AND PLANTA = 'MF10'
-      --  AND DENOMINACION_GRUPO_ARTICULO LIKE  '%Cubeta de Plástico n%'
+      FROM RPT_S4H_MX.vw_fact_prod_cap_manufactura
+      --where FECHA_LIBERACION between '2024-12-01' and '2024-12-31'
+      --   and FECHA_FIN_REAL between '2024-12-01' and '2024-12-31'
 
       WHERE CAST(FECHA_FIN_REAL AS date)
       between
       DATE_ADD( DATE_ADD(LAST_DAY(CAST({% date_start date_filter_FECHA_FIN_REAL %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH )
-
-      --CAST({% date_start date_filter_FECHA_FIN_REAL %}   AS DATE)
 
       and   CASE
       WHEN {% date_start date_filter_FECHA_LIBERACION %} IS NOT NULL
       THEN DATE_ADD( CAST( {% date_end date_filter_FECHA_FIN_REAL %} AS DATE) , INTERVAL -1 DAY )
       ELSE DATE_ADD( LAST_DAY( CAST( {% date_start date_filter_FECHA_FIN_REAL %} AS DATE) ) , INTERVAL 1 DAY)
       END
-
-      --DATE_ADD(CAST({% date_end date_filter_FECHA_FIN_REAL %} AS DATE), INTERVAL -1 DAY)
 
       and CAST(FECHA_LIBERACION AS date)
       between
@@ -69,69 +37,62 @@ view: fct_manufactura {
       ELSE DATE_ADD( DATE_ADD(LAST_DAY(CAST({% date_start date_filter_FECHA_FIN_REAL %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH )
       END
 
-      --CAST({% date_start date_filter_FECHA_LIBERACION %} AS DATE)
-
       and  CASE
       WHEN {% date_start date_filter_FECHA_LIBERACION %} IS NOT NULL
       THEN DATE_ADD( CAST( {% date_end date_filter_FECHA_LIBERACION %} AS DATE) , INTERVAL -1 DAY)
       ELSE LAST_DAY( CAST( {% date_start date_filter_FECHA_FIN_REAL %} AS DATE) )
       END
 
-      --DATE_ADD(CAST( {% date_end date_filter_FECHA_LIBERACION %} AS DATE), INTERVAL -1 DAY)
+
+
+
 
       group by PLANTA
       ,date_trunc(FECHA_FIN_REAL,month)
       ,ID_GRUPO_MATERIAL
       ,PUESTO_TRABAJO_PRODUCCION
 
-      ) m
+      ), OEE AS (
 
-
-      /* and
-      (PUESTO_TRABAJO IS NOT NULL
-      OR PUESTO_TRABAJO != '' )*/
-
-
-      --AND CANTIDAD_BASE IS NOT NULL
-      ) m
-
-
-
-      left join (SELECT case when PLANTA='MF51' then 'MF01'
-      when PLANTA='MF52' then 'MF02'
-      when PLANTA='MF53' then 'MF03'
-      when PLANTA='MF54' then 'MF04'
-      when PLANTA='MF55' then 'MF05'
-      when PLANTA='MF57' then 'MF07'
-      when PLANTA='MF10' then 'MF10'
-      when PLANTA='GF01' then 'GF01' else PLANTA end PLANTA
-      ,date_trunc(CAST(FECHA AS date),month) FECHA
-      ,ID_GRUPO_MATERIAL
-      ,SUM(CANTIDAD) MONTO  from envases-analytics-qa.RPT_S4H_MX.vw_bsc_presupuesto_ventas
-      GROUP BY PLANTA,date_trunc(CAST(FECHA AS date),month),ID_GRUPO_MATERIAL) v on v.planta=m.PLANTA and v.ID_GRUPO_MATERIAL=m.ID_GRUPO_MATERIAL and v.FECHA=m.FECHA_FIN_REAL  and m.row_v=1
-
-      left join (
       select PLANTA
       ,date_trunc(FECHA,month) FECHA
       ,GRUPO_MATERIAL ID_GRUPO_MATERIAL
       ,PUESTO_TRABAJO
-      ,avg(OEE) OEE   from envases-analytics-qa.RPT_S4H_MX.vw_fact_utilidad_eficiencia_oee_rpm r
-      LEFT JOIN envases-analytics-qa.RPT_S4H_MX.vw_bsc_material m on m.id_material=r.id_material
-      GROUP BY PLANTA,date_trunc(FECHA,month),GRUPO_MATERIAL ,PUESTO_TRABAJO ) o on o.planta=m.PLANTA and cast(o.FECHA as DATE)=date_trunc(m.FECHA_FIN_REAL,month) and o.ID_GRUPO_MATERIAL=m.ID_GRUPO_MATERIAL and  o.PUESTO_TRABAJO=m.PUESTO_TRABAJO_PRODUCCION
+
+      , ROUND((
+      ((SUM(qt_total_time)-SUM(qt_down_time))/NULLIF(SUM(qt_total_time),0))*
+      (SUM(qt_yield)/NULLIF(sum(qt_target),0))*
+      (SUM(qt_yield)/NULLIF(SUM(qt_yield+qt_scrap),0))
+      )*100,2) AS OEE
 
 
-      /*
-      LEFT JOIN (select ORDEN
-      ,PLANTA
-      ,ID_MATERIAL
-      ,FECHA
-      ,sum(OEE) OEE
-      from envases-analytics-qa.RPT_S4H_MX.vw_fact_utilidad_eficiencia_oee_rpm
-      group by  ORDEN
-      ,PLANTA
-      ,ID_MATERIAL
-      ,FECHA) o ON o.ORDEN=m.ORDEN and  o.planta=m.PLANTA_VENTA and cast(o.FECHA as DATE)=m.FECHA_FIN_REAL and o.ID_MATERIAL=m.ID_MATERIAL and m.row_o=1
-      */
+      from RPT_S4H_MX.vw_fact_utilidad_eficiencia_oee_rpm r
+      LEFT JOIN RPT_S4H_MX.vw_bsc_material m on m.id_material=r.id_material
+      GROUP BY PLANTA,date_trunc(FECHA,month),GRUPO_MATERIAL ,PUESTO_TRABAJO
+      ), ptto as (
+
+      SELECT          PLANTA
+      ,date_trunc(CAST(FECHA AS date),month) FECHA
+      ,ID_GRUPO_MATERIAL
+      ,SUM(CANTIDAD) MONTO
+      from RPT_S4H_MX.vw_bsc_presupuesto_ventas
+      GROUP BY PLANTA,date_trunc(CAST(FECHA AS date),month),ID_GRUPO_MATERIAL
+      )
+
+      select p.*
+      ,o.OEE
+      ,0 Monto_ventas from produccion p
+      --LEFT JOIN ptto on ptto.planta=p.PLANTA
+      --              and ptto.fecha  =date_trunc(p.FECHA_FIN_REAL,month)
+      --              and ptto.ID_GRUPO_MATERIAL=p.ID_GRUPO_MATERIAL
+      --              and ptto.PUESTO_TRABAJO=p.PUESTO_TRABAJO_PRODUCCION
+      left join OEE o
+      on o.planta=p.PLANTA
+      and date_trunc(cast(o.FECHA as DATE),month)  =date_trunc(p.FECHA_FIN_REAL,month)
+      and o.ID_GRUPO_MATERIAL=p.ID_GRUPO_MATERIAL
+      and o.PUESTO_TRABAJO=p.PUESTO_TRABAJO_PRODUCCION
+
+
       ;;
 
 
@@ -219,6 +180,14 @@ view: fct_manufactura {
     type: count
     drill_fields: [detail*]
   }
+
+
+  dimension: proceso {
+    type: string
+    sql: ${TABLE}.PROCESO ;;
+  }
+
+
 
   dimension: planta {
     type: string
@@ -314,6 +283,16 @@ view: fct_manufactura {
   }
 
 
+  measure: Total_cantidad_base2 {
+    label: "CAPACIDAD2"
+    type: sum
+    sql: SUM(AVG(${TABLE}.CANTIDAD_BASE));;
+    value_format: "#,##0"
+
+
+  }
+
+
   measure: Total_cantidad_rechazo_notificada {
     type: sum
     sql: ${TABLE}.CANTIDAD_RECHAZO_NOTIFICADA ;;
@@ -387,19 +366,28 @@ view: fct_manufactura {
     # {% elsif  value >= 90.0 and value <= 100.0 %}
 
 
-
-
     html:
     {% if value <= 84.9 %}
-   <p> <span style="color: green;">{{ rendered_value }}</span><img src="https://findicons.com/files/icons/1036/function/48/circle_green.png"    height=10 width=10></p>
+    <span style="color: green;">{{ rendered_value }}</span></p>
+    {% elsif  value >= 90.0 and value <= 100.0 %}
+    <span style="color: red;">{{ rendered_value }}</span></p>
+    {% elsif  value >= 85 and value <= 89.9 %}
+    <span style="color: #FFA800;">{{ rendered_value }}</span></p>
+    {% else %}
+    {{rendered_value}}
+    {% endif %} ;;
 
-      {% elsif  value >= 90.0  %}
-      <span style="color: red;">{{ rendered_value }}</span><img src="https://findicons.com/files/icons/1036/function/48/circle_red.png"    height=10 width=10></p>
-      {% elsif  value >= 85 and value <= 89.9 %}
-      <span style="color: #FFA800;">{{ rendered_value }}</span><img src="https://www.emojiall.com/images/240/apple/1f7e1.png"    height=10 width=10></p>
-      {% else %}
-      {{rendered_value}}
-      {% endif %} ;;
+    #html:
+    #{% if value <= 84.9 %}
+    #<p> <span style="color: green;">{{ rendered_value }}</span><img src="https://findicons.com/files/icons/1036/function/48/circle_green.png"    height=10 width=10></p>
+
+    #{% elsif  value >= 90.0  %}
+    #<span style="color: red;">{{ rendered_value }}</span><img src="https://findicons.com/files/icons/1036/function/48/circle_red.png"    height=10 width=10></p>
+    #{% elsif  value >= 85 and value <= 89.9 %}
+    #<span style="color: #FFA800;">{{ rendered_value }}</span><img src="https://www.emojiall.com/images/240/apple/1f7e1.png"    height=10 width=10></p>
+    #{% else %}
+    #{{rendered_value}}
+    #{% endif %} ;;
 
     value_format: "0\%"
   }
@@ -417,13 +405,13 @@ view: fct_manufactura {
 
 
   dimension: OEE {
-    type: number
+    type: string
     sql: ${TABLE}.OEE ;;
   }
 
-  measure: Total_OEE {
+  dimension: Total_OEE {
     label: "OEE"
-    type: average
+    type: string
     sql: ${TABLE}.OEE ;;
     value_format: "#,##0"
 
