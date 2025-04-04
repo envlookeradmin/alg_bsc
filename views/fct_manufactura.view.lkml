@@ -64,7 +64,7 @@ view: fct_manufactura {
       (SUM(qt_yield)/NULLIF(sum(qt_target),0))*
       (SUM(qt_yield)/NULLIF(SUM(qt_yield+qt_scrap),0))
       )*100,2) AS OEE
-
+# este es un comentario
 
       from RPT_S4H_MX.vw_fact_utilidad_eficiencia_oee_rpm r
       LEFT JOIN RPT_S4H_MX.vw_bsc_material m on m.id_material=r.id_material
