@@ -5,87 +5,87 @@ view: fct_manufactura {
 
     sql:
 
-    WITH produccion AS (
-    SELECT DISTINCT
-                     PLANTA
-                    ,date_trunc(FECHA_FIN_REAL,month) FECHA_FIN_REAL
-                    ,ID_GRUPO_MATERIAL
-                    ,PUESTO_TRABAJO PUESTO_TRABAJO_PRODUCCION
+    WITH
+      produccion AS (
+        SELECT
+          DISTINCT
+          PLANTA
+          ,date_trunc(FECHA_FIN_REAL,month) FECHA_FIN_REAL
+          ,ID_GRUPO_MATERIAL
+          ,PUESTO_TRABAJO PUESTO_TRABAJO_PRODUCCION
+          ,avg(CANTIDAD_BASE) CANTIDAD_BASE
+          ,sum(CANTIDAD_ENTREGADA) CANTIDAD_ENTREGADA
+          ,sum(CANTIDAD_BUENA_CONFIRMADA) CANTIDAD_BUENA_CONFIRMADA,
+          FROM RPT_S4H_MX.vw_fact_prod_cap_manufactura
+          --where FECHA_LIBERACION between '2024-12-01' and '2024-12-31'
+          --   and FECHA_FIN_REAL between '2024-12-01' and '2024-12-31'
 
-      ,avg(CANTIDAD_BASE) CANTIDAD_BASE
-      ,sum(CANTIDAD_ENTREGADA) CANTIDAD_ENTREGADA
-      ,sum(CANTIDAD_BUENA_CONFIRMADA) CANTIDAD_BUENA_CONFIRMADA,
-      FROM RPT_S4H_MX.vw_fact_prod_cap_manufactura
-      --where FECHA_LIBERACION between '2024-12-01' and '2024-12-31'
-      --   and FECHA_FIN_REAL between '2024-12-01' and '2024-12-31'
+        WHERE CAST(FECHA_FIN_REAL AS date)
+          between
+          DATE_ADD( DATE_ADD(LAST_DAY(CAST({% date_start date_filter_FECHA_FIN_REAL %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH )
 
-      WHERE CAST(FECHA_FIN_REAL AS date)
-      between
-      DATE_ADD( DATE_ADD(LAST_DAY(CAST({% date_start date_filter_FECHA_FIN_REAL %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH )
+          and   CASE
+          WHEN {% date_start date_filter_FECHA_LIBERACION %} IS NOT NULL
+          THEN DATE_ADD( CAST( {% date_end date_filter_FECHA_FIN_REAL %} AS DATE) , INTERVAL -1 DAY )
+          ELSE DATE_ADD( LAST_DAY( CAST( {% date_start date_filter_FECHA_FIN_REAL %} AS DATE) ) , INTERVAL 1 DAY)
+          END
 
-      and   CASE
-      WHEN {% date_start date_filter_FECHA_LIBERACION %} IS NOT NULL
-      THEN DATE_ADD( CAST( {% date_end date_filter_FECHA_FIN_REAL %} AS DATE) , INTERVAL -1 DAY )
-      ELSE DATE_ADD( LAST_DAY( CAST( {% date_start date_filter_FECHA_FIN_REAL %} AS DATE) ) , INTERVAL 1 DAY)
-      END
+          and CAST(FECHA_LIBERACION AS date)
+          between
+          CASE
+          WHEN {% date_start date_filter_FECHA_LIBERACION %} IS NOT NULL
+          THEN CAST( {% date_start date_filter_FECHA_LIBERACION %} AS DATE)
+          ELSE DATE_ADD( DATE_ADD(LAST_DAY(CAST({% date_start date_filter_FECHA_FIN_REAL %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH )
+          END
 
-      and CAST(FECHA_LIBERACION AS date)
-      between
-      CASE
-      WHEN {% date_start date_filter_FECHA_LIBERACION %} IS NOT NULL
-      THEN CAST( {% date_start date_filter_FECHA_LIBERACION %} AS DATE)
-      ELSE DATE_ADD( DATE_ADD(LAST_DAY(CAST({% date_start date_filter_FECHA_FIN_REAL %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH )
-      END
-
-      and  CASE
-      WHEN {% date_start date_filter_FECHA_LIBERACION %} IS NOT NULL
-      THEN DATE_ADD( CAST( {% date_end date_filter_FECHA_LIBERACION %} AS DATE) , INTERVAL -1 DAY)
-      ELSE LAST_DAY( CAST( {% date_start date_filter_FECHA_FIN_REAL %} AS DATE) )
-      END
-
-
-
+          and  CASE
+          WHEN {% date_start date_filter_FECHA_LIBERACION %} IS NOT NULL
+          THEN DATE_ADD( CAST( {% date_end date_filter_FECHA_LIBERACION %} AS DATE) , INTERVAL -1 DAY)
+          ELSE LAST_DAY( CAST( {% date_start date_filter_FECHA_FIN_REAL %} AS DATE) )
+          END
 
 
-      group by PLANTA
-      ,date_trunc(FECHA_FIN_REAL,month)
-      ,ID_GRUPO_MATERIAL
-      ,PUESTO_TRABAJO_PRODUCCION
+        group by
+          PLANTA
+          ,date_trunc(FECHA_FIN_REAL,month)
+          ,ID_GRUPO_MATERIAL
+          ,PUESTO_TRABAJO_PRODUCCION
+      ),
+      OEE AS (
+        select
+          PLANTA
+          ,date_trunc(FECHA,month) FECHA
+          ,GRUPO_MATERIAL ID_GRUPO_MATERIAL
+          ,PUESTO_TRABAJO
+          ,ROUND((
+          ((SUM(qt_total_time)-SUM(qt_down_time))/NULLIF(SUM(qt_total_time),0))*
+          (SUM(qt_yield)/NULLIF(sum(qt_target),0))*
+          (SUM(qt_yield)/NULLIF(SUM(qt_yield+qt_scrap),0))
+          )*100,2) AS OEE
 
-      ), OEE AS (
-
-      select PLANTA
-      ,date_trunc(FECHA,month) FECHA
-      ,GRUPO_MATERIAL ID_GRUPO_MATERIAL
-      ,PUESTO_TRABAJO
-
-      , ROUND((
-      ((SUM(qt_total_time)-SUM(qt_down_time))/NULLIF(SUM(qt_total_time),0))*
-      (SUM(qt_yield)/NULLIF(sum(qt_target),0))*
-      (SUM(qt_yield)/NULLIF(SUM(qt_yield+qt_scrap),0))
-      )*100,2) AS OEE
-# este es un comentario
-
-      from RPT_S4H_MX.vw_fact_utilidad_eficiencia_oee_rpm r
-      LEFT JOIN RPT_S4H_MX.vw_bsc_material m on m.id_material=r.id_material
-      GROUP BY PLANTA,date_trunc(FECHA,month),GRUPO_MATERIAL ,PUESTO_TRABAJO
-      ), ptto as (
-
-      SELECT          PLANTA
-      ,date_trunc(CAST(FECHA AS date),month) FECHA
-      ,ID_GRUPO_MATERIAL
-      ,SUM(CANTIDAD) MONTO
-      from RPT_S4H_MX.vw_bsc_presupuesto_ventas
-      GROUP BY PLANTA,date_trunc(CAST(FECHA AS date),month),ID_GRUPO_MATERIAL
+        from RPT_S4H_MX.vw_fact_utilidad_eficiencia_oee_rpm r
+        LEFT JOIN RPT_S4H_MX.vw_bsc_material m on m.id_material=r.id_material
+        GROUP BY PLANTA,date_trunc(FECHA,month),GRUPO_MATERIAL ,PUESTO_TRABAJO
       )
+     /* budget as (
+      SELECT
+        PLANTA
+        ,date_trunc(CAST(FECHA AS date),month) FECHA
+        ,ID_GRUPO_MATERIAL
+        ,SUM(CANTIDAD) MONTO
+      FROM RPT_S4H_MX.tbl_bsc_presupuesto_ventas
+      GROUP BY PLANTA,date_trunc(CAST(FECHA AS date),month),ID_GRUPO_MATERIAL
+      )*/
 
       select p.*
       ,o.OEE
-      ,0 Monto_ventas from produccion p
-      --LEFT JOIN ptto on ptto.planta=p.PLANTA
-      --              and ptto.fecha  =date_trunc(p.FECHA_FIN_REAL,month)
-      --              and ptto.ID_GRUPO_MATERIAL=p.ID_GRUPO_MATERIAL
-      --              and ptto.PUESTO_TRABAJO=p.PUESTO_TRABAJO_PRODUCCION
+      ,0 Monto_ventas
+      FROM produccion p
+     /* LEFT JOIN budget
+      ON
+        budget.planta=p.PLANTA
+        and budget.fecha  =date_trunc(p.FECHA_FIN_REAL,month)
+        and budget.ID_GRUPO_MATERIAL=p.ID_GRUPO_MATERIAL*/
       left join OEE o
       on o.planta=p.PLANTA
       and date_trunc(cast(o.FECHA as DATE),month)  =date_trunc(p.FECHA_FIN_REAL,month)
@@ -283,14 +283,14 @@ view: fct_manufactura {
   }
 
 
-  measure: Total_cantidad_base2 {
-    label: "CAPACIDAD2"
-    type: sum
-    sql: SUM(AVG(${TABLE}.CANTIDAD_BASE));;
-    value_format: "#,##0"
+  #measure: Total_cantidad_base2 {
+  #  label: "CAPACIDAD2"
+   # type: sum
+   # sql: SUM(AVG(${TABLE}.CANTIDAD_BASE));;
+   # value_format: "#,##0"
 
 
-  }
+ # }
 
 
   measure: Total_cantidad_rechazo_notificada {
@@ -417,6 +417,16 @@ view: fct_manufactura {
 
 
   }
+
+  #measure: presupuesto_visible_linea {
+  #  type: sum
+  #  sql: CASE
+  #       WHEN ${Puesto_trabajo} IS NULL THEN ${TABLE}.id_grupo_material
+  #       ELSE NULL
+  #     END ;;
+  #}
+
+
 
 
 
