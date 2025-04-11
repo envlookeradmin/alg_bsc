@@ -455,7 +455,34 @@ explore: fct_retorno_material_empaque {
 }
 
 explore: fct_produccion_pet {}
-explore: fct_devoluciones {}
+
+explore: fct_devoluciones {
+  join: planta {
+    type: left_outer
+    sql_on: ${fct_devoluciones.id_planta} = ${planta.planta_id};;
+    relationship: many_to_one
+    }
+
+  join: cliente {
+    type: left_outer
+    sql_on: ${fct_devoluciones.cliente} = ${cliente.id_cliente} ;;
+    relationship: many_to_one
+  }
+
+  join: material {
+    type: left_outer
+    sql_on:${fct_devoluciones.material}=${material.id_material};;
+    relationship: many_to_one
+  }
+
+  join: fecha {
+    type: left_outer
+    relationship: many_to_one
+    sql_on: ${fct_devoluciones.fecha} = ${fecha.fecha} ;;
+  }
+}
+
+
 explore: fct_devoluciones_1 {}
 
 explore: desperdicios_acdoca {

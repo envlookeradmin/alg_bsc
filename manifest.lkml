@@ -30,10 +30,13 @@ constant: REPORTING_DATASET4 {
   export: override_required
 }
 
-
-
 constant: REPORTING_DATASET5 {
   value: "CDC_S4H_MX"
+  export: override_required
+}
+
+constant: REPORTING_DATASET6 {
+  value: "RPT_ALG"
   export: override_required
 }
 
