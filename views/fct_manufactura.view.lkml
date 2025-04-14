@@ -11,28 +11,21 @@ view: fct_manufactura {
           ,date_trunc(FECHA_FIN_REAL,month) FECHA_FIN_REAL
           ,ID_GRUPO_MATERIAL
           ,PUESTO_TRABAJO PUESTO_TRABAJO_PRODUCCION
+          ,NOMBRE_PUESTO_TRABAJO
           ,avg(CANTIDAD_BASE) CANTIDAD_BASE
           ,sum(CANTIDAD_ENTREGADA) CANTIDAD_ENTREGADA
           ,sum(CANTIDAD_BUENA_CONFIRMADA) CANTIDAD_BUENA_CONFIRMADA,
-          FROM RPT_S4H_MX.vw_fact_prod_cap_manufactura
-          /*WHERE CAST(FECHA_FIN_REAL AS date)
-          between
-          DATE_ADD( DATE_ADD(LAST_DAY(CAST({% date_start date_filter_FECHA_FIN_REAL %} AS DATE)), INTERVAL 1 DAY),INTERVAL -1 MONTH )
-
-          and   CASE
-          WHEN {% date_start date_filter_FECHA_LIBERACION %} IS NOT NULL
-          THEN DATE_ADD( CAST( {% date_end date_filter_FECHA_FIN_REAL %} AS DATE) , INTERVAL -1 DAY )
-          ELSE DATE_ADD( LAST_DAY( CAST( {% date_start date_filter_FECHA_FIN_REAL %} AS DATE) ) , INTERVAL 1 DAY)
-          END*/
-
+          FROM `RPT_S4H_MX.vw_fact_prod_cap_manufactura`
         WHERE
           CAST(FECHA_FIN_REAL AS date) BETWEEN CAST({% date_start date_filter_FECHA_FIN_REAL %} AS DATE) AND
           DATE_ADD(CAST({% date_end date_filter_FECHA_FIN_REAL %} AS DATE), INTERVAL -1 DAY)
+          AND PUESTO_TRABAJO_PRODUCCION IS NOT NULL
         GROUP BY
           PLANTA
           ,date_trunc(FECHA_FIN_REAL,month)
           ,ID_GRUPO_MATERIAL
           ,PUESTO_TRABAJO_PRODUCCION
+          ,NOMBRE_PUESTO_TRABAJO
       ),
       OEE AS (
         SELECT
@@ -45,8 +38,8 @@ view: fct_manufactura {
           ,SUM(qt_yield) as qt_yield
           ,SUM(qt_scrap) as qt_scrap
           ,SUM(qt_target) as qt_target
-        FROM RPT_S4H_MX.vw_fact_utilidad_eficiencia_oee_rpm r
-        LEFT JOIN RPT_S4H_MX.vw_bsc_material m on m.id_material=r.id_material
+        FROM `RPT_S4H_MX.vw_fact_utilidad_eficiencia_oee_rpm` r
+        LEFT JOIN `RPT_S4H_MX.vw_bsc_material` m on m.id_material=r.id_material
         WHERE
           CAST(FECHA AS date) BETWEEN CAST({% date_start date_filter_FECHA_FIN_REAL %} AS DATE) AND
           DATE_ADD(CAST({% date_end date_filter_FECHA_FIN_REAL %} AS DATE), INTERVAL -1 DAY)
@@ -58,7 +51,7 @@ view: fct_manufactura {
           ,date_trunc(CAST(FECHA AS date),month) FECHA
           ,ID_GRUPO_MATERIAL
           ,SUM(CANTIDAD) MONTO
-        FROM RPT_S4H_MX.tbl_bsc_presupuesto_ventas
+        FROM `RPT_S4H_MX.tbl_bsc_presupuesto_ventas`
         WHERE
           CAST(FECHA AS date) BETWEEN CAST({% date_start date_filter_FECHA_FIN_REAL %} AS DATE) AND
           DATE_ADD(CAST({% date_end date_filter_FECHA_FIN_REAL %} AS DATE), INTERVAL -1 DAY)
@@ -72,17 +65,48 @@ view: fct_manufactura {
       ,qt_scrap
       ,qt_target
       ,budget.MONTO Monto_ventas
+      ,CASE
+      WHEN FECHA_FIN_REAL IS NOT NULL THEN
+      DATE_DIFF(
+      LEAST(DATE_TRUNC(DATE_ADD(FECHA_FIN_REAL, INTERVAL 1 MONTH), MONTH), CAST({% date_end date_filter_FECHA_FIN_REAL %} AS DATE)),
+      GREATEST(DATE_TRUNC(FECHA_FIN_REAL, MONTH), CAST({% date_start date_filter_FECHA_FIN_REAL %} AS DATE)),
+      DAY
+      )ELSE NULL
+      END AS dias_del_mes_en_rango
       FROM produccion
       LEFT JOIN budget
       ON
-        budget.planta=produccion.PLANTA
-        and budget.fecha  =date_trunc(produccion.FECHA_FIN_REAL,month)
-        and budget.ID_GRUPO_MATERIAL=produccion.ID_GRUPO_MATERIAL
+      budget.planta=produccion.PLANTA
+      and budget.fecha  =date_trunc(produccion.FECHA_FIN_REAL,month)
+      and budget.ID_GRUPO_MATERIAL=produccion.ID_GRUPO_MATERIAL
       left join OEE o
       on o.planta=produccion.PLANTA
       and date_trunc(cast(o.FECHA as DATE),month)  =date_trunc(produccion.FECHA_FIN_REAL,month)
       and o.ID_GRUPO_MATERIAL=produccion.ID_GRUPO_MATERIAL
-      and o.PUESTO_TRABAJO=produccion.PUESTO_TRABAJO_PRODUCCION;;
+      and o.PUESTO_TRABAJO=produccion.PUESTO_TRABAJO_PRODUCCION
+      GROUP BY GROUPING SETS(
+      ( PLANTA,
+      FECHA_FIN_REAL,
+      ID_GRUPO_MATERIAL,
+      PUESTO_TRABAJO_PRODUCCION,
+      NOMBRE_PUESTO_TRABAJO,
+      CANTIDAD_BASE,
+      CANTIDAD_ENTREGADA,
+      CANTIDAD_BUENA_CONFIRMADA,
+      qt_total_time,
+      qt_down_time,
+      qt_yield,
+      qt_scrap,
+      qt_target,
+      dias_del_mes_en_rango),
+      (
+      PLANTA,
+      FECHA_FIN_REAL,
+      ID_GRUPO_MATERIAL,
+      budget.MONTO
+      )
+      )
+      ;;
 
 
   }
@@ -155,9 +179,8 @@ view: fct_manufactura {
 
   dimension: Puesto_trabajo {
     type: string
-    sql: ${TABLE}.PUESTO_TRABAJO_PRODUCCION ;;
+    sql:CONCAT(${TABLE}.PUESTO_TRABAJO_PRODUCCION, ' - ', ${TABLE}.NOMBRE_PUESTO_TRABAJO)  ;;
   }
-
 
   dimension: cantidad_base {
     type: number
@@ -179,36 +202,17 @@ view: fct_manufactura {
     sql: UPPER(${grupo_materiales.descripcion}) ;;
   }
 
-
   measure: Total_Monto_ventas {
     type: sum
-    sql: CASE
-          WHEN ${Puesto_trabajo}  IS  NULL THEN ${TABLE}.Monto_ventas
-         ELSE NULL
-        END;;
+    sql: ${TABLE}.Monto_ventas;;
     value_format: "#,##0"
   }
 
 
-  dimension: mostrar_fila {
-    type: yesno
-    sql:
-    CASE
-      WHEN ${Puesto_trabajo} IS NOT NULL THEN TRUE
-      WHEN ${TABLE}.Monto_ventas IS NOT NULL THEN TRUE
-      ELSE FALSE
-    END ;;
-  }
-
-  dimension: dias_seleccionados  {
-    type: number
-    sql:  DATE_DIFF(CAST({% date_end date_filter_FECHA_FIN_REAL %} AS DATE), CAST({% date_start date_filter_FECHA_FIN_REAL %} AS DATE), DAY) ;;
-  }
-
   measure: Total_cantidad_base {
     label: "CAPACIDAD"
     type: sum
-    sql: ${TABLE}.CANTIDAD_BASE * 22.5 *  ${dias_seleccionados};;
+    sql: ${TABLE}.CANTIDAD_BASE *22.5 * ${TABLE}.dias_del_mes_en_rango ;;
     value_format: "#,##0"
   }
 
