@@ -1,5 +1,5 @@
 view: bitacora{
-  sql_table_name: `envases-analytics-qa.RPT_S4H_MX.tbl_bitacora_bsc` ;;
+  sql_table_name: `envases-analytics-qa.RPT_S4H_MX.tbl_bitacora_bsc_prod` ;;
 
   dimension_group: date {
     type: time

@@ -433,7 +433,11 @@ explore: fact_lento_movimiento {
     type: left_outer
     sql_on: ${fact_lento_movimiento.grupo_sap} = ${grupo_materiales.id_grupo} ;;
     relationship: many_to_one
-    view_label: ""
+  }
+  join: material {
+    type: left_outer
+    sql_on:${fact_lento_movimiento.material}=${material.id_material};;
+    relationship: many_to_one
   }
 }
 
@@ -457,6 +461,8 @@ explore: fct_retorno_material_empaque {
 explore: fct_produccion_pet {}
 
 explore: fct_devoluciones_1 {}
+
+explore: bitacora {}
 
 explore: desperdicios_acdoca {
   join: fecha {
