@@ -21,6 +21,11 @@ view: fecha {
     sql: ${TABLE}.CALDAY ;;
   }
 
+  dimension: week_RPM {
+    type: string
+    sql: ${TABLE}.WEEK_RPM ;;
+  }
+
 
   dimension_group: date {
     type: time
