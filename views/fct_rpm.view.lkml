@@ -1,14 +1,14 @@
 
 view: fct_rpm {
   derived_table: {
-    sql: select * from `envases-analytics-qa.RPT_S4H_MX.vw_fact_utilidad_eficiencia_oee_rpm`
+    sql: select * from `envases-analytics-qa.RPT_S4H_MX.tbl_fact_utilidad_eficiencia_oee_rpm`
 
 
           --dejo funcionar
           --`envases-analytics-qa.RPT_S4H_MX.fact_utilidad_eficiencia_oee_rpm`
 
 
-           WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+         --  WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH) --AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
 
 
       ;;
@@ -25,6 +25,21 @@ view: fct_rpm {
   measure: count {
     type: count
     drill_fields: [detail*]
+  }
+
+  measure: total_ordenes {
+    type: number
+    sql: ${fact_rpm_cierre_automatico.total_ordenes} ;;
+  }
+  measure: ordenes_cerradas {
+    type: number
+    sql:${fact_rpm_cierre_automatico.ordenes_cerradas} ;;
+  }
+  measure: Porcentaje_cierre {
+    type: number
+    sql: (${fact_rpm_cierre_automatico.ordenes_cerradas} / ${fact_rpm_cierre_automatico.total_ordenes}) ;;
+    drill_fields: [puesto_trabajo,total_ordenes, ordenes_cerradas, Porcentaje_cierre]
+    value_format: "0.00%"
   }
 
   dimension: orden {
@@ -99,6 +114,7 @@ view: fct_rpm {
   dimension: puesto_trabajo {
     type: string
     sql: ${TABLE}.PUESTO_TRABAJO ;;
+    drill_fields: [departamento,total_ordenes, ordenes_cerradas, Porcentaje_cierre]
   }
 
   dimension: id_linea_rp {
@@ -109,6 +125,11 @@ view: fct_rpm {
   dimension: nombre_linea {
     type: string
     sql: ${TABLE}.NOMBRE_LINEA ;;
+  }
+
+  dimension: departamento {
+    type: string
+    sql: ${TABLE}.DEPARTAMENTO ;;
   }
 
   dimension: notificaciones_posibles {

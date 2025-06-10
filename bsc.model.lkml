@@ -414,6 +414,12 @@ explore: fct_rpm {
     sql_on: ${fct_rpm.fecha} = ${fecha.fecha} ;;
     relationship: many_to_one
   }
+  join: fact_rpm_cierre_automatico {
+    type: left_outer
+    sql_on: ${fct_rpm.orden} = ${fact_rpm_cierre_automatico.orden} ;;
+    relationship: many_to_one
+
+  }
 
 
   join: planta {
@@ -463,6 +469,7 @@ explore: fct_produccion_pet {}
 explore: fct_devoluciones_1 {}
 
 explore: bitacora {}
+explore:  fact_rpm_cierre_automatico{}
 
 explore: desperdicios_acdoca {
   join: fecha {
