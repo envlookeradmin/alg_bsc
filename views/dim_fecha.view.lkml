@@ -3,6 +3,7 @@ view: fecha {
 
   filter: selector_fecha {type: date}
 
+
   dimension: es_mes_seleccionado {
     type: yesno
     sql: {% condition es_mes_seleccionado %} ${date_raw} {% endcondition %} ;;
