@@ -1,17 +1,42 @@
 
 view: fct_rpm {
   derived_table: {
-    sql: select * from `envases-analytics-qa.RPT_S4H_MX.tbl_fact_utilidad_eficiencia_oee_rpm`
+    sql:
 
+    WITH FECHA AS (
+    SELECT
+    DATE,
+    YEAR,
+    MONTH_NAME_SP,
+    WEEK_RPM
+    FROM `@{GCP_PROJECT}.@{REPORTING_DATASET2}.CALENDAR`
+    ),
+
+    RANGO_FECHAS AS (
+    SELECT
+    DATE_ADD(DATE_ADD(LAST_DAY( MAX(DATE) ), INTERVAL 1 DAY),INTERVAL -3 MONTH) AS FECHA_INICIO,
+    MAX(DATE) AS FECHA_FIN
+    FROM FECHA
+    WHERE YEAR = CAST ( {{ _filters['fct_rpm.anio_filter'] | sql_quote }} AS INTEGER )
+    AND WEEK_RPM = CAST ( {{ _filters['fct_rpm.semana_filter'] | sql_quote }} AS INTEGER )
+    )
+
+    SELECT
+    *
+    FROM `envases-analytics-qa.RPT_S4H_MX.tbl_fact_utilidad_eficiencia_oee_rpm` A
+    LEFT JOIN FECHA B
+    ON A.FECHA = B.DATE
+    WHERE A.FECHA >= (SELECT FECHA_INICIO FROM RANGO_FECHAS)
+    AND A.FECHA <= (SELECT FECHA_FIN FROM RANGO_FECHAS)
 
           --dejo funcionar
           --`envases-analytics-qa.RPT_S4H_MX.fact_utilidad_eficiencia_oee_rpm`
 
 
-    WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=
+    /*WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=
       DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH)
       AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <=
-      DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
+      DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)*/
 
 
       ;;
@@ -23,6 +48,18 @@ view: fct_rpm {
     description: "Use this date filter in combination with the timeframes dimension for dynamic date filtering"
     type: date
 
+  }
+
+  filter: anio_filter {
+    label: "Año"
+    type: string
+    suggest_dimension: anio
+  }
+
+  filter: semana_filter {
+    label: "Semana"
+    type: string
+    suggest_dimension: semana_rpm
   }
 
   measure: count {
@@ -110,6 +147,33 @@ view: fct_rpm {
 
   dimension: fecha {
     type: date
+    datatype: date
+    sql: ${TABLE}.FECHA ;;
+  }
+
+  dimension: anio {
+    type: string
+    description: "Año"
+    sql: CAST(${TABLE}.YEAR AS STRING);;
+  }
+
+  dimension: semana_rpm {
+    type: string
+    description: "Semana con base a las reglas de negocio de RPM, de Lunes a Domingo"
+    sql: CAST(${TABLE}.WEEK_RPM AS STRING);;
+  }
+
+  dimension: mes {
+    type: string
+    description: "Mes"
+    label: "Mes"
+    sql: ${TABLE}.MONTH_NAME_SP ;;
+  }
+
+  dimension_group: date {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    convert_tz: no
     datatype: date
     sql: ${TABLE}.FECHA ;;
   }

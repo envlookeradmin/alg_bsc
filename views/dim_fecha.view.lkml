@@ -1,5 +1,7 @@
 view: fecha {
-  sql_table_name: `@{GCP_PROJECT}.@{REPORTING_DATASET2}.CALENDAR` ;;
+  sql_table_name: `@{GCP_PROJECT}.@{REPORTING_DATASET2}.CALENDAR`
+  ;;
+
 
   filter: selector_fecha {type: date}
 
@@ -64,10 +66,11 @@ view: fecha {
 
 
   dimension: anio {
-    type: number
-    sql: ${TABLE}.YEAR ;;
+    type: string
+    sql: CAST(${TABLE}.YEAR AS STRING) ;;
     label: "Año"
   }
+
   measure: count {
     type: count
   }
