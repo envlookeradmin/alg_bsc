@@ -26,7 +26,8 @@ view: fecha {
 
   dimension: week_RPM {
     type: string
-    sql: ${TABLE}.WEEK_RPM ;;
+    description: "Semana con base a las reglas de negocio de RPM, de Lunes a Domingo"
+    sql: CAST(${TABLE}.WEEK_RPM AS STRING);;
   }
 
 

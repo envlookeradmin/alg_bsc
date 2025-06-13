@@ -1,4 +1,3 @@
-
 view: fct_rpm {
   derived_table: {
     sql:
@@ -41,7 +40,6 @@ view: fct_rpm {
 
       ;;
   }
-
 
   filter: date_filter {
     label: "Período"
