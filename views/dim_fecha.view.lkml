@@ -1,6 +1,12 @@
 view: fecha {
-  sql_table_name: `@{GCP_PROJECT}.@{REPORTING_DATASET2}.CALENDAR`
-  ;;
+  #sql_table_name: `@{GCP_PROJECT}.@{REPORTING_DATASET2}.CALENDAR`
+  derived_table: {
+    sql: SELECT
+    *
+    FROM `@{GCP_PROJECT}.@{REPORTING_DATASET2}.CALENDAR`
+    ;;
+  }
+
 
 
   filter: selector_fecha {type: date}
@@ -11,13 +17,38 @@ view: fecha {
     sql: {% condition es_mes_seleccionado %} ${date_raw} {% endcondition %} ;;
   }
 
+  filter: anio_filter {
+    label: "Año"
+    type: string
+    suggest_dimension: anio
+  }
 
+  filter: semana_filter {
+    label: "Semana"
+    type: string
+    suggest_dimension: week_RPM
+  }
+
+  dimension: d_fecha_fin {
+    type: date
+    sql:  (SELECT MAX(DATE) FROM fecha WHERE {% condition anio_filter %} ${anio} {% endcondition %}
+          AND {% condition semana_filter %} ${week_RPM} {% endcondition %} ) ;;
+  }
+
+  dimension: d_fecha_ini {
+    type: date
+    sql:  DATE_TRUNC( DATETIME_SUB(${d_fecha_fin}, INTERVAL 3 MONTH), MONTH) ;;
+  }
+
+  dimension: filtro_3_meses {
+    type: number
+    sql: CASE WHEN ${fecha} >= ${d_fecha_ini} AND ${fecha} <= ${d_fecha_fin} THEN 1 ELSE 0 END ;;
+  }
 
   dimension: fecha {
     type: date
     sql: ${TABLE}.DATE ;;
   }
-
 
   dimension: CALDAY {
     type: string

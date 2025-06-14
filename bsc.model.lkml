@@ -409,11 +409,11 @@ explore: fct_desperdicio_prod {
 
 explore: dim_canal_distribucion {}
 explore: fct_rpm {
-  #join: fecha {
-  #  type: left_outer
-  #  sql_on: ${fct_rpm.fecha} = ${fecha.fecha} ;;
-  #  relationship: many_to_one
-  #}
+  join: fecha {
+    type: left_outer
+    sql_on: ${fct_rpm.fecha} = ${fecha.fecha} ;;
+    relationship: many_to_one
+  }
   join: fact_rpm_cierre_automatico {
     type: left_outer
     sql_on: ${fct_rpm.orden} = ${fact_rpm_cierre_automatico.orden} ;;
