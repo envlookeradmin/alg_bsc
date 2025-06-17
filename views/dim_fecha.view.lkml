@@ -37,7 +37,7 @@ view: fecha {
 
   dimension: d_fecha_ini {
     type: date
-    sql:  DATE_TRUNC( DATETIME_SUB(${d_fecha_fin}, INTERVAL 3 MONTH), MONTH) ;;
+    sql:   DATETIME_SUB(${d_fecha_fin}, INTERVAL 7 week) ;;
   }
 
   dimension: filtro_3_meses {

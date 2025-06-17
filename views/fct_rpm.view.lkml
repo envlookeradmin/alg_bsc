@@ -23,6 +23,16 @@ view: fct_rpm {
 
   }
 
+  dimension: filtro_periodo {
+    type: yesno
+    sql:${fecha} BETWEEN DATETIME_SUB(CAST({% date_start date_filter %} AS DATE), INTERVAL 7 WEEK) AND CAST({% date_start date_filter %} AS DATE);;
+  }
+
+  dimension: filtro_3_meses {
+    type: number
+    sql: CASE WHEN ${fecha} >= ${fecha.d_fecha_ini} AND ${fecha} <= ${fecha.d_fecha_fin}
+    AND ${fin_ejecucion} BETWEEN ${fecha.d_fecha_ini} AND DATE_SUB(${fecha.d_fecha_fin}, INTERVAL 2 day)  THEN 1 ELSE 0 END ;;
+  }
 
   measure: count {
     type: count
@@ -40,7 +50,8 @@ view: fct_rpm {
   measure: Porcentaje_cierre {
     type: number
     sql: (${fact_rpm_cierre_automatico.ordenes_cerradas} / ${fact_rpm_cierre_automatico.total_ordenes}) ;;
-    drill_fields: [puesto_trabajo,total_ordenes, ordenes_cerradas, Porcentaje_cierre]
+    drill_fields: [planta,puesto_trabajo,total_ordenes, ordenes_cerradas, Porcentaje_cierre]
+
     value_format: "0.00%"
   }
 
