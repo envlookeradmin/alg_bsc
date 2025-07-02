@@ -38,7 +38,7 @@ view: fct_manufactura {
           ,SUM(qt_yield) as qt_yield
           ,SUM(qt_scrap) as qt_scrap
           ,SUM(qt_target) as qt_target
-        FROM `RPT_S4H_MX.vw_fact_utilidad_eficiencia_oee_rpm` r
+        FROM `RPT_S4H_MX.tbl_fact_utilidad_eficiencia_oee_rpm` r
         LEFT JOIN `RPT_S4H_MX.vw_bsc_material` m on m.id_material=r.id_material
         WHERE
           CAST(FECHA AS date) BETWEEN CAST({% date_start date_filter_FECHA_FIN_REAL %} AS DATE) AND
