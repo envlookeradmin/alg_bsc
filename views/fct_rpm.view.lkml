@@ -50,7 +50,7 @@ view: fct_rpm {
   measure: Porcentaje_cierre {
     type: number
     sql: (${fact_rpm_cierre_automatico.ordenes_cerradas} / ${fact_rpm_cierre_automatico.total_ordenes}) ;;
-    drill_fields: [planta,puesto_trabajo,total_ordenes, ordenes_cerradas, Porcentaje_cierre]
+    drill_fields: [planta,departamento,total_ordenes, ordenes_cerradas, Porcentaje_cierre]
 
     value_format: "0.00%"
   }
@@ -170,6 +170,8 @@ view: fct_rpm {
   dimension: departamento {
     type: string
     sql: ${TABLE}.DEPARTAMENTO ;;
+    drill_fields: [nombre_linea,total_ordenes, ordenes_cerradas, Porcentaje_cierre]
+
   }
 
   dimension: notificaciones_posibles {
@@ -219,11 +221,11 @@ view: fct_rpm {
 
 
 
-
   measure: Total_notificaciones_anuladas {
     label: "Notificaciones Anuladas"
     type: sum
-    sql: case when  ${TABLE}.ANULADO='X' AND ${TABLE}.CREADO_POR = 'rpm_admin'  then 1 else 0 end ;;
+    sql: ${TABLE}.ANULADO ;;
+    # sql: ${TABLE}.NOTIFICACIONES_NO_ENVIADAS ;;
 
   }
 
@@ -259,9 +261,10 @@ view: fct_rpm {
 
   measure: Total_porcentaje_efiiencia {
     label: "% Eficiencia"
-    type: average
-    sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
-    value_format: "0.00\%"
+    type: number
+    #sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
+    sql: ${Total_notificaciones_reales}/ nullif(${Total_notificaciones_posibles},0) * 100 ;;
+    value_format: "0.0\%"
 
     html:
     {% if value >= 92.0 %}
@@ -279,8 +282,11 @@ view: fct_rpm {
 
   measure: Total_utilidad{
     label: "% Utilidad"
-    sql: (${Total_notificaciones_reales}-${Total_notificaciones_no_enviadas})/nullif(${Total_notificaciones_no_enviadas},0) ;;
-    value_format: "0.00\%"
+
+    #  COALESCE((NOTIFICACIONES_POSIBLES-NOTIFICACIONES_NO_ENVIADAS)/NULLIF(NOTIFICACIONES_REALES,0),0) AS UTILIDAD
+    #  sql: (${Total_notificaciones_reales}-${Total_notificaciones_no_enviadas})/nullif(${Total_notificaciones_no_enviadas},0) ;;
+    sql: (${Total_notificaciones_reales}-${Total_notificaciones_anuladas})/nullif(${Total_notificaciones_posibles},0) * 100 ;;
+    value_format: "0.0\%"
     html:
     {% if value >= 92.0 %}
     <span style="color: green;">{{ rendered_value }}</span></p>
@@ -298,9 +304,10 @@ view: fct_rpm {
 
   measure: Total_porcentaje_efiiencia2 {
     label: "% Eficiencia"
-    type: average
-    sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
-    value_format: "0.00\%"
+    type: number
+    #sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
+    sql: ${Total_notificaciones_reales}/ nullif(${Total_notificaciones_posibles},0) * 100;;
+    value_format: "0.0\%"
 
     html:
     {% if value >= 92.0 %}
@@ -318,8 +325,9 @@ view: fct_rpm {
 
   measure: Total_utilidad2{
     label: "% Utilidad"
-    sql: (${Total_notificaciones_reales}-${Total_notificaciones_no_enviadas})/nullif(${Total_notificaciones_no_enviadas},0) ;;
-    value_format: "0.00\%"
+
+    sql: (${Total_notificaciones_reales}-${Total_notificaciones_anuladas})/nullif(${Total_notificaciones_posibles},0) * 100 ;;
+    value_format: "0.0\%"
     html:
     {% if value >= 92.0 %}
     <span style="color: green;">{{ rendered_value }}</span></p>
@@ -341,9 +349,10 @@ view: fct_rpm {
 
   measure: Total_porcentaje_efiiencia3 {
     label: "% Eficiencia"
-    type: average
-    sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
-    value_format: "0.00\%"
+    type: number
+    # sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
+    sql: ${Total_notificaciones_reales}/ nullif(${Total_notificaciones_posibles},0) * 100 ;;
+    value_format: "0.0\%"
 
     html:
     {% if value >= 92.0 %}
@@ -356,13 +365,14 @@ view: fct_rpm {
     {{rendered_value}}
     {% endif %} ;;
 
-      drill_fields: [planta,nombre_linea,fecha,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia3,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_utilidad3]
-    }
+    drill_fields: [planta,nombre_linea,fecha,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia3,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_utilidad3]
+  }
 
   measure: Total_utilidad3{
     label: "% Utilidad"
-    sql: (${Total_notificaciones_reales}-${Total_notificaciones_no_enviadas})/nullif(${Total_notificaciones_no_enviadas},0) ;;
-    value_format: "0.00\%"
+
+    sql: (${Total_notificaciones_reales}-${Total_notificaciones_anuladas})/nullif(${Total_notificaciones_posibles},0) * 100 ;;
+    value_format: "0.0\%"
     html:
     {% if value >= 92.0 %}
     <span style="color: green;">{{ rendered_value }}</span></p>
@@ -409,12 +419,12 @@ view: fct_rpm {
       registro_por_usuario,
       contador,
       anulado,
-      operacion,
+      # operacion,
       creado_por,
       inicio_ejecucion,
-      inicio_hora_real,
+      # inicio_hora_real,
       fin_ejecucion,
-      fin_real,
+      # fin_real,
       fecha,
       puesto_trabajo,
       id_linea_rp,
