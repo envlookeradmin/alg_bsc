@@ -2,8 +2,13 @@ view: fct_rpm {
   derived_table: {
     sql:
     SELECT
-    *
-    FROM `envases-analytics-qa.RPT_S4H_MX.tbl_fact_utilidad_eficiencia_oee_rpm`
+      a.*,
+      b.ESTADO,
+      b.ESTATUS,
+    FROM
+      `envases-analytics-qa.RPT_S4H_MX.tbl_fact_utilidad_eficiencia_oee_rpm` as a
+      LEFT JOIN `RPT_S4H_MX.tbl_fact_rpm_cierre_automatico` as b
+      ON a.ORDEN = b.ORDEN
 
           --dejo funcionar
           --`envases-analytics-qa.RPT_S4H_MX.fact_utilidad_eficiencia_oee_rpm`
@@ -15,6 +20,7 @@ view: fct_rpm {
       DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)*/
       ;;
   }
+
 
   filter: date_filter {
     label: "Período"
@@ -39,21 +45,32 @@ view: fct_rpm {
     drill_fields: [detail*]
   }
 
-  measure: total_ordenes {
-    type: number
-    sql: ${fact_rpm_cierre_automatico.total_ordenes} ;;
-  }
   measure: ordenes_cerradas {
-    type: number
-    sql:${fact_rpm_cierre_automatico.ordenes_cerradas} ;;
+    type: count_distinct
+    sql:CASE WHEN ${TABLE}.ESTATUS ='CERRADA' AND CIERRE_MART = 'Si' THEN  ${TABLE}.ORDEN end ;;
+  }
+  measure: total_ordenes {
+    type: count_distinct
+    sql: ${TABLE}.ORDEN ;;
   }
   measure: Porcentaje_cierre {
     type: number
-    sql: (${fact_rpm_cierre_automatico.ordenes_cerradas} / ${fact_rpm_cierre_automatico.total_ordenes}) ;;
+    sql: (${ordenes_cerradas} / ${total_ordenes}) ;;
     drill_fields: [planta,departamento,total_ordenes, ordenes_cerradas, Porcentaje_cierre]
-
     value_format: "0.00%"
   }
+
+  #measure: ordenes_cerradas {
+  #  type: number
+  #  sql:${fact_rpm_cierre_automatico.ordenes_cerradas} ;;
+  #}
+ # measure: Porcentaje_cierre {
+ #   type: number
+ #   sql: (${fact_rpm_cierre_automatico.ordenes_cerradas} / ${fact_rpm_cierre_automatico.total_ordenes}) ;;
+ #   drill_fields: [planta,departamento,total_ordenes, ordenes_cerradas, Porcentaje_cierre]
+ #
+ #   value_format: "0.00%"
+ # }
 
   dimension: orden {
     type: string
