@@ -56,7 +56,14 @@ view: fct_rpm {
   measure: Porcentaje_cierre {
     type: number
     sql: (${ordenes_cerradas} / ${total_ordenes}) ;;
-    drill_fields: [planta,departamento,total_ordenes, ordenes_cerradas, Porcentaje_cierre]
+    drill_fields: [planta,departamento,total_ordenes, ordenes_cerradas, Porcentaje_cierre_drill]
+    value_format: "0.00%"
+  }
+
+  measure: Porcentaje_cierre_drill {
+    type: number
+    sql: (${ordenes_cerradas} / ${total_ordenes}) ;;
+    drill_fields: [planta,nombre_linea,total_ordenes, ordenes_cerradas, Porcentaje_cierre]
     value_format: "0.00%"
   }
 
@@ -298,7 +305,6 @@ view: fct_rpm {
   }
 
   measure: Total_utilidad{
-    label: "% Utilidad"
 
     #  COALESCE((NOTIFICACIONES_POSIBLES-NOTIFICACIONES_NO_ENVIADAS)/NULLIF(NOTIFICACIONES_REALES,0),0) AS UTILIDAD
     #  sql: (${Total_notificaciones_reales}-${Total_notificaciones_no_enviadas})/nullif(${Total_notificaciones_no_enviadas},0) ;;
