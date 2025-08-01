@@ -49,6 +49,10 @@ view: fct_rpm {
     type: count_distinct
     sql:CASE WHEN ${TABLE}.ESTATUS ='CERRADA' AND CIERRE_MART = 'Si' THEN  ${TABLE}.ORDEN end ;;
   }
+  measure: ordenes_abiertas {
+    type: count_distinct
+    sql:CASE WHEN ${TABLE}.ESTATUS !='CERRADA' AND CIERRE_MART != 'Si' THEN  ${TABLE}.ORDEN end ;;
+  }
   measure: total_ordenes {
     type: count_distinct
     sql: ${TABLE}.ORDEN ;;
@@ -56,14 +60,37 @@ view: fct_rpm {
   measure: Porcentaje_cierre {
     type: number
     sql: (${ordenes_cerradas} / ${total_ordenes}) ;;
-    drill_fields: [planta,departamento,total_ordenes, ordenes_cerradas, Porcentaje_cierre_drill]
+    drill_fields: [planta,departamento,total_ordenes,ordenes_cerradas, Porcentaje_cierre_drill]
+     link: {
+      label: "Detalle por Departamento"
+      url: "
+      {% assign vis_config = '{
+      \"type\": \"looker_grid\",
+      \"series_cell_visualizations\": {
+      \"fct_rpm.total_ordenes\": {
+      \"is_active\": false }}
+      }' %}
+      {{ link }}&vis_config={{ vis_config | encode_uri }}"
+    }
     value_format: "0.00%"
   }
 
   measure: Porcentaje_cierre_drill {
     type: number
+    label: "Porcentaje Cierre"
     sql: (${ordenes_cerradas} / ${total_ordenes}) ;;
-    drill_fields: [planta,nombre_linea,total_ordenes, ordenes_cerradas, Porcentaje_cierre]
+    drill_fields: [planta,nombre_linea,total_ordenes ,ordenes_cerradas, Porcentaje_cierre]
+    link: {
+      label: "Detalle por Linea"
+      url: "
+      {% assign vis_config = '{
+      \"type\": \"looker_grid\",
+      \"series_cell_visualizations\": {
+      \"fct_rpm.total_ordenes\": {
+      \"is_active\": false }}
+      }' %}
+      {{ link }}&vis_config={{ vis_config | encode_uri }}"
+    }
     value_format: "0.00%"
   }
 
@@ -195,6 +222,7 @@ view: fct_rpm {
     type: string
     sql: ${TABLE}.DEPARTAMENTO ;;
     drill_fields: [nombre_linea,total_ordenes, ordenes_cerradas, Porcentaje_cierre]
+
 
   }
 
