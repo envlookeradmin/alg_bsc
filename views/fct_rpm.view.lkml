@@ -61,17 +61,6 @@ view: fct_rpm {
     type: number
     sql: (${ordenes_cerradas} / ${total_ordenes}) ;;
     drill_fields: [planta,departamento,total_ordenes,ordenes_cerradas, Porcentaje_cierre_drill]
-     link: {
-      label: "Detalle por Departamento"
-      url: "
-      {% assign vis_config = '{
-      \"type\": \"looker_grid\",
-      \"series_cell_visualizations\": {
-      \"fct_rpm.total_ordenes\": {
-      \"is_active\": false }}
-      }' %}
-      {{ link }}&vis_config={{ vis_config | encode_uri }}"
-    }
     value_format: "0.00%"
   }
 
@@ -80,17 +69,6 @@ view: fct_rpm {
     label: "Porcentaje Cierre"
     sql: (${ordenes_cerradas} / ${total_ordenes}) ;;
     drill_fields: [planta,nombre_linea,total_ordenes ,ordenes_cerradas, Porcentaje_cierre]
-    link: {
-      label: "Detalle por Linea"
-      url: "
-      {% assign vis_config = '{
-      \"type\": \"looker_grid\",
-      \"series_cell_visualizations\": {
-      \"fct_rpm.total_ordenes\": {
-      \"is_active\": false }}
-      }' %}
-      {{ link }}&vis_config={{ vis_config | encode_uri }}"
-    }
     value_format: "0.00%"
   }
 
@@ -221,8 +199,6 @@ view: fct_rpm {
   dimension: departamento {
     type: string
     sql: ${TABLE}.DEPARTAMENTO ;;
-    drill_fields: [nombre_linea,total_ordenes, ordenes_cerradas, Porcentaje_cierre]
-
 
   }
 
@@ -329,7 +305,7 @@ view: fct_rpm {
     {{rendered_value}}
     {% endif %} ;;
 
-    drill_fields: [planta,Nombre,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia2,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_notificaciones_utiles,Total_utilidad2]
+    drill_fields: [planta,Nombre,departamento,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia2,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_notificaciones_utiles,Total_utilidad2]
   }
 
   measure: Total_utilidad{
@@ -348,7 +324,7 @@ view: fct_rpm {
     {% else %}
     {{rendered_value}}
     {% endif %} ;;
-    drill_fields: [planta,Nombre,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia2,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_notificaciones_utiles,Total_utilidad2]
+    drill_fields: [planta, departamento,Nombre,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia2,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_notificaciones_utiles,Total_utilidad2]
 
   }
 
