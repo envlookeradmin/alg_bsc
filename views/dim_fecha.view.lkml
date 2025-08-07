@@ -20,7 +20,7 @@ view: fecha {
   filter: anio_filter {
     label: "Año"
     type: string
-    suggest_dimension: anio
+    suggest_dimension: anio_RPM
   }
 
   filter: semana_filter {
@@ -100,6 +100,12 @@ view: fecha {
   dimension: anio {
     type: string
     sql: CAST(${TABLE}.YEAR AS STRING) ;;
+    label: "Año"
+  }
+
+  dimension: anio_RPM {
+    type: string
+    sql: CAST(${TABLE}.YEAR_RPM AS STRING) ;;
     label: "Año"
   }
 
