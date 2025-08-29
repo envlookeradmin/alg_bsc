@@ -7,8 +7,14 @@ view: fact_lento_movimiento {
           NIVEL_1, NIVEL_2, NIVEL_3, NIVEL_4, MESES_ROTACION_REGULAR, MESES_ROTACION_REGULAR * 30 DIAS_ROTACION,
           --FECHAS
           FECHA_PRODUCCION,
-          current_date() DIA_ACTUAL,
+           current_date() DIA_ACTUAL,
           LAST_DAY(CURRENT_DATE()) ACTUAL,
+          LAST_DAY(DATE_ADD(current_date(), INTERVAL -1 MONTH)) MES_A1,
+          LAST_DAY(DATE_ADD(current_date(), INTERVAL -2 MONTH)) MES_A2,
+          LAST_DAY(DATE_ADD(current_date(), INTERVAL -3 MONTH)) MES_A3,
+          LAST_DAY(DATE_ADD(current_date(), INTERVAL -4 MONTH)) MES_A4,
+          LAST_DAY(DATE_ADD(current_date(), INTERVAL -5 MONTH)) MES_A5,
+          LAST_DAY(DATE_ADD(current_date(), INTERVAL -6 MONTH)) MES_A6,
           LAST_DAY(DATE_ADD(current_date(), INTERVAL 1 MONTH)) MES_1,
           LAST_DAY(DATE_ADD(current_date(), INTERVAL 2 MONTH)) MES_2,
           LAST_DAY(DATE_ADD(current_date(), INTERVAL 3 MONTH)) MES_3,
@@ -18,12 +24,12 @@ view: fact_lento_movimiento {
           --VALORES PARA METRICAS,
           STOCK, VALOR
         FROM
-          `envases-analytics-qa.RPT_S4H_MX.vw_fact_lento_movimiento` lmov
+          `envases-analytics-qa.RPT_S4H_MX.tbl_fact_lento_movimiento` lmov
       ),
-      PIVOTE AS (
+       PIVOTE AS (
         SELECT *, LAST_DAY(CURRENT_DATE(), YEAR) FECHA_FIN_ANIO,
         FROM FECHAS
-        UNPIVOT(FECHA_REFERENCIA FOR MES IN (DIA_ACTUAL, ACTUAL, MES_1, MES_2, MES_3, MES_4, MES_5, MES_6))
+        UNPIVOT(FECHA_REFERENCIA FOR MES IN (DIA_ACTUAL, ACTUAL,MES_A1,MES_A2,MES_A3,MES_A4,MES_A5,MES_A6, MES_1, MES_2, MES_3, MES_4, MES_5, MES_6))
       )
       SELECT
         *,
@@ -41,6 +47,10 @@ view: fact_lento_movimiento {
           ELSE 'ROTACION REGULAR'
         END CLASIFICACION_FILTRO
       FROM PIVOTE ;;
+
+
+
+
   }
   #DIMENSIONES DE CLASIFICACION
   dimension: clasificacion { #SE OCUPA PARA LAS GRAFICAS A 3 Y SEIS MESES
@@ -87,6 +97,15 @@ view: fact_lento_movimiento {
       label: "6 meses"
       value: "6meses"
     }
+
+    allowed_value: {
+      label:"3 meses Atras"
+      value: "3mesesA"
+    }
+    allowed_value: {
+      label: "6 meses Atras"
+      value: "6mesesA"
+    }
   }
 
   #DIMENSIONES TIPO YESNO PARA EL PARÁMETRO
@@ -99,7 +118,19 @@ view: fact_lento_movimiento {
     hidden: yes
     type: yesno
     sql: ${mes} ='ACTUAL' or ${mes} = 'MES_1'  or  ${mes} = 'MES_2' or  ${mes} = 'MES_3'  or  ${mes} = 'MES_4' or  ${mes} = 'MES_5' or  ${mes} = 'MES_6';;
+  }
 
+
+
+  dimension: 3_Meses_Anterior {
+    hidden: yes
+    type: yesno
+    sql: ${mes} ='ACTUAL' or ${mes} = 'MES_A1' or  ${mes} = 'MES_A2' or  ${mes} = 'MES_A3' ;;
+  }
+  dimension: 6_Meses_Anterior {
+    hidden: yes
+    type: yesno
+    sql: ${mes} ='ACTUAL' or ${mes} = 'MES_A1'  or  ${mes} = 'MES_A2' or  ${mes} = 'MES_A3'  or  ${mes} = 'MES_A4' or  ${mes} = 'MES_A5' or  ${mes} = 'MES_A6';;
   }
 
   #DIMENSIONES
@@ -148,7 +179,6 @@ view: fact_lento_movimiento {
   dimension: grupo_sap {
     description: "Código de grupo de materiales usado en SAP"
     label: "Grupo Artículos"
-    hidden: yes
     type: string
     sql: ${TABLE}.GRUPO ;;
   }
@@ -244,6 +274,35 @@ view: fact_lento_movimiento {
     }
     value_format: "#,##0.00"
   }
+
+
+  measure: total_stock_3_Anterior {
+    hidden: yes
+    label: "Stock a 3 meses Anterior"
+    type: sum
+    sql:  ${stock} ;;
+    filters: {
+      field: 3_Meses_Anterior
+      value: "yes"
+    }
+    value_format: "#,##0.00"
+  }
+  measure: total_stock_6_Anterior {
+    hidden: yes
+    label: "Stock a 6 meses Anterior"
+    type: sum
+    sql: ${stock} ;;
+    filters: {
+      field: 6_Meses_Anterior
+      value: "yes"
+    }
+    value_format: "#,##0.00"
+  }
+
+
+
+
+
   measure: total_stock_proyeccion {
     label: "Proyección Stock"
     type: number
@@ -252,6 +311,10 @@ view: fact_lento_movimiento {
             THEN ${total_stock_3}
           WHEN {% parameter rango_lento_movimiento %} = "6meses"
             THEN ${total_stock_6}
+          WHEN {% parameter rango_lento_movimiento %} = "3mesesA"
+            THEN ${total_stock_3_Anterior}
+          WHEN {% parameter rango_lento_movimiento %} = "6mesesA"
+            THEN ${total_stock_6_Anterior}
       END ;;
     value_format: "#,##0.00"
   }
@@ -284,6 +347,33 @@ view: fact_lento_movimiento {
     }
     value_format: "#,##0.00"
   }
+
+  measure: total_valor_3_Anterior {
+    hidden: yes
+    label: "Valor a 3 meses Anterior"
+    type: sum
+    sql:  ${valor} ;;
+    filters: {
+      field: 3_Meses_Anterior
+      value: "yes"
+    }
+    value_format: "#,##0.00"
+  }
+  measure: total_valor_6_Anterior {
+    hidden: yes
+    label: "Valor a 6 meses Anterior"
+    type: sum
+    sql: ${valor} ;;
+    filters: {
+      field: 6_Meses_Anterior
+      value: "yes"
+    }
+    value_format: "#,##0.00"
+  }
+
+
+
+
   measure: total_valor_proyeccion {
     label: "Proyección Valor"
     type: number
@@ -292,6 +382,10 @@ view: fact_lento_movimiento {
             THEN ${total_valor_3}
           WHEN {% parameter rango_lento_movimiento %} = "6meses"
             THEN ${total_valor_6}
+          WHEN {% parameter rango_lento_movimiento %} = "3mesesA"
+            THEN ${total_valor_3_Anterior}
+          WHEN {% parameter rango_lento_movimiento %} = "6mesesA"
+            THEN ${total_valor_6_Anterior}
       END ;;
     value_format: "#,##0.00"
   }
@@ -324,6 +418,30 @@ view: fact_lento_movimiento {
       mes: "MES_6"
     ]
   }
+
+  measure: inc_valor_3_anterior {
+    description: "Valor al cierre de mes 3 Anterior"
+    hidden: yes
+    type: sum
+    sql: ${valor} ;;
+    filters: [
+      mes: "MES_A3"
+    ]
+  }
+  measure: inc_valor_6_anterior {
+    description: "Valor al cierre de mes 6 Anterior"
+    hidden: yes
+    type: sum
+    sql: ${valor} ;;
+    filters: [
+      mes: "MES_A6"
+    ]
+  }
+
+
+
+
+
   measure: incremento {
     description: "Compara el último mes seleccionado con el mes actual"
     label: "Incremento"
@@ -332,6 +450,8 @@ view: fact_lento_movimiento {
       (CASE
         WHEN {% parameter rango_lento_movimiento %} = "3meses" THEN ${inc_valor_3}
         WHEN {% parameter rango_lento_movimiento %} = "6meses" THEN ${inc_valor_6}
+        WHEN {% parameter rango_lento_movimiento %} = "3mesesA" THEN ${inc_valor_3_anterior}
+        WHEN {% parameter rango_lento_movimiento %} = "6mesesA" THEN ${inc_valor_6_anterior}
       END) - ${inc_valor_1};;
     value_format: "#,##0.00"
   }

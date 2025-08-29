@@ -300,35 +300,8 @@ explore: fct_manufactura {
 
     relationship: many_to_one
   }
-
-
-#  join: fct_presupuesto_ventas{
-#    type: left_outer
-#    sql_on: ${fct_manufactura.id_grupo_material} = ${fct_presupuesto_ventas.id_grupo_material}
-#        and ${fct_manufactura.fecha_fin_real} = ${fct_presupuesto_ventas.fecha}
-#     --   and ${fct_manufactura.planta} = ${fct_presupuesto_ventas.planta}
-#        and ${fct_manufactura.planta_venta} =${fct_presupuesto_ventas.planta};;
-#    relationship: many_to_one
-
-  # }
-
-
-
-
-  # join:fct_utilidad_eficiencia_oee_rpm{
-
-  #   type: left_outer
-  #   sql_on: ${fct_manufactura.id_grupo_material} = ${fct_presupuesto_ventas.id_grupo_material}
-  #      and ${fct_manufactura.fecha_fin_real} = ${fct_presupuesto_ventas.fecha}
-  #       and ${fct_manufactura.planta_venta} =${fct_presupuesto_ventas.planta};;
-
-  #  relationship: many_to_one
-
-  #}
-
-
-
 }
+
 
 explore: fct_presupuesto_ventas {
 
@@ -441,6 +414,12 @@ explore: fct_rpm {
     sql_on: ${fct_rpm.fecha} = ${fecha.fecha} ;;
     relationship: many_to_one
   }
+  join: fact_rpm_cierre_automatico {
+    type: left_outer
+    sql_on: ${fct_rpm.orden} = ${fact_rpm_cierre_automatico.orden} ;;
+    relationship: many_to_one
+
+  }
 
 
   join: planta {
@@ -448,6 +427,7 @@ explore: fct_rpm {
     sql_on: ${fct_rpm.planta} = ${planta.planta_id} ;;
     relationship: many_to_one
   }
+
 }
 
 explore: fct_inventarios_ciclicos2 {}
@@ -460,7 +440,11 @@ explore: fact_lento_movimiento {
     type: left_outer
     sql_on: ${fact_lento_movimiento.grupo_sap} = ${grupo_materiales.id_grupo} ;;
     relationship: many_to_one
-    view_label: ""
+  }
+  join: material {
+    type: left_outer
+    sql_on:${fact_lento_movimiento.material}=${material.id_material};;
+    relationship: many_to_one
   }
 }
 
@@ -491,5 +475,49 @@ explore: fct_retorno_material_empaque {
 }
 
 explore: fct_produccion_pet {}
-explore: fct_devoluciones {}
+
 explore: fct_devoluciones_1 {}
+
+explore: bitacora {}
+explore:  fact_rpm_cierre_automatico{}
+
+explore: desperdicios_acdoca {
+  join: fecha {
+    type: inner
+    relationship: many_to_one
+    sql_on: ${desperdicios_acdoca.fecha_documento_date} = ${fecha.fecha} ;;
+  }
+}
+explore: desperdicios_mseg {
+  join: fecha {
+    type: inner
+    relationship: many_to_one
+    sql_on: ${desperdicios_mseg.fecha_documento_date} = ${fecha.fecha} ;;
+  }
+}
+
+explore: fct_devoluciones {
+  join: planta {
+    type: left_outer
+    sql_on: ${fct_devoluciones.id_planta} = ${planta.planta_id};;
+    relationship: many_to_one
+  }
+
+  join: cliente {
+    type: left_outer
+    sql_on: ${fct_devoluciones.cliente} = ${cliente.id_cliente} ;;
+    relationship: many_to_one
+  }
+
+  join: material {
+    type: left_outer
+    sql_on:${fct_devoluciones.material}=${material.id_material};;
+    relationship: many_to_one
+  }
+
+  join: fecha {
+    type: left_outer
+    relationship: many_to_one
+    sql_on: ${fct_devoluciones.fecha} = ${fecha.fecha} ;;
+  }
+}

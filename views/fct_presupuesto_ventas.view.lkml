@@ -1,7 +1,7 @@
 
 view: fct_presupuesto_ventas {
   derived_table: {
-    sql: select * from `@{GCP_PROJECT}.@{REPORTING_DATASET}.vw_bsc_presupuesto_ventas` ;;
+    sql: select * from `@{GCP_PROJECT}.@{REPORTING_DATASET}.tbl_bsc_presupuesto_ventas` ;;
   }
 
   measure: count {
@@ -35,11 +35,6 @@ view: fct_presupuesto_ventas {
     sql: ${TABLE}.ID_GRUPO_MATERIAL ;;
   }
 
-  dimension: cantidad {
-    type: number
-    sql: ${TABLE}.CANTIDAD ;;
-  }
-
   measure: total_cantidad {
     type: sum
      sql: ${TABLE}.CANTIDAD ;;
@@ -51,20 +46,15 @@ view: fct_presupuesto_ventas {
   }
 
 
-  dimension: monto {
-    type: number
-    sql: ${TABLE}.MONTO ;;
-  }
 
   set: detail {
     fields: [
         planta,
-  fecha,
-  id_cliente,
-  nombre_cliente,
-  id_grupo_material,
-  cantidad,
-  monto
+        fecha,
+        id_cliente,
+        nombre_cliente,
+        id_grupo_material,
+
     ]
   }
 }

@@ -4,20 +4,21 @@
   layout: newspaper
   preferred_viewer: dashboards-next
   description: ''
-  preferred_slug: NLEZNqqPtO4k8dbMBQFqfe
+  preferred_slug: 6rCX0btEfHMvaK2WqdSWQm
   elements:
   - title: MANUFACTURA
     name: MANUFACTURA
     model: bsc
     explore: fct_manufactura
     type: looker_grid
-    fields: [planta.nombre_planta, fct_manufactura.Linea_producto, fct_manufactura.Total_cantidad_base,
-      fct_manufactura.Total_cantidad_entregada, fct_manufactura.Total_NIVEL_REAL,
-      fecha.nombre_mes, fct_manufactura.Total_Monto_ventas, fct_manufactura.Total_OEE,
+    fields: [planta.planta_completo, fct_manufactura.Linea_producto, fct_manufactura.Total_OEE,
+      fct_manufactura.Total_cantidad_base, fct_manufactura.Total_cantidad_entregada,
+      fct_manufactura.Total_NIVEL_REAL, fct_manufactura.Total_Monto_ventas, fecha.nombre_mes,
       fct_manufactura.Puesto_trabajo]
     pivots: [fecha.nombre_mes]
-    sorts: [planta.nombre_planta, fct_manufactura.Linea_producto, fecha.nombre_mes]
-    subtotals: [planta.nombre_planta, fct_manufactura.Linea_producto]
+    sorts: [planta.planta_completo, fct_manufactura.Linea_producto, fecha.nombre_mes,
+      fct_manufactura.Total_OEE desc]
+    subtotals: [planta.planta_completo, fct_manufactura.Linea_producto, fct_manufactura.Puesto_trabajo]
     limit: 5000
     column_limit: 50
     total: true
@@ -37,9 +38,12 @@
     conditional_formatting_include_totals: false
     conditional_formatting_include_nulls: false
     show_sql_query_menu_options: false
-    column_order: [planta.nombre_planta, fct_manufactura.Linea_producto, fct_manufactura.Puesto_trabajo,
-      fct_manufactura.Total_cantidad_base, fct_manufactura.Total_cantidad_entregada,
-      fct_manufactura.Total_Monto_ventas, fct_manufactura.Total_NIVEL_REAL]
+    pinned_columns:
+      "$$$_row_numbers_$$$": left
+      planta.planta_completo: left
+    column_order: ["$$$_row_numbers_$$$", planta.planta_completo, fct_manufactura.Linea_producto,
+      fct_manufactura.Puesto_trabajo, fct_manufactura.Total_cantidad_base, fct_manufactura.Total_cantidad_entregada,
+      fct_manufactura.Total_Monto_ventas, fct_manufactura.Total_NIVEL_REAL, fct_manufactura.Total_OEE]
     show_totals: true
     show_row_totals: true
     truncate_header: false
@@ -53,6 +57,7 @@
       fct_manufactura.Total_Monto_ventas: BUDGET
       fecha.nombre_mes: Mes
       fct_presupuesto_ventas.total_monto: BUDGET
+      planta.planta_completo: PLANTA
     series_cell_visualizations:
       fct_manufactura.Total_cantidad_base:
         is_active: false
@@ -63,6 +68,7 @@
     series_collapsed:
       planta.planta_comercializadora: true
       planta.nombre_planta: true
+      planta.planta_completo: true
     header_font_color: "#fff"
     header_background_color: "#5e2129"
     x_axis_gridlines: false
@@ -95,8 +101,8 @@
     listen:
       LINEA PRODUCTO: grupo_materiales.descripcion
       FECHA FIN REAL: fct_manufactura.date_filter_FECHA_FIN_REAL
-      FECHA LIBERACION: fct_manufactura.date_filter_FECHA_LIBERACION
       Planta: planta.planta_comercializadora
+      Puesto Trabajo: fct_manufactura.Puesto_trabajo
     row: 0
     col: 0
     width: 24
@@ -105,7 +111,7 @@
   - name: FECHA FIN REAL
     title: FECHA FIN REAL
     type: field_filter
-    default_value: 2024/01/01 to 2024/02/02
+    default_value: 2025/01/01 to 2025/02/01
     allow_multiple_values: true
     required: false
     ui_config:
@@ -116,20 +122,6 @@
     explore: fct_manufactura
     listens_to_filters: []
     field: fct_manufactura.date_filter_FECHA_FIN_REAL
-  - name: FECHA LIBERACION
-    title: FECHA LIBERACION
-    type: field_filter
-    default_value: 2024/01/01 to 2024/02/01
-    allow_multiple_values: true
-    required: false
-    ui_config:
-      type: day_range_picker
-      display: inline
-      options: []
-    model: bsc
-    explore: fct_manufactura
-    listens_to_filters: []
-    field: fct_manufactura.date_filter_FECHA_LIBERACION
   - name: LINEA PRODUCTO
     title: LINEA PRODUCTO
     type: field_filter
@@ -141,7 +133,7 @@
       display: popover
     model: bsc
     explore: fct_manufactura
-    listens_to_filters: []
+    listens_to_filters: [FECHA FIN REAL]
     field: grupo_materiales.descripcion
   - name: Planta
     title: Planta
@@ -154,5 +146,19 @@
       display: popover
     model: bsc
     explore: fct_manufactura
-    listens_to_filters: []
+    listens_to_filters: [FECHA FIN REAL]
     field: planta.planta_comercializadora
+  - name: Puesto Trabajo
+    title: Puesto Trabajo
+    type: field_filter
+    default_value: ''
+    allow_multiple_values: true
+    required: false
+    ui_config:
+      type: advanced
+      display: popover
+      options: []
+    model: bsc
+    explore: fct_manufactura
+    listens_to_filters: [FECHA FIN REAL]
+    field: fct_manufactura.Puesto_trabajo

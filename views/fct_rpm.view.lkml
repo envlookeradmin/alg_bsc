@@ -1,16 +1,23 @@
-
 view: fct_rpm {
   derived_table: {
-    sql: select * from `envases-analytics-qa.RPT_S4H_MX.vw_fact_utilidad_eficiencia_oee_rpm`
-
+    sql:
+    SELECT
+      a.*,
+      b.ESTADO,
+      b.ESTATUS,
+    FROM
+      `envases-analytics-qa.RPT_S4H_MX.tbl_fact_utilidad_eficiencia_oee_rpm` as a
+      LEFT JOIN `RPT_S4H_MX.tbl_fact_rpm_cierre_automatico` as b
+      ON a.ORDEN = b.ORDEN
 
           --dejo funcionar
           --`envases-analytics-qa.RPT_S4H_MX.fact_utilidad_eficiencia_oee_rpm`
 
 
-           WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH) AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <= DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)
-
-
+    /*WHERE  DATE_TRUNC(CAST(FECHA AS DATE),DAY) >=
+      DATE_ADD(DATE_ADD(LAST_DAY(CAST({% date_start date_filter %} AS DATE)), INTERVAL 1 DAY),INTERVAL -3 MONTH)
+      AND DATE_TRUNC(CAST(FECHA AS DATE),DAY) <=
+      DATE_ADD((CAST({% date_start date_filter %} AS DATE)),INTERVAL -0 day)*/
       ;;
   }
 
@@ -22,10 +29,60 @@ view: fct_rpm {
 
   }
 
+  dimension: filtro_periodo {
+    type: yesno
+    sql:${fecha} BETWEEN DATETIME_SUB(CAST({% date_start date_filter %} AS DATE), INTERVAL 7 WEEK) AND CAST({% date_start date_filter %} AS DATE);;
+  }
+
+  dimension: filtro_3_meses {
+    type: number
+    sql: CASE WHEN ${fecha} >= ${fecha.d_fecha_ini} AND ${fecha} <= ${fecha.d_fecha_fin}
+    AND ${fin_ejecucion} BETWEEN ${fecha.d_fecha_ini} AND DATE_SUB(${fecha.d_fecha_fin}, INTERVAL 2 day)  THEN 1 ELSE 0 END ;;
+  }
+
   measure: count {
     type: count
     drill_fields: [detail*]
   }
+
+  measure: ordenes_cerradas {
+    type: count_distinct
+    sql:CASE WHEN ${TABLE}.ESTATUS ='CERRADA' AND CIERRE_MART = 'Si' THEN  ${TABLE}.ORDEN end ;;
+  }
+  measure: ordenes_abiertas {
+    type: count_distinct
+    sql:CASE WHEN ${TABLE}.ESTATUS !='CERRADA' AND CIERRE_MART != 'Si' THEN  ${TABLE}.ORDEN end ;;
+  }
+  measure: total_ordenes {
+    type: count_distinct
+    sql: ${TABLE}.ORDEN ;;
+  }
+  measure: Porcentaje_cierre {
+    type: number
+    sql: (${ordenes_cerradas} / ${total_ordenes}) ;;
+    drill_fields: [planta,departamento,total_ordenes,ordenes_cerradas, Porcentaje_cierre_drill]
+    value_format: "0.00%"
+  }
+
+  measure: Porcentaje_cierre_drill {
+    type: number
+    label: "Porcentaje Cierre"
+    sql: (${ordenes_cerradas} / ${total_ordenes}) ;;
+    drill_fields: [planta,nombre_linea,total_ordenes ,ordenes_cerradas, Porcentaje_cierre]
+    value_format: "0.00%"
+  }
+
+  #measure: ordenes_cerradas {
+  #  type: number
+  #  sql:${fact_rpm_cierre_automatico.ordenes_cerradas} ;;
+  #}
+ # measure: Porcentaje_cierre {
+ #   type: number
+ #   sql: (${fact_rpm_cierre_automatico.ordenes_cerradas} / ${fact_rpm_cierre_automatico.total_ordenes}) ;;
+ #   drill_fields: [planta,departamento,total_ordenes, ordenes_cerradas, Porcentaje_cierre]
+ #
+ #   value_format: "0.00%"
+ # }
 
   dimension: orden {
     type: string
@@ -96,9 +153,37 @@ view: fct_rpm {
     sql: ${TABLE}.FECHA ;;
   }
 
+  dimension: anio {
+    type: string
+    description: "Año"
+    sql: CAST(${TABLE}.YEAR AS STRING);;
+  }
+
+  dimension: semana_rpm {
+    type: string
+    description: "Semana con base a las reglas de negocio de RPM, de Lunes a Domingo"
+    sql: CAST(${TABLE}.WEEK_RPM AS STRING);;
+  }
+
+  dimension: mes {
+    type: string
+    description: "Mes"
+    label: "Mes"
+    sql: ${TABLE}.MONTH_NAME_SP ;;
+  }
+
+  dimension_group: date {
+    type: time
+    timeframes: [raw, date, week, month, quarter, year]
+    convert_tz: no
+    datatype: date
+    sql: ${TABLE}.FECHA ;;
+  }
+
   dimension: puesto_trabajo {
     type: string
     sql: ${TABLE}.PUESTO_TRABAJO ;;
+    drill_fields: [departamento,total_ordenes, ordenes_cerradas, Porcentaje_cierre]
   }
 
   dimension: id_linea_rp {
@@ -109,6 +194,12 @@ view: fct_rpm {
   dimension: nombre_linea {
     type: string
     sql: ${TABLE}.NOMBRE_LINEA ;;
+  }
+
+  dimension: departamento {
+    type: string
+    sql: ${TABLE}.DEPARTAMENTO ;;
+
   }
 
   dimension: notificaciones_posibles {
@@ -158,11 +249,11 @@ view: fct_rpm {
 
 
 
-
   measure: Total_notificaciones_anuladas {
     label: "Notificaciones Anuladas"
     type: sum
-    sql: case when  ${TABLE}.ANULADO='X' AND ${TABLE}.CREADO_POR = 'rpm_admin'  then 1 else 0 end ;;
+    sql: ${TABLE}.ANULADO ;;
+    # sql: ${TABLE}.NOTIFICACIONES_NO_ENVIADAS ;;
 
   }
 
@@ -198,9 +289,10 @@ view: fct_rpm {
 
   measure: Total_porcentaje_efiiencia {
     label: "% Eficiencia"
-    type: average
-    sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
-    value_format: "0.00\%"
+    type: number
+    #sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
+    sql: ${Total_notificaciones_reales}/ nullif(${Total_notificaciones_posibles},0) * 100 ;;
+    value_format: "0.0\%"
 
     html:
     {% if value >= 92.0 %}
@@ -213,13 +305,15 @@ view: fct_rpm {
     {{rendered_value}}
     {% endif %} ;;
 
-    drill_fields: [planta,Nombre,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia2,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_notificaciones_utiles,Total_utilidad2]
+    drill_fields: [planta,Nombre,departamento,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia2,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_notificaciones_utiles,Total_utilidad2]
   }
 
   measure: Total_utilidad{
-    label: "% Utilidad"
-    sql: (${Total_notificaciones_reales}-${Total_notificaciones_no_enviadas})/nullif(${Total_notificaciones_no_enviadas},0) ;;
-    value_format: "0.00\%"
+
+    #  COALESCE((NOTIFICACIONES_POSIBLES-NOTIFICACIONES_NO_ENVIADAS)/NULLIF(NOTIFICACIONES_REALES,0),0) AS UTILIDAD
+    #  sql: (${Total_notificaciones_reales}-${Total_notificaciones_no_enviadas})/nullif(${Total_notificaciones_no_enviadas},0) ;;
+    sql: (${Total_notificaciones_reales}-${Total_notificaciones_anuladas})/nullif(${Total_notificaciones_posibles},0) * 100 ;;
+    value_format: "0.0\%"
     html:
     {% if value >= 92.0 %}
     <span style="color: green;">{{ rendered_value }}</span></p>
@@ -230,16 +324,17 @@ view: fct_rpm {
     {% else %}
     {{rendered_value}}
     {% endif %} ;;
-    drill_fields: [planta,Nombre,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia2,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_notificaciones_utiles,Total_utilidad2]
+    drill_fields: [planta, departamento,Nombre,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia2,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_notificaciones_utiles,Total_utilidad2]
 
   }
 
 
   measure: Total_porcentaje_efiiencia2 {
     label: "% Eficiencia"
-    type: average
-    sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
-    value_format: "0.00\%"
+    type: number
+    #sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
+    sql: ${Total_notificaciones_reales}/ nullif(${Total_notificaciones_posibles},0) * 100;;
+    value_format: "0.0\%"
 
     html:
     {% if value >= 92.0 %}
@@ -257,8 +352,9 @@ view: fct_rpm {
 
   measure: Total_utilidad2{
     label: "% Utilidad"
-    sql: (${Total_notificaciones_reales}-${Total_notificaciones_no_enviadas})/nullif(${Total_notificaciones_no_enviadas},0) ;;
-    value_format: "0.00\%"
+
+    sql: (${Total_notificaciones_reales}-${Total_notificaciones_anuladas})/nullif(${Total_notificaciones_posibles},0) * 100 ;;
+    value_format: "0.0\%"
     html:
     {% if value >= 92.0 %}
     <span style="color: green;">{{ rendered_value }}</span></p>
@@ -280,9 +376,10 @@ view: fct_rpm {
 
   measure: Total_porcentaje_efiiencia3 {
     label: "% Eficiencia"
-    type: average
-    sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
-    value_format: "0.00\%"
+    type: number
+    # sql: ${TABLE}.PORCENTAJE_EFIIENCIA *100 ;;
+    sql: ${Total_notificaciones_reales}/ nullif(${Total_notificaciones_posibles},0) * 100 ;;
+    value_format: "0.0\%"
 
     html:
     {% if value >= 92.0 %}
@@ -295,13 +392,14 @@ view: fct_rpm {
     {{rendered_value}}
     {% endif %} ;;
 
-      drill_fields: [planta,nombre_linea,fecha,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia3,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_utilidad3]
-    }
+    drill_fields: [planta,nombre_linea,fecha,Total_notificaciones_posibles,Total_notificaciones_reales,Total_porcentaje_efiiencia3,Total_notificaciones_anuladas,Total_notificaciones_utiles,Total_utilidad3]
+  }
 
   measure: Total_utilidad3{
     label: "% Utilidad"
-    sql: (${Total_notificaciones_reales}-${Total_notificaciones_no_enviadas})/nullif(${Total_notificaciones_no_enviadas},0) ;;
-    value_format: "0.00\%"
+
+    sql: (${Total_notificaciones_reales}-${Total_notificaciones_anuladas})/nullif(${Total_notificaciones_posibles},0) * 100 ;;
+    value_format: "0.0\%"
     html:
     {% if value >= 92.0 %}
     <span style="color: green;">{{ rendered_value }}</span></p>
@@ -348,12 +446,12 @@ view: fct_rpm {
       registro_por_usuario,
       contador,
       anulado,
-      operacion,
+      # operacion,
       creado_por,
       inicio_ejecucion,
-      inicio_hora_real,
+      # inicio_hora_real,
       fin_ejecucion,
-      fin_real,
+      # fin_real,
       fecha,
       puesto_trabajo,
       id_linea_rp,
