@@ -464,6 +464,15 @@ explore: fact_lento_movimiento {
   }
 }
 
+explore: fact_lento_movimiento_historico {
+  join: grupo_materiales {
+    type: left_outer
+    sql_on: ${fact_lento_movimiento_historico.grupo_sap} = ${grupo_materiales.id_grupo} ;;
+    relationship: many_to_one
+    view_label: ""
+  }
+}
+
 explore: fct_logistica_transporte {}
 explore: fct_gastos_adicionales {}
 
