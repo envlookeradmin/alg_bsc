@@ -184,11 +184,15 @@ view: fact_lento_movimiento_historico {
     label: "Historico"
     allowed_value: {
       label:"3 meses"
-      value: "3"
+      value: "2"
     }
     allowed_value: {
       label: "6 meses"
-      value: "6"
+      value: "5"
+    }
+    allowed_value: {
+      label: "12 meses"
+      value: "11"
     }
   }
 
