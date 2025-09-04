@@ -129,6 +129,12 @@ view: fact_lento_movimiento_historico {
     sql: ${TABLE}.TIPO ;;
   }
 
+  dimension: director {
+    label: "Director"
+    type: string
+    sql: ${TABLE}.DIRECTOR ;;
+  }
+
   dimension: nivel_1 {
     label: "Nivel 1"
     type: string
