@@ -2,24 +2,8 @@
 view: fact_lento_movimiento_historico {
   derived_table: {
     sql: SELECT
-          *,
-          CURRENT_DATETIME("America/Mexico_City") AS FECHA_ACTUALIZACION,
-          Mes AS FECHA_REFERENCIA,
-          Meses_Rotacion_Regular * 30 AS Dias_Rotacion,
-          DATE_DIFF(Mes, Fecha_Produccion, DAY) DIAS_DIFF,
-          DATE_DIFF(LAST_DAY(Mes, YEAR), Fecha_Produccion, DAY) DIAS_DIFF_FIN,
-          CASE
-            WHEN DATE_DIFF(Mes, Fecha_Produccion, DAY) > Meses_Rotacion_Regular * 30 THEN 'LENTO MOVIMIENTO'
-            ELSE 'ROTACION REGULAR'
-          END CLASIFICACION,
-          CASE
-            WHEN
-              DATE_DIFF(Mes, Fecha_Produccion, DAY) > Meses_Rotacion_Regular * 30 THEN 'LENTO MOVIMIENTO'
-            WHEN
-              DATE_DIFF(LAST_DAY(Mes, YEAR), Fecha_Produccion, DAY) > Meses_Rotacion_Regular * 30 THEN 'RIESGO LENTO MOVIMIENTO'
-            ELSE 'ROTACION REGULAR'
-          END CLASIFICACION_FILTRO
-        FROM `RPT_S4H_MX.vw_fact_lento_mov_hist` hist ;;
+          *
+        FROM `RPT_S4H_MX.tbl_fact_lento_movimiento_historico` hist ;;
   }
 
   # Dimensiones
